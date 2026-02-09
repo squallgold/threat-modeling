@@ -1,4 +1,4 @@
-<!-- Threat Modeling Skill | Version 3.0.2 (20260204a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.0.3 (20260209a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 ---
 name: threat-modeling
@@ -18,6 +18,7 @@ description: |
   Flags:
     --debug    Enable debug mode, publish internal YAML data files and evaluation reports
     --lang=xx  Set output language (en, zh, ja, ko, es, fr, de, pt, ru)
+    --detailed Auto-trigger P8R detailed per-VR analysis reports after P8 completes
 hooks:
   PostToolUse:
     - matcher: "Write"
@@ -29,7 +30,7 @@ hooks:
 
 > **Note**: All relative paths in this skill are relative to `SKILL_PATH` (the directory containing this SKILL.md file).
 
-# Threat Modeling Skill v3.0.2 (20260204a)
+# Threat Modeling Skill v3.0.3 (20260209a)
 
 AI-native automated software risk analysis skill. LLM-driven, Code-First approach for comprehensive security risk assessment, threat modeling, security testing, penetration testing, and compliance checking.
 
@@ -37,7 +38,7 @@ AI-native automated software risk analysis skill. LLM-driven, Code-First approac
 
 ```
 ════════════════════════════════════════════════════════════════════════════════
-  🛡️ Threat Modeling Skill v3.0.2 (20260204a)
+  🛡️ Threat Modeling Skill v3.0.3 (20260209a)
 ════════════════════════════════════════════════════════════════════════════════
 ```
 
@@ -47,6 +48,7 @@ AI-native automated software risk analysis skill. LLM-driven, Code-First approac
 |------|-------------|---------|
 | `--debug` | Publish internal YAML data files, KB queries, coverage validation, and evaluation report | OFF |
 | `--lang=xx` | Set output language (en, zh, ja, ko, es, fr, de, pt, ru) | Auto-detect |
+| `--detailed` | Auto-trigger P8R (detailed per-VR analysis reports) after P8 completes | OFF |
 
 **Usage Examples**:
 ```bash
@@ -58,6 +60,12 @@ AI-native automated software risk analysis skill. LLM-driven, Code-First approac
 
 # Chinese output with debug
 /threat-model @my-project --lang=zh --debug
+
+# Generate detailed per-VR analysis reports after P8
+/threat-model @my-project --detailed
+
+# Full options
+/threat-model @my-project --detailed --debug --lang=zh
 ```
 
 ---
@@ -176,7 +184,16 @@ FOR each phase N in [1..8]:
     ├── P4-SECURITY-DESIGN-REVIEW.md
     ├── P5-STRIDE-THREATS.md
     ├── P6-RISK-VALIDATION.md
-    └── P7-MITIGATION-PLANNING.md
+    ├── P7-MITIGATION-PLANNING.md
+    ├── detailed/                              ← P8R only (--detailed flag)
+    │   ├── VR-001-{title-slug}.md
+    │   └── ...
+    └── html/                                  ← HTML output (report_generator.py)
+        ├── index.html
+        ├── {PROJECT}-RISK-ASSESSMENT-REPORT.html
+        ├── ...
+        └── detailed/
+            └── VR-001-{slug}.html
 ```
 
 **Debug Mode** (--debug, full structure):
@@ -213,8 +230,9 @@ FOR each phase N in [1..8]:
             │   ├── P7_mitigation_plan.yaml
             │   ├── P8_report_manifest.yaml
             │   └── P8_coverage_validation.yaml     ← Coverage metrics
-            └── reports/                       ← WORKING REPORTS
-                └── (phase reports during execution)
+            ├── reports/                       ← WORKING REPORTS
+            │   └── (phase reports during execution)
+            └── data/P8R_manifest.yaml         ← P8R manifest (--detailed only)
 ```
 
 ### Naming Convention
@@ -231,13 +249,13 @@ FOR each phase N in [1..8]:
 
 ```yaml
 # .phase_working/{SESSION_ID}/_session_meta.yaml
-schema_version: "3.0.2 (20260204a)"
+schema_version: "3.0.3 (20260209a)"
 session_id: "OPEN-WEBUI_20260130_143022"  # {PROJECT}_{YYYYMMDD_HHMMSS}
 project_name: "OPEN-WEBUI"
 project_path: "/path/to/project"
 started_at: "ISO8601 timestamp"
 language: "en"
-skill_version: "3.0.2 (20260204a)"
+skill_version: "3.0.3 (20260209a)"
 
 phases:
   P1:
@@ -271,6 +289,7 @@ phases:
 | AttackPath | AP-{Seq:03d} | P6 | Attack vectors (single path) |
 | AttackChain | AC-{Seq:03d} | P6 | Multi-step attack sequences |
 | TestCase | TC-{Seq:03d} | P8 | Penetration test cases |
+| DetailedRiskRpt | (uses VR-{Seq:03d}) | P8R | Per-VR analysis report |
 
 ### Finding vs Gap Semantic Boundary
 
@@ -422,6 +441,11 @@ Per Phase:
   2. Execute phase instructions
   3. Write to .phase_working/{SESSION_ID}/reports/P{N}-*.md
   4. Hook validates and extracts data
+
+Post-P8 (Optional):
+  1. If --detailed flag OR user confirms: Load @phases/P8R-DETAILED-REPORT.md
+  2. Generate per-VR detailed analysis reports
+  3. Write to Risk_Assessment_Report/detailed/VR-{NNN}-{slug}.md
 ```
 
 ---
@@ -439,6 +463,9 @@ Per Phase:
 | @scripts/module_discovery.py | P1 three-layer module discovery |
 | @scripts/phase_data.py | Phase validation and extraction |
 | @scripts/unified_kb_query.py | Knowledge base queries |
+| @scripts/report_generator.py | MD→HTML batch converter |
+| @phases/P8R-DETAILED-REPORT.md | Optional per-VR detailed reports |
+| @docs/REPORT-DESIGN.md | v3.0.3 report enhancement design |
 | @skill_path.sh | SKILL_PATH resolution helper |
 | @hooks/phase_end_hook.sh | PostToolUse automation |
 
@@ -464,6 +491,7 @@ Per Phase:
 | Mode | Files Published | Use Case |
 |------|-----------------|----------|
 | Default | 11 (4 required + 7 phase reports) | Production delivery |
+| `--detailed` | 11 + per-VR detailed reports | Comprehensive assessment |
 | `--debug` | 11 + YAML data + evaluation | Development, audit |
 
 ---
@@ -509,8 +537,11 @@ Per Phase:
 ### FSM State Machine Reference
 
 ```
-States: {INIT, P1, P2, P3, P4, P5, P6, P7, P8, DONE, ERROR}
+States: {INIT, P1, P2, P3, P4, P5, P6, P7, P8, P8R, DONE, ERROR}
 Transitions: δ(Pn, pn_complete) → P(n+1) where n ∈ {1..7}
+             δ(P8, p8_complete ∧ detailed) → P8R
+             δ(P8, p8_complete ∧ ¬detailed) → DONE
+             δ(P8R, p8r_complete) → DONE
 Accepting: {DONE}
 ```
 

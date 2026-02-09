@@ -1,4 +1,4 @@
-<!-- Threat Modeling Skill | Version 3.0.2 (20260204a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.0.3 (20260209a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 # Phase 3: Trust Boundary Evaluation
 
@@ -159,7 +159,7 @@ For each sub-task:
 │  1. DATA FILE (PRIMARY - Write First!)                              │
 │     Path: .phase_working/{SESSION_ID}/data/P3_boundary_context.yaml │
 │     Purpose: Structured data for P4 to read                         │
-│     Format: Valid YAML with schema_version: "3.0.2 (20260204a)"                   │
+│     Format: Valid YAML with schema_version: "3.0.3 (20260209a)"                   │
 │                                                                      │
 │  2. REPORT FILE (SECONDARY - Write After Data!)                     │
 │     Path: .phase_working/{SESSION_ID}/reports/P3-TRUST-BOUNDARY.md  │

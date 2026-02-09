@@ -1,4 +1,4 @@
-<!-- Threat Modeling Skill | Version 3.0.2 (20260204a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.0.3 (20260209a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 # Phase 4: Security Design Review
 
@@ -160,7 +160,7 @@ For each sub-task:
 │  1. DATA FILE (PRIMARY - Write First!)                              │
 │     Path: .phase_working/{SESSION_ID}/data/P4_security_gaps.yaml    │
 │     Purpose: Structured gap data for P5/P6/P7 to read               │
-│     Format: Valid YAML with schema_version: "3.0.2 (20260204a)"                   │
+│     Format: Valid YAML with schema_version: "3.0.3 (20260209a)"                   │
 │                                                                      │
 │  2. REPORT FILE (SECONDARY - Write After Data!)                     │
 │     Path: .phase_working/{SESSION_ID}/reports/P4-SECURITY-REVIEW.md │
@@ -867,7 +867,7 @@ For each domain:
 
 ```yaml
 # P4_security_gaps.yaml - Phase 4 Data Output
-schema_version: "3.0.2 (20260204a)"
+schema_version: "3.0.3 (20260209a)"
 phase: 4
 generated_at: "ISO8601 timestamp"
 
@@ -1099,7 +1099,7 @@ Before marking Phase 4 complete:
 
 **Data File Requirements**:
 - [ ] `.phase_working/{SESSION_ID}/data/P4_security_gaps.yaml` exists
-- [ ] YAML is valid with `schema_version: "3.0.2 (20260204a)"`
+- [ ] YAML is valid with `schema_version: "3.0.3 (20260209a)"`
 - [ ] `security_gaps.summary` contains all required statistics
 - [ ] `security_gaps.design_matrix` has all 16 domains
 - [ ] Each domain has `assessed`, `rating`, `gaps_count`, `risk_level`

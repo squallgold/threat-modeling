@@ -1,4 +1,4 @@
-<!-- Threat Modeling Skill | Version 3.0.2 (20260204a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.0.3 (20260209a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 # Phase 6: Risk Validation
 
@@ -176,7 +176,7 @@ P5.threat_inventory.total = verified + theoretical + pending + excluded
 │  1. DATA FILE (PRIMARY - Write First!)                              │
 │     Path: .phase_working/{SESSION_ID}/data/P6_validated_risks.yaml  │
 │     Purpose: Structured validated risk data for P7 to read          │
-│     Format: Valid YAML with schema_version: "3.0.2 (20260204a)"                   │
+│     Format: Valid YAML with schema_version: "3.0.3 (20260209a)"                   │
 │                                                                      │
 │  2. REPORT FILE (SECONDARY - Write After Data!)                     │
 │     Path: .phase_working/{SESSION_ID}/reports/P6-RISK-VALIDATION.md │
@@ -273,7 +273,7 @@ Do NOT validate risks from memory. MUST read P5 threat data to verify counts!
 ```yaml
 # Required section in P6_validated_risks.yaml
 input_aggregation:
-  schema_version: "3.0.2 (20260204a)"
+  schema_version: "3.0.3 (20260209a)"
   aggregated_at: "2026-01-31T12:00:00Z"
 
   # Source file checksums for integrity verification

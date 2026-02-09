@@ -1,4 +1,4 @@
-<!-- Threat Modeling Skill | Version 3.0.2 (20260204a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.0.3 (20260209a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 # Phase 5: STRIDE Threat Analysis
 
@@ -177,7 +177,7 @@ $SKILL_PATH/kb --cwe CWE-287               # Specific CWE details
 │  1. DATA FILE (PRIMARY - Write First!)                              │
 │     Path: .phase_working/{SESSION_ID}/data/P5_threat_inventory.yaml │
 │     Purpose: Structured threat data for P6 to read                  │
-│     Format: Valid YAML with schema_version: "3.0.2 (20260204a)"                   │
+│     Format: Valid YAML with schema_version: "3.0.3 (20260209a)"                   │
 │                                                                      │
 │  2. REPORT FILE (SECONDARY - Write After Data!)                     │
 │     Path: .phase_working/{SESSION_ID}/reports/P5-STRIDE-THREATS.md  │

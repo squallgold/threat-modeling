@@ -1,4 +1,4 @@
-<!-- Threat Modeling Skill | Version 3.0.2 (20260204a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.0.3 (20260209a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 # Phase 7: Mitigation Planning
 
@@ -175,7 +175,7 @@ $SKILL_PATH/kb --asvs-level L2                  # ASVS requirements
 │  1. DATA FILE (PRIMARY - Write First!)                              │
 │     Path: .phase_working/{SESSION_ID}/data/P7_mitigation_plan.yaml  │
 │     Purpose: Structured mitigation data for P8 to read              │
-│     Format: Valid YAML with schema_version: "3.0.2 (20260204a)"                   │
+│     Format: Valid YAML with schema_version: "3.0.3 (20260209a)"                   │
 │                                                                      │
 │  2. REPORT FILE (SECONDARY - Write After Data!)                     │
 │     Path: .phase_working/{SESSION_ID}/reports/P7-MITIGATION-PLAN.md │

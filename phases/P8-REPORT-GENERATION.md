@@ -1,4 +1,4 @@
-<!-- Threat Modeling Skill | Version 3.0.2 (20260204a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.0.3 (20260209a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 # Phase 8: Report Generation
 
@@ -22,10 +22,10 @@
 
 ```
 🧠 THINKING - P8 Entry Gate
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 📌 CORE PROBLEM
-Synthesize 8 reports, must include complete P6 POC and P7 mitigation code
+Synthesize 10-section main report + 7 auxiliary reports, must include complete P6 POC and P7 mitigation code
 
 📊 UPSTREAM DATA (Read from P1-P7 YAML)
 | Metric | Value | Source |
@@ -49,13 +49,13 @@ Synthesize 8 reports, must include complete P6 POC and P7 mitigation code
 - P7 mitigation code omitted
 - Attack chain diagrams missing
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⛔ STOP CHECK
 - All P1-P7 YAML read? [YES/NO]
 - All data counts recorded? [YES/NO]
 - Upstream data complete? [YES/NO]
 - Ready to continue PLANNING? [YES/NO]
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
 ⛔ **STOP CONDITION**: If any STOP CHECK = NO → Read all Phase data first before continuing
@@ -88,7 +88,7 @@ cat .phase_working/{SESSION_ID}/data/P7_mitigation_plan.yaml
 | # | Sub-task | Expected Output |
 |---|----------|-----------------|
 | T1 | Read all P1-P7 YAML data | Data aggregation |
-| T2 | Generate main report {PROJECT}-RISK-ASSESSMENT-REPORT.md | Main report (9 sections) |
+| T2 | Generate main report {PROJECT}-RISK-ASSESSMENT-REPORT.md | Main report (10 sections) |
 | T3 | Generate RISK-INVENTORY.md | P6 complete content |
 | T4 | Generate MITIGATION-MEASURES.md | P7 complete code |
 | T5 | Generate PENETRATION-TEST-PLAN.md | POC→TC mapping |
@@ -141,7 +141,7 @@ For each sub-task:
 |------------|--------|
 | ALL P1-P7 YAML data read? | [✅/❌] |
 | P8_report_manifest.yaml exists and valid? | [✅/❌] |
-| {PROJECT}-RISK-ASSESSMENT-REPORT.md (main report 9 sections)? | [✅/❌] |
+| {PROJECT}-RISK-ASSESSMENT-REPORT.md (main report 10 sections)? | [✅/❌] |
 | {PROJECT}-RISK-INVENTORY.md generated? | [✅/❌] |
 | {PROJECT}-MITIGATION-MEASURES.md generated? | [✅/❌] |
 | {PROJECT}-PENETRATION-TEST-PLAN.md generated? | [✅/❌] |
@@ -149,8 +149,12 @@ For each sub-task:
 | {PROJECT}-DFD-DIAGRAM.md generated? | [✅/❌] |
 | {PROJECT}-COMPLIANCE-REPORT.md generated? | [✅/❌] |
 | {PROJECT}-ATTACK-PATH-VALIDATION.md generated? | [✅/❌] |
+| Main report §0 contains Top-10 risk cards + STRIDE heatmap? | [✅/❌] |
+| Main report §1 contains 10 key findings? | [✅/❌] |
+| Main report §2 contains dependency graph + entry point stats? | [✅/❌] |
+| Main report §3 contains security scorecard + gap categorization? | [✅/❌] |
 | Main report §5 contains complete P6 POC code? | [✅/❌] |
-| Main report §6 contains complete attack chain ASCII diagrams? | [✅/❌] |
+| Main report §6 contains complete attack chain diagrams? | [✅/❌] |
 | Main report §8 contains complete P7 mitigation code? | [✅/❌] |
 | Phase reports copied to report directory? | [✅/❌] |
 | Hook validation passed (exit 0)? | [✅/❌] |
@@ -173,7 +177,7 @@ For each sub-task:
 
 Phase 8 CANNOT complete until:
 1. All 8 mandatory reports exist in `Risk_Assessment_Report/`
-2. Main report contains all 9 sections with complete content
+2. Main report contains all 10 sections with complete content
 3. P6 POCs and attack chains included verbatim (not summarized)
 4. P7 mitigations included with full code examples
 5. All phase outputs published to report directory
@@ -221,7 +225,7 @@ Phase 8 CANNOT complete until:
 # P8_report_manifest.yaml Schema Definition
 session_id: "{SESSION_ID}"
 timestamp: "ISO8601"
-version: "3.0.2 (20260204a)"
+version: "3.0.3 (20260209a)"
 
 generation_summary:
   total_reports: 8
@@ -229,7 +233,7 @@ generation_summary:
     - name: "{PROJECT}-RISK-ASSESSMENT-REPORT.md"
       type: main_synthesis
       status: generated | failed
-      sections_count: 9
+      sections_count: 10
     - name: "{PROJECT}-RISK-INVENTORY.md"
       type: risk_inventory
       source: P6
@@ -358,33 +362,76 @@ Create all 8 mandatory reports in `Risk_Assessment_Report/`
 
 **File**: `{PROJECT}-RISK-ASSESSMENT-REPORT.md`
 
-### Structure (9 Sections)
+### Structure (10 Sections)
 
 ```markdown
 # {PROJECT} Risk Assessment Report
 
 **Generated**: {timestamp}
-**Skill Version**: 3.0.2
+**Skill Version**: 3.0.3
 **Assessment Scope**: {project_path}
+
+---
+
+## 0. Risk Posture Overview
+
+### Top-10 Risk Cards
+
+| # | VR-ID | Title | CVSS | STRIDE | Priority | Affected Modules |
+|---|-------|-------|------|--------|----------|-----------------|
+| 1 | VR-001 | {title} | 9.8 | S, E | P0 | M-001, M-003 |
+| 2 | VR-002 | {title} | 9.5 | T | P0 | M-002 |
+| ... | ... | ... | ... | ... | ... | ... |
+| 10 | VR-010 | {title} | 7.2 | I | P1 | M-005 |
+
+### STRIDE × Severity Heatmap
+
+|          | CRITICAL | HIGH | MEDIUM | LOW |
+|----------|----------|------|--------|-----|
+| **S** Spoofing | N | N | N | N |
+| **T** Tampering | N | N | N | N |
+| **R** Repudiation | N | N | N | N |
+| **I** Info Disclosure | N | N | N | N |
+| **D** Denial of Service | N | N | N | N |
+| **E** Elevation | N | N | N | N |
+
+### Key Metrics Dashboard
+
+| Metric | Value |
+|--------|-------|
+| Total Risks | N |
+| Critical (P0) | N |
+| High (P1) | N |
+| Medium (P2) | N |
+| Low (P3) | N |
+| Average CVSS | X.X |
+| Attack Surface (Entry Points × Boundaries) | N × N |
+| Mitigation Coverage | N/N (XX%) |
 
 ---
 
 ## 1. Executive Summary
 
-### Key Findings
-- **Total Risks Identified**: N
-- **Critical (P0)**: N - Require immediate attention
-- **High (P1)**: N - Fix within 24-48 hours
-- **Medium (P2)**: N - Plan within 7 days
-- **Low (P3)**: N - Backlog for 30 days
+### 10 Key Findings
+1. {finding_1}
+2. {finding_2}
+...
+10. {finding_10}
 
-### Top 3 Critical Risks
-1. VR-001: {title} - CVSS {score}
-2. VR-002: {title} - CVSS {score}
-3. VR-003: {title} - CVSS {score}
+### Immediate Action Items (P0)
+| # | Risk | Action | Responsible | Deadline |
+|---|------|--------|-------------|----------|
+| 1 | VR-001 | {action} | {team} | Immediate |
+| 2 | VR-002 | {action} | {team} | 24h |
+| 3 | VR-003 | {action} | {team} | 48h |
 
-### Recommendations Summary
-{High-level recommendations}
+### Assessment Scope
+| Attribute | Value |
+|-----------|-------|
+| Project Path | {project_path} |
+| Tech Stack | {framework, language, db, ...} |
+| Module Count | N modules, N entry points |
+| Analysis Duration | P1-P8 timestamps |
 
 ---
 
@@ -394,13 +441,47 @@ Create all 8 mandatory reports in `Risk_Assessment_Report/`
 {From P2: DFD summary}
 {From P3: Trust boundary summary}
 
-### Architecture Diagram
-[ASCII or Mermaid diagram]
+### Module Dependency Graph
+
+```
+[ASCII dependency diagram showing module relationships]
+[Mark security-critical modules with ⚠️]
+```
+
+### Tech Stack Security Context
+
+| Component | Version | Known CVEs | Status |
+|-----------|---------|------------|--------|
+| {framework} | {version} | {cve_count} | {ok/warning/critical} |
+
+### Entry Point Summary
+
+| Type | Count | Auth Required | No Auth |
+|------|-------|--------------|---------|
+| API  | N | N | N |
+| UI   | N | N | N |
+| CLI  | N | N | N |
+| WebSocket | N | N | N |
+| gRPC | N | N | N |
 
 ### Key Components
-| Component | Type | Security Relevance |
-|-----------|------|-------------------|
-| {name} | {type} | {relevance} |
+
+| Component | Type | Security Relevance | Criticality |
+|-----------|------|-------------------|-------------|
+| {name} | {type} | {relevance} | ⚠️ Critical / Normal |
+
+### Trust Boundary Mechanisms
+
+| Boundary | Type | Controls | Crossing Flows |
+|----------|------|----------|----------------|
+| TB-001 | {type} | {controls} | N flows |
+
+### Security Observations (P1-P3)
+
+| Finding | Severity | Location | Description |
+|---------|----------|----------|-------------|
+| F-P1-001 | {sev} | {file:line} | {description} |
+| F-P2-003 | {sev} | {flow_id} | {description} |
 
 ---
 
@@ -408,14 +489,49 @@ Create all 8 mandatory reports in `Risk_Assessment_Report/`
 
 {From P4: Complete security_gaps content}
 
-### Assessment Matrix
-| Domain | Rating | Gaps | Risk Level |
-|--------|--------|------|------------|
-| AUTHN | Partial | 2 | High |
-| ... | ... | ... | ... |
+### Security Scorecard
 
-### Critical Security Gaps
-{Detailed gap descriptions}
+| Domain | Score | Checks | Passed | Gaps | Status |
+|--------|-------|--------|--------|------|--------|
+| AUTHN | XX/100 | N | N | N | ✅/⚠️/❌ |
+| AUTHZ | XX/100 | N | N | N | ✅/⚠️/❌ |
+| INPUT | XX/100 | N | N | N | ✅/⚠️/❌ |
+| OUTPUT | XX/100 | N | N | N | ✅/⚠️/❌ |
+| CLIENT | XX/100 | N | N | N | ✅/⚠️/❌ |
+| CRYPTO | XX/100 | N | N | N | ✅/⚠️/❌ |
+| LOG | XX/100 | N | N | N | ✅/⚠️/❌ |
+| ERROR | XX/100 | N | N | N | ✅/⚠️/❌ |
+| API | XX/100 | N | N | N | ✅/⚠️/❌ |
+| DATA | XX/100 | N | N | N | ✅/⚠️/❌ |
+| INFRA | XX/100 | N | N | N | ✅/⚠️/❌ |
+| SUPPLY | XX/100 | N | N | N | ✅/⚠️/❌ |
+| AI | XX/100 | N | N | N | ✅/⚠️/❌ |
+| MOBILE | XX/100 | N | N | N | ✅/⚠️/❌ |
+| CLOUD | XX/100 | N | N | N | ✅/⚠️/❌ |
+| AGENT | XX/100 | N | N | N | ✅/⚠️/❌ |
+
+### Threat-Gap Traceability Matrix
+
+| GAP ID | Severity | Related Threats | Validated Risks | Category |
+|--------|----------|----------------|-----------------|----------|
+| GAP-001 | CRITICAL | T-S-P-001-001 | VR-001 | G-IMPL |
+| GAP-002 | HIGH | T-T-DS-001-001 | VR-003 | G-ARCH |
+
+### Gap Categorization
+
+| Category | Code | Count | Description |
+|----------|------|-------|-------------|
+| Architecture | G-ARCH | N | Requires architecture redesign |
+| Implementation | G-IMPL | N | Code/configuration fix |
+| Process | G-PROC | N | Policy/process change |
+
+### Gap Priority Matrix
+
+|          | LOW Effort | MEDIUM Effort | HIGH Effort |
+|----------|-----------|---------------|-------------|
+| CRITICAL | {GAP-xxx} | {GAP-xxx} | {GAP-xxx} |
+| HIGH | {GAP-xxx} | {GAP-xxx} | {GAP-xxx} |
+| MEDIUM | {GAP-xxx} | {GAP-xxx} | {GAP-xxx} |
 
 ---
 
@@ -427,7 +543,11 @@ Create all 8 mandatory reports in `Risk_Assessment_Report/`
 | STRIDE | Count | Critical | High | Medium | Low |
 |--------|-------|----------|------|--------|-----|
 | S | N | N | N | N | N |
-| ... | ... | ... | ... | ... | ... |
+| T | N | N | N | N | N |
+| R | N | N | N | N | N |
+| I | N | N | N | N | N |
+| D | N | N | N | N | N |
+| E | N | N | N | N | N |
 
 ### Threat Coverage
 {Element-by-element threat mapping}
@@ -439,12 +559,18 @@ Create all 8 mandatory reports in `Risk_Assessment_Report/`
 {From P6: Complete poc_details content - DO NOT SUMMARIZE}
 
 ### Validated Risks
+
 {Full VR-xxx details with POC code}
 
+For each VR:
+- **Status Badge**: ✅ Verified | ⚠️ Theoretical | ❓ Pending | ❌ Excluded
+- **Complete POC code** in fenced code blocks
+- **Execution environment**: Required tools and setup
+
 ### POC Summary
-| POC ID | Risk | Status | Difficulty |
-|--------|------|--------|------------|
-| POC-001 | VR-001 | ✅ Verified | Medium |
+| POC ID | Risk | Status | Difficulty | Tools |
+|--------|------|--------|------------|-------|
+| POC-001 | VR-001 | ✅ Verified | Medium | {tools} |
 
 ---
 
@@ -453,7 +579,19 @@ Create all 8 mandatory reports in `Risk_Assessment_Report/`
 {From P6: Complete attack_chains content - DO NOT SUMMARIZE}
 
 ### Attack Chain: {name}
-[ASCII attack flow diagram]
+
+**ASCII Diagram**:
+```
+[Attack flow ASCII art]
+```
+
+**Mermaid Source** (for HTML rendering):
+```mermaid
+graph LR
+    A[Entry Point] --> B[Exploit Step 1]
+    B --> C[Exploit Step 2]
+    C --> D[Target Asset]
+```
 
 ### Feasibility Matrix
 | Path ID | Entry | Target | Score | Priority |
@@ -482,11 +620,17 @@ Create all 8 mandatory reports in `Risk_Assessment_Report/`
 ### Immediate Actions (P0)
 {Full MIT-xxx details with code}
 
+For each MIT:
+- **Difficulty**: LOW / MEDIUM / HIGH
+- **Effort**: Estimated hours/days
+- **Before/After code** in side-by-side format
+- **Prerequisites**: MIT-xxx dependencies if any
+
 ### Implementation Roadmap
-| Timeline | Actions | Owner |
-|----------|---------|-------|
-| Immediate | MIT-001, MIT-002 | Security |
-| 7 days | MIT-003, MIT-004 | Backend |
+| Timeline | Actions | Owner | Difficulty | Effort |
+|----------|---------|-------|------------|--------|
+| Immediate | MIT-001, MIT-002 | Security | HIGH | 2d |
+| 7 days | MIT-003, MIT-004 | Backend | MEDIUM | 3d |
 
 ---
 
@@ -522,6 +666,10 @@ See: {PROJECT}-DFD-DIAGRAM.md
 - P4-SECURITY-DESIGN-REVIEW.md
 - P5-STRIDE-THREATS.md
 - P6-RISK-VALIDATION.md
+- P7-MITIGATION-PLAN.md
+
+### E. Detailed Risk Analysis (if --detailed)
+See: Risk_Assessment_Report/detailed/VR-xxx-*.md
 ```
 
 ---
@@ -699,7 +847,24 @@ Synthesis of P1-P3 content.
 
 **File**: `{PROJECT}-DFD-DIAGRAM.md`
 
-P2 DFD content with Mermaid source.
+P2 DFD content with **ASCII + Mermaid side-by-side**:
+
+```markdown
+### Data Flow Diagram
+
+**ASCII Representation**:
+```
+[ASCII DFD diagram]
+```
+
+**Mermaid Source** (rendered in HTML version):
+```mermaid
+graph TD
+    EI-001[User Browser] -->|DF-001: HTTP Request| P-001[Web Server]
+    P-001 -->|DF-002: Query| DS-001[(Database)]
+    ...
+```
+```
 
 ---
 
@@ -758,7 +923,11 @@ cp .phase_working/{SESSION_ID}/reports/P7-MITIGATION-PLAN.md Risk_Assessment_Rep
 | Check | Severity |
 |-------|----------|
 | All 8 reports generated | BLOCKING |
-| Main report has all 9 sections | BLOCKING |
+| Main report has all 10 sections | BLOCKING |
+| §0 Risk Posture Overview with Top-10 cards | BLOCKING |
+| §1 Executive Summary with 10 key findings | BLOCKING |
+| §2 Architecture with entry point stats | WARNING |
+| §3 Security Assessment with scorecard | WARNING |
 | P6 content included completely | BLOCKING |
 | P7 content included completely | BLOCKING |
 | attack_path_coverage section in pentest plan | WARNING |
@@ -769,15 +938,34 @@ cp .phase_working/{SESSION_ID}/reports/P7-MITIGATION-PLAN.md Risk_Assessment_Rep
 
 ---
 
+## P8R: Detailed Risk Reports (Optional)
+
+After P8 completes, prompt the user:
+
+```
+Report generation complete. Generate detailed per-risk analysis reports? [Y/N]
+(This creates individual VR-xxx analysis reports in Risk_Assessment_Report/detailed/)
+```
+
+If user confirms (or `--detailed` flag was set):
+- Read `@phases/P8R-DETAILED-REPORT.md` for instructions
+- Generate per-VR detailed reports in `Risk_Assessment_Report/detailed/`
+
+---
+
 ## Completion Checklist
 
 Before marking Phase 8 complete:
 
 **Report Generation**:
 - [ ] All 8 reports created in Risk_Assessment_Report/
+- [ ] Main report §0 has Top-10 risk cards and STRIDE heatmap
+- [ ] Main report §1 has 10 key findings
+- [ ] Main report §2 has dependency graph and entry point stats
+- [ ] Main report §3 has security scorecard and gap categorization
 - [ ] Main report includes complete P6 POCs
 - [ ] Main report includes complete P7 mitigations
-- [ ] Attack chain diagrams included
+- [ ] Attack chain diagrams included (ASCII + Mermaid for DFD)
 
 **Penetration Test Plan Coverage**:
 - [ ] attack_path_coverage section present in pentest plan
@@ -792,4 +980,4 @@ Before marking Phase 8 complete:
 
 ---
 
-**End of Phase 8 Instructions** (~300 lines, ~2.5K tokens)
+**End of Phase 8 Instructions** (~450 lines, ~4K tokens)

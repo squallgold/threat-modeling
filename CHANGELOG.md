@@ -1,4 +1,4 @@
-<!-- Threat Modeling Skill | Version 3.0.2 (20260204a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.0.3 (20260209a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 # Changelog
 
@@ -6,6 +6,35 @@ All notable changes to the Threat Modeling Skill will be documented in this file
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [3.0.3] - 2026-02-09
+
+### Report System Enhancement (3-Layer)
+- **Layer 1 - Main Report Optimization**: Expanded from 9 to 10 sections
+  - New §0 Risk Posture Overview: Top-10 risk cards, STRIDE×Severity heatmap, key metrics dashboard
+  - Enhanced §1 Executive Summary: 10 key findings (was 5), immediate action items
+  - Enhanced §2 System Architecture: Dependency graph, tech stack security context, entry point quantification
+  - Enhanced §3 Security Design Assessment: Security scorecard (X/100 per domain), gap categorization (G-ARCH/G-IMPL/G-PROC)
+  - Enhanced §5 Risk Validation: Verification status badges, POC execution environment
+  - Enhanced §6 Attack Path: ASCII + Mermaid side-by-side for DFD
+  - Enhanced §8 Mitigation: Difficulty rating, effort breakdown, before/after code
+- **Layer 2 - P8R Detailed Risk Reports**: Optional post-P8 phase with 12 analysis elements per VR
+  - New `phases/P8R-DETAILED-REPORT.md` phase file
+  - New `--detailed` flag for auto-triggering P8R
+  - Per-VR reports: Risk overview, entry points, data flow, root cause, exploit scenario, POC, impact, attack chains, related vulns, mitigation, verification, traceability
+- **Layer 3 - HTML Output Support**: Batch MD→HTML converter
+  - New `scripts/report_generator.py` with Mermaid CDN rendering
+  - Severity color coding (CRITICAL=red, HIGH=orange, MEDIUM=yellow, LOW=blue)
+  - Navigation sidebar, index page, print-friendly media queries
+
+### New Files
+- `phases/P8R-DETAILED-REPORT.md` - Optional detailed risk analysis phase
+- `scripts/report_generator.py` - MD→HTML batch converter
+- `docs/REPORT-DESIGN.md` - v3.0.3 report enhancement design document
+
+### Schema Changes
+- Added `DetailedRiskReport` entity and `P8RManifest` schema to `data-model.yaml`
+- FSM extended with P8R state: δ(P8, p8_complete ∧ detailed) → P8R → DONE
 
 ## [3.0.2] - 2026-02-04
 

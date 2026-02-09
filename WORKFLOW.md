@@ -1,8 +1,8 @@
-<!-- Threat Modeling Skill | Version 3.0.2 (20260204a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.0.3 (20260209a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 # WORKFLOW.md - Orchestration Contracts
 
-**Version**: 3.0.2 (20260204a)
+**Version**: 3.0.3 (20260209a)
 **Purpose**: Phase orchestration, **structured data contracts**, validation gates, **FSM-enforced execution**
 
 > **Cross-References**:
@@ -20,12 +20,14 @@
 │                    STRIDE Threat Modeling FSM                    │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                  │
-│  States: {INIT, P1, P2, P3, P4, P5, P6, P7, P8, DONE, ERROR}    │
+│  States: {INIT, P1, P2, P3, P4, P5, P6, P7, P8, P8R, DONE, ERROR}│
 │                                                                  │
 │  Transitions:                                                    │
 │    δ(INIT, start) → P1                                          │
 │    δ(Pn, pn_complete) → P(n+1)  where n ∈ {1..7}                │
-│    δ(P8, p8_complete) → DONE                                    │
+│    δ(P8, p8_complete ∧ detailed) → P8R                          │
+│    δ(P8, p8_complete ∧ ¬detailed) → DONE                        │
+│    δ(P8R, p8r_complete) → DONE                                  │
 │    δ(Pn, validation_fail) → ERROR                               │
 │    δ(ERROR, recovery_success) → Pn  (rollback)                  │
 │                                                                  │
@@ -37,11 +39,14 @@
 ### State Transition Diagram
 
 ```
-    INIT ──start──► P1 ──p1_complete──► P2 ──► P3 ──► P4 ──► P5 ──► P6 ──► P7 ──► P8 ──► DONE
-                     │                   │      │      │      │      │      │      │
-                     └─validation_fail──►├──────┴──────┴──────┴──────┴──────┴──────┘
-                                         ▼
-                                       ERROR ──recovery_success──► (rollback to last valid Pn)
+    INIT ──start──► P1 ──p1_complete──► P2 ──► P3 ──► P4 ──► P5 ──► P6 ──► P7 ──► P8 ──┬──► DONE
+                     │                   │      │      │      │      │      │      │     │
+                     └─validation_fail──►├──────┴──────┴──────┴──────┴──────┴──────┘     │
+                                         ▼                                                │
+                                       ERROR ──recovery_success──► (rollback)             │
+                                                                                          │
+                                         (if --detailed or user confirms)                 │
+                                         P8 ──p8_complete∧detailed──► P8R ──p8r_complete──┘
 ```
 
 ### Phase Internal 4-Gate Sub-FSM
@@ -70,6 +75,7 @@ DATA FLOW CHAIN (strict, no gaps):
   P2 → writes P2_dfd_elements.yaml → P3 reads it
   ...
   P7 → writes P7_mitigation_plan.yaml → P8 reads it
+  P8R (optional) → reads P6+P7+P8 YAML → writes P8R_manifest.yaml + VR-xxx.md files
 
 ❌ FORBIDDEN: P{N+1} reading P{N}'s .md report for data extraction
 ✅ REQUIRED: P{N+1} reading P{N}'s .yaml data file directly
@@ -100,13 +106,13 @@ mkdir -p ".phase_working/${SESSION_ID}/reports"
 
 ```yaml
 # .phase_working/{SESSION_ID}/_session_meta.yaml
-schema_version: "3.0.2 (20260204a)"
+schema_version: "3.0.3 (20260209a)"
 session_id: "{PROJECT}_{YYYYMMDD_HHMMSS}"
 project_name: "PROJECT-NAME"
 project_path: "/absolute/path"
 started_at: "ISO8601"
 language: "en"                    # en|zh|ja|ko
-skill_version: "3.0.2 (20260204a)"
+skill_version: "3.0.3 (20260209a)"
 current_state: "P1"               # FSM current state
 
 phases:
@@ -153,6 +159,9 @@ Create 8 items at session start:
   {"content": "Phase 7: Mitigation Planning", "status": "pending"},
   {"content": "Phase 8: Report Generation", "status": "pending"}
 ]
+
+# If --detailed flag is set, also add:
+# {"content": "Phase 8R: Detailed Risk Analysis (optional)", "status": "pending"}
 ```
 
 ---
@@ -175,6 +184,14 @@ FOR each phase N in [1..8]:
   6. PostToolUse hook validates YAML
   7. IF exit_code == 0: δ(P{N}, p{n}_complete) → P{N+1}
   8. IF exit_code != 0: δ(P{N}, validation_fail) → ERROR, then fix and retry
+
+POST-P8 (Optional P8R):
+  IF --detailed flag OR user confirms after P8:
+    1. Read @phases/P8R-DETAILED-REPORT.md
+    2. Read P6+P7+P8 YAML data
+    3. Generate per-VR detailed analysis reports (12 elements each)
+    4. Write: Risk_Assessment_Report/detailed/VR-{NNN}-{slug}.md
+    5. Write: data/P8R_manifest.yaml
 ```
 
 ### Checkpoint Phases (User Confirmation Required)
@@ -203,11 +220,12 @@ FOR each phase N in [1..8]:
 | P6 | `P6_validated_risks.yaml` | risk_details[], poc_details[], attack_paths[] | count conservation |
 | P7 | `P7_mitigation_plan.yaml` | mitigations[], roadmap (P0-P3) | every VR has MIT |
 | P8 | `P8_report_manifest.yaml` | generated_reports[], statistics | all reports generated |
+| P8R | `P8R_manifest.yaml` | reports[], cross_reference_integrity | count conservation (optional) |
 
 ### Common Header (All Phases)
 
 ```yaml
-schema_version: "3.0.2 (20260204a)"
+schema_version: "3.0.3 (20260209a)"
 phase: {N}
 generated_at: "ISO8601"
 input_ref: "P{N-1}_*.yaml"  # Traceability (except P1)
@@ -340,6 +358,8 @@ P5.threat_inventory.summary.total ==
 | Required (4) | RISK-ASSESSMENT-REPORT, RISK-INVENTORY, MITIGATION-MEASURES, PENETRATION-TEST-PLAN | P6-P8 YAML |
 | Extended (4) | ARCHITECTURE-ANALYSIS, DFD-DIAGRAM, COMPLIANCE-REPORT, ATTACK-PATH-VALIDATION | P1-P7 YAML |
 | Phase (7) | P1-P7-*.md | Phase execution |
+| Detailed (P8R) | detailed/VR-{NNN}-{slug}.md per validated risk | P6+P7 YAML (optional) |
+| HTML | html/*.html + html/index.html | report_generator.py (optional) |
 
 ### Multi-Session Support
 
