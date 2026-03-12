@@ -1,4 +1,4 @@
-<!-- Threat Modeling Skill | Version 3.0.3 (20260209a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.0.5 (20260312a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 # Phase 2: Call Flow & DFD Analysis
 
@@ -8,9 +8,7 @@
 
 ---
 
-## ⚠️ MANDATORY: 4-Phase Gating Protocol (BLOCKING)
-
-> **CRITICAL**: You MUST complete the following four stages in sequence and **output the result of each stage**. Skipping any stage will degrade analysis quality!
+## ⚠️ 4-Phase Gating Protocol — THINKING → PLANNING → EXECUTION → REFLECTION (output each stage)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ### 🧠 THINKING - Phase 2 Entry Gate
@@ -96,20 +94,21 @@ cat .phase_working/{SESSION_ID}/data/P1_project_context.yaml
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-**Step 3: TaskCreate for ALL sub-tasks** (MANDATORY)
+**Step 3**: ⚠️ `TaskCreate` ALL sub-tasks before implementation (MANDATORY).
 
-⚠️ Before starting any implementation, you MUST execute `TaskCreate` to create all sub-tasks!
+**Step 4: Multi-Perspective Parallel Analysis** (RECOMMENDED)
+
+Launch `‖` sub-agents via `Task` tool (`subagent_type: "general-purpose"`, `model: "opus"`). Each receives P1 data + its perspective prompt:
+
+**‖ Architect**: "Analyze DFD as a software architect. Focus: module interaction completeness, layer boundary crossings, data flow path coverage, component coupling patterns. Flag missing inter-module connections and incomplete call chains."
+
+**‖ Security Expert**: "Analyze DFD as a security expert. Focus: sensitive data flow protection gaps, unencrypted channels, implicit trust assumptions in data paths, unauthenticated data store access, data exposure at external interfaces."
+
+**Merge**: Union of findings → deduplicate by element ID → keep highest severity on conflict.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-### ⚡ EXECUTION LOOP
+### ⚡ EXECUTION — TaskUpdate(in_progress) → Execute → Verify → TaskUpdate(completed) | Fail → Retry 3x → CHECKPOINT
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-For each sub-task:
-1. `TaskUpdate(status: "in_progress")`
-2. Implement sub-task
-3. Verify: Does output match expectations?
-4. If verification passes: `TaskUpdate(status: "completed")` → Next sub-task
-5. If verification fails: Diagnose → Fix → Retry (max 3x) → If still failing: CHECKPOINT to request user decision
 
 **Output Order** (CRITICAL):
 1. **Write YAML first**: `.phase_working/{SESSION_ID}/data/P2_dfd_elements.yaml`
@@ -156,34 +155,12 @@ python scripts/phase_data.py --p2-validate-coverage --root .
 
 ---
 
-## ⚠️ MANDATORY OUTPUT RULES
+### ⚠️ Dual Output (YAML first → MD second)
 
-> **CRITICAL**: Phase 2 requires TWO outputs - a YAML data file AND a Markdown report.
-
-### Dual Output Requirement
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│  PHASE 2 MUST PRODUCE TWO FILES:                                    │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                      │
-│  1. DATA FILE (PRIMARY - Write First!)                              │
-│     Path: .phase_working/{SESSION_ID}/data/P2_dfd_elements.yaml     │
-│     Purpose: Structured data for P3 to read                         │
-│     Format: Valid YAML with schema_version: "3.0.3 (20260209a)"                   │
-│                                                                      │
-│  2. REPORT FILE (SECONDARY - Write After Data!)                     │
-│     Path: .phase_working/{SESSION_ID}/reports/P2-DFD-ANALYSIS.md    │
-│     Purpose: Human-readable DFD analysis report                     │
-│     Format: Markdown with diagrams and tables                       │
-│                                                                      │
-│  INPUT REQUIREMENT:                                                  │
-│     Read: .phase_working/{SESSION_ID}/data/P1_project_context.yaml  │
-│     ❌ DO NOT read P1's .md report for data extraction              │
-│     ✅ REQUIRED: Parse P1's YAML for entry_points, modules          │
-│                                                                      │
-└─────────────────────────────────────────────────────────────────────┘
-```
+1. **YAML** (PRIMARY): `.phase_working/{SESSION_ID}/data/P2_dfd_elements.yaml`
+2. **MD** (SECONDARY): `.phase_working/{SESSION_ID}/reports/P2-DFD-ANALYSIS.md`
+- **Input**: Read `P1_project_context.yaml` (❌ NOT .md reports)
+- ❌ Writing only .md without .yaml | ✅ .yaml is the authoritative data source
 
 ### Required Data Sections in YAML
 
@@ -342,7 +319,7 @@ P2 uses a two-track analysis approach:
 **Output**: `P2_traversal_tasks.yaml`
 
 ```yaml:P2_traversal_tasks
-schema_version: "3.0.3 (20260209a)"
+schema_version: "3.0.5 (20260312a)"
 session_id: "OPEN-WEBUI-20260130_143022"
 generated_at: "2026-01-30T14:30:22Z"
 
@@ -434,7 +411,7 @@ Output required:
 > **ID Numbering Convention**: Sub-agents use offset sequences (100+, 200+, etc.) to avoid ID conflicts during parallel analysis. The merge step (P2.T.2) normalizes all IDs to standard `{Entity}-{Seq:03d}` format.
 
 ```yaml:P2_traverse_001
-schema_version: "3.0.3 (20260209a)"
+schema_version: "3.0.5 (20260312a)"
 task_id: TT-001
 target_id: M-001
 analyzed_at: "2026-01-30T14:35:00Z"
@@ -478,7 +455,7 @@ coverage_metrics:
 **Output**: `P2_full_traversal.yaml`
 
 ```yaml:P2_full_traversal
-schema_version: "3.0.3 (20260209a)"
+schema_version: "3.0.5 (20260312a)"
 session_id: "OPEN-WEBUI-20260130_143022"
 merged_at: "2026-01-30T15:00:00Z"
 
@@ -528,7 +505,7 @@ else:
 **Output**: `P2_coverage_report.yaml`
 
 ```yaml:P2_coverage_report
-schema_version: "3.0.3 (20260209a)"
+schema_version: "3.0.5 (20260312a)"
 session_id: "OPEN-WEBUI-20260130_143022"
 validated_at: "2026-01-30T15:10:00Z"
 
@@ -588,7 +565,7 @@ validation_result:
 | `unknown` | Unknown root cause | High | Manual investigation required |
 
 ```yaml:P2_gap_tasks
-schema_version: "3.0.3 (20260209a)"
+schema_version: "3.0.5 (20260312a)"
 analyzed_at: "2026-01-30T15:15:00Z"
 
 gaps_identified:
@@ -1279,4 +1256,4 @@ summary:
 
 ---
 
-**End of Phase 2 Instructions** (~450 lines, ~3.5K tokens)
+**End of Phase 2 Instructions** (~1260 lines, ~10K tokens)

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Threat Modeling Skill | Version 3.0.3 (20260209a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause
+# Threat Modeling Skill | Version 3.0.5 (20260312a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause
 
 """
 Unified Security Knowledge Base Query Tool for STRIDE Threat Modeling.

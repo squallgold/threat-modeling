@@ -1,4 +1,4 @@
-<!-- Threat Modeling Skill | Version 3.0.3 (20260209a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.0.5 (20260312a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 ---
 description: Logging & monitoring (structured telemetry, redaction, integrity, detection & alerting)
@@ -9,7 +9,7 @@ languages:
 alwaysApply: false
 ---
 
-rule_id: codeguard-0-logging
+rule_id: control-set-07-logging
 
 ## Logging & Monitoring
 

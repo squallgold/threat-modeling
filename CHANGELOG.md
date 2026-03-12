@@ -1,4 +1,4 @@
-<!-- Threat Modeling Skill | Version 3.0.3 (20260209a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.0.5 (20260312a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 # Changelog
 
@@ -6,6 +6,18 @@ All notable changes to the Threat Modeling Skill will be documented in this file
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [3.0.5] - 2026-03-12
+
+### Audit Fix Release (47/67 issues resolved)
+- **CRITICAL**: Fixed 5 phantom CLI flags (`--capec CWE`→`--full-chain`, `--stride-mapping`→`--stride-controls`, `--p8r`, `--session`→`--session-id`)
+- **HIGH**: KBQueryContract phantom flags removed, codeguard→control-set mapping (56 refs), FSM precondition check (方案A), SKILL.md frontmatter compliance, version string unification
+- **MEDIUM**: Data contract fixes (P2 blocks, P4 findings, P6 risk_details), path traversal validation, token budget accuracy, count conservation documentation
+- **Knowledge Base**: SQLite rebuilt (7.96 MB), 0 codeguard references remaining
+- **Infrastructure**: PostToolUse hook system removed (D7:A), build_knowledge_base.py restored from archive
+
+### Changed Files
+- 8 phase files, 5 scripts, 18 control-set files, 75 reference files, data-model.yaml, SKILL.md, WORKFLOW.md
 
 ## [3.0.3] - 2026-02-09
 

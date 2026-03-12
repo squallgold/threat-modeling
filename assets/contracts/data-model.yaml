@@ -1,7 +1,7 @@
-# Threat Modeling Skill | Version 3.0.3 (20260209a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause
+# Threat Modeling Skill | Version 3.0.5 (20260312a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause
 
 # Data Model Contract
-# Version: 3.0.3 (20260209a)
+# Version: 3.0.5 (20260312a)
 # Purpose: Define all entity schemas and relationships for threat modeling
 
 # =============================================================================
@@ -957,7 +957,7 @@ P8RManifest:
     schema_version:
       type: string
       required: true
-      value: "3.0.3"
+      value: "3.0.5"
     phase:
       type: string
       required: true
@@ -2337,7 +2337,7 @@ KBQueryContract:
           purpose: "Map threats to relevant control domains"
           output_usage: "Validate STRIDE-to-domain mappings"
       optional_queries:
-        - pattern: "--control {ext_domain_code} --full"
+        - pattern: "--control {ext_domain_code}"
           domains: [INFRA, SUPPLY, AI, MOBILE, CLOUD, AGENT]
           purpose: "Extended domain assessment (may have limited KB support)"
       output_integration:
@@ -2359,14 +2359,14 @@ KBQueryContract:
           purpose: "Retrieve CWE details for threat classification"
           output_usage: "Populate threat.cwe field"
           trigger: "For each identified threat category"
-        - pattern: "--capec CWE-{NNN}"
-          purpose: "Find CAPEC attack patterns related to CWE"
-          output_usage: "Populate threat.capec field"
+        - pattern: "--full-chain CWE-{NNN}"
+          purpose: "Get complete attack chain: STRIDE→CWE→CAPEC→ATT&CK"
+          output_usage: "Populate threat.capec and threat.attack_refs fields"
         - pattern: "--attack-technique {technique_id}"
           purpose: "Map to MITRE ATT&CK for threat context"
           output_usage: "Populate threat.attack_refs field"
       batch_queries:
-        - pattern: "--stride-mapping {S|T|R|I|D|E}"
+        - pattern: "--stride-controls {S|T|R|I|D|E}"
           purpose: "Get all CWE/CAPEC mappings for a STRIDE category"
           output_usage: "Validate threat classification completeness"
       output_integration:
@@ -2385,10 +2385,10 @@ KBQueryContract:
       level: OPTIONAL_FOR_ATTACK_CONTEXT
       description: "P6 MAY query KB for attack pattern details during POC design"
       optional_queries:
-        - pattern: "--capec {CAPEC-NNN} --full"
+        - pattern: "--capec {CAPEC-NNN}"
           purpose: "Get detailed attack pattern for POC design"
           output_usage: "Inform POC exploitation steps"
-        - pattern: "--attack-technique {T-XXXX} --procedures"
+        - pattern: "--attack-technique {T-XXXX}"
           purpose: "Get real-world procedure examples"
           output_usage: "Validate attack feasibility"
       output_integration:
@@ -2507,7 +2507,7 @@ KBQueryContract:
   # KB Usage Logging Template
   # ============================================================
   usage_log_template:
-    schema_version: "3.0.3 (20260209a)"
+    schema_version: "3.0.5 (20260312a)"
     phase: "P{N}"
     kb_available: true
     queries_made:
@@ -2522,9 +2522,9 @@ KBQueryContract:
         usage: "Enriched T-T-P-001-003"
         cache_hit: true
     errors:
-      - query: "--capec CWE-999"
+      - query: "--full-chain CWE-999"
         error_type: "not_found"
-        action_taken: "Skipped CAPEC mapping"
+        action_taken: "Skipped full-chain mapping"
     coverage_summary:
       total_queries: 25
       successful_queries: 24

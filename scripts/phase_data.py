@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Threat Modeling Skill | Version 3.0.3 (20260209a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause
+# Threat Modeling Skill | Version 3.0.5 (20260312a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause
 
 """
 Phase Data Manager for STRIDE Threat Modeling Workflow.
@@ -64,15 +64,15 @@ import yaml
 # Configuration
 # ============================================================================
 
-SCHEMA_VERSION = "3.0.3"
-SESSION_SCHEMA_VERSION = "3.0.3"  # Version for session management
+SCHEMA_VERSION = "3.0.5"
+SESSION_SCHEMA_VERSION = "3.0.5"  # Version for session management
 
 # Standard YAML block names per phase (from WORKFLOW.md v2.2.2)
 # NOTE: l1_coverage is EMBEDDED inside data_flows block, not extracted separately
 # NOTE: P3/P4 blocks are output as Markdown tables, not YAML blocks (per WORKFLOW.md)
 PHASE_BLOCKS = {
     1: ["module_inventory", "entry_point_inventory", "discovery_checklist"],
-    2: ["dfd_elements", "data_flows"],  # l1_coverage is embedded in data_flows
+    2: ["dfd_elements", "data_flows", "interface_inventory", "data_flow_traces"],  # l1_coverage is embedded in data_flows
     3: ["trust_boundaries", "interfaces", "data_nodes", "cross_boundary_flows"],
     4: ["security_gaps", "design_matrix"],
     5: ["threat_inventory"],
@@ -133,7 +133,7 @@ YAML_BLOCK_PATTERN = re.compile(
 ID_PATTERNS = {
     # P1 Entity Patterns
     'module': re.compile(r'^M-\d{3}$'),                       # M-001
-    'entry_point': re.compile(r'^EP-\d{3}$'),                 # EP-001
+    'entry_point': re.compile(r'^EP-[A-Z]+-\d{3}$'),          # EP-API-001
     'finding': re.compile(r'^F-P[1-8]-\d{3}$'),              # F-P1-001
 
     # P2 DFD Element Patterns
@@ -1185,6 +1185,9 @@ def load_session(project_root: str, session_id: Optional[str] = None) -> Optiona
 
     # If session_id provided, load that session
     if session_id:
+        # Validate session_id to prevent path traversal
+        if '..' in session_id or '/' in session_id or '\\' in session_id:
+            return None
         session_file = phase_working / session_id / "_session.yaml"
         if session_file.exists():
             try:
@@ -1401,6 +1404,9 @@ def extract_from_markdown(
             "blocks": extraction["block_names"],
         }
 
+        # NOTE: Phase marked complete after extraction, before validation.
+        # Validation results are advisory (exit 0 always). If stricter enforcement
+        # is needed (v3.1.0 FSM), move completion marking after validation pass.
         if "phases_completed" not in session:
             session["phases_completed"] = []
 
@@ -1668,6 +1674,7 @@ def query_phase(
         "checklist": "discovery_checklist",
         "dfd": "dfd_elements",
         "flows": "data_flows",
+        "gaps": "security_gaps",
         "threats": "threat_inventory",
         "risks": "validated_risks",
         "attacks": "attack_paths",
@@ -1806,7 +1813,7 @@ def validate_p1_checklist(project_root: str) -> Dict:
     Validation Gates (from design doc):
     - BLOCKING: All checklist items have status in [COMPLETED, NOT_APPLICABLE]
     - BLOCKING: No items with scanned: false
-    - BLOCKING: schema_version must be "3.0.3" (P1-GAP-12)
+    - BLOCKING: schema_version must match SCHEMA_VERSION (P1-GAP-12)
     - WARNING: Sum of counts matches entry_point_inventory length
     """
     phase_data = load_phase_data(1, project_root)
@@ -1827,7 +1834,7 @@ def validate_p1_checklist(project_root: str) -> Dict:
             "gate": "schema_version",
             "message": f"Invalid schema_version: '{schema_version}'. Expected: '{SCHEMA_VERSION}'",
             "action_required": "FIX",
-            "hint": "Ensure P1_project_context.yaml has 'schema_version: \"3.0.3\"' at the top",
+            "hint": f"Ensure P1_project_context.yaml has 'schema_version: \"{SCHEMA_VERSION}\"' at the top",
         }
 
     blocks = phase_data.get("blocks", {})
@@ -2743,6 +2750,11 @@ def validate_p6_validated_risks(project_root: str) -> Dict:
                         "severity": "BLOCKING",
                     })
 
+    # Count conservation (4-bucket detail level):
+    # P5.total = verified + theoretical + pending + excluded
+    # Note: CP1 checkpoint uses 2-bucket form: consolidated + excluded = total
+    #        where consolidated = verified + theoretical + pending (semantically equivalent)
+
     # Count conservation check (basic)
     declared_counts = risk_summary.get("total_verified", 0) + \
                      risk_summary.get("total_theoretical", 0) + \
@@ -3315,7 +3327,7 @@ def extract_vr_mapping_from_phase_data(phase6_data: Dict) -> Dict[str, List[str]
 
     # Handle different data structures
     if isinstance(validated_risks, dict):
-        risk_list = validated_risks.get("risks", [])
+        risk_list = validated_risks.get("risk_details", validated_risks.get("risks", []))
     elif isinstance(validated_risks, list):
         risk_list = validated_risks
     else:
@@ -4594,10 +4606,10 @@ def verify_p6_findings_coverage(project_root: str, session_id: Optional[str] = N
         # Extract P6 validated risks and their references
         p6_blocks = p6_data.get("blocks", {})
         validated_risks = p6_blocks.get("validated_risks", {})
-        # Support both "risks" and "risk_details" keys for compatibility
-        risks = validated_risks.get("risks", [])
+        # Primary key: risk_details; fallback: risks (for compatibility)
+        risks = validated_risks.get("risk_details", [])
         if not risks:
-            risks = validated_risks.get("risk_details", [])
+            risks = validated_risks.get("risks", [])
         if isinstance(risks, dict):
             risks = list(risks.values())
 
@@ -4872,7 +4884,7 @@ def verify_p8_attack_coverage(project_root: str, session_id: Optional[str] = Non
 
         # Extract P6 validated risks (for VR → TC mapping)
         validated_risks = p6_blocks.get("validated_risks", {})
-        risks = validated_risks.get("risks", [])
+        risks = validated_risks.get("risk_details", validated_risks.get("risks", []))
         if isinstance(risks, dict):
             risks = list(risks.values())
 
@@ -5327,7 +5339,7 @@ def _generate_phase_summary(phase: int, phase_data: Dict) -> Dict:
         attack_paths = blocks.get("attack_paths", {})
 
         if isinstance(validated_risks, dict):
-            risks = validated_risks.get("risks", [])
+            risks = validated_risks.get("risk_details", validated_risks.get("risks", []))
             summary["validated_risks"] = len(risks) if isinstance(risks, list) else _count_items(risks)
 
             # Excluded threats
@@ -5416,6 +5428,19 @@ def phase_end_protocol(
         result["overall_status"] = "error"
         result["error"] = f"Invalid phase number: {phase}. Must be 1-8."
         return result
+
+    # FSM enforcement: verify precondition (方案A - v3.0.5)
+    # Ensures phases execute in order: P(N) requires P(N-1) completed
+    if phase > 1 and session_id:
+        session = load_session(project_root, session_id)
+        if session:
+            phases_completed = session.get("phases_completed", [])
+            required_phase = phase - 1
+            if required_phase not in phases_completed:
+                result["overall_status"] = "error"
+                result["error"] = f"FSM violation: Phase {phase} requires Phase {required_phase} to be completed first"
+                result["hint"] = f"Complete Phase {required_phase} before proceeding to Phase {phase}"
+                return result
 
     # Determine session ID if not provided
     if not session_id:

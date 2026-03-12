@@ -1,4 +1,4 @@
-<!-- Threat Modeling Skill | Version 3.0.3 (20260209a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.0.5 (20260312a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 # Phase 7: Mitigation Planning
 
@@ -8,10 +8,9 @@
 
 ---
 
-## ⚠️ MANDATORY: 4-Phase Gating Protocol (BLOCKING)
+## ⚠️ 4-Phase Gating Protocol — THINKING → PLANNING → EXECUTION → REFLECTION (output each stage)
 
-> **CRITICAL**: You MUST complete the following four stages in sequence and **output the result of each stage**. Skipping any stage will degrade analysis quality!
-> **⚠️ CHECKPOINT PHASE**: P7 is a user checkpoint - request user confirmation after completing mitigation measures.
+> **⚠️ CHECKPOINT**: P7 — Request user confirmation after mitigation planning.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ### 🧠 THINKING - Phase 7 Entry Gate
@@ -98,20 +97,27 @@ cat .phase_working/{SESSION_ID}/data/P6_validated_risks.yaml
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-**Step 3: TaskCreate for ALL sub-tasks** (MANDATORY)
+**Step 3**: ⚠️ `TaskCreate` ALL sub-tasks before implementation (MANDATORY).
 
-⚠️ BEFORE starting any implementation, you MUST execute `TaskCreate` to create ALL sub-tasks!
+**Step 4: Multi-Perspective Parallel Analysis** (RECOMMENDED)
+
+Launch 5 `‖` sub-agents via `Task` tool (`subagent_type: "general-purpose"`, `model: "opus"`). Each receives P6 validated risks + its perspective prompt, independently designs mitigations for all VR-xxx:
+
+**‖ Architect**: "Design mitigations from an architecture perspective. Focus: structural remediation (component isolation, defense-in-depth reinforcement, trust boundary hardening), architectural refactoring recommendations, dependency decoupling to reduce blast radius."
+
+**‖ Code Auditor**: "Design mitigations from a code audit perspective. Focus: secure coding fixes (input validation, output encoding, parameterized queries), CWE-specific remediation patterns, code-level patches with before/after examples."
+
+**‖ Security Researcher**: "Design mitigations from a security research perspective. Focus: control selection based on industry best practices (NIST, OWASP ASVS, CIS), emerging defense techniques, compensating controls for risks that cannot be fully remediated."
+
+**‖ Penetration Tester**: "Design mitigations from a penetration testing perspective. Focus: verify mitigation effectiveness against known attack paths (from P6 AP/AC), bypass resistance evaluation, regression test scenarios to confirm fix completeness."
+
+**‖ Tester**: "Design mitigation validation plans from a QA perspective. Focus: test case design for each MIT-xxx (unit/integration/E2E), acceptance criteria, regression test coverage, automated test feasibility, CI/CD integration points."
+
+**Merge**: For each VR-xxx → synthesize MIT-xxx combining: architectural fix (Architect) + code patch (Code Auditor) + control selection (Security Researcher) + bypass resistance (Penetration Tester) + validation plan (Tester).
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-### ⚡ EXECUTION LOOP
+### ⚡ EXECUTION — TaskUpdate(in_progress) → Execute → Verify → TaskUpdate(completed) | Fail → Retry 3x → CHECKPOINT
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-For each sub-task:
-1. `TaskUpdate(status: "in_progress")`
-2. Execute sub-task
-3. Verify: Does output meet expectations?
-4. If verification passes: `TaskUpdate(status: "completed")` → proceed to next
-5. If verification fails: Diagnose → Fix → Retry (max 3x) → If still failing: CHECKPOINT to request user decision
 
 **Output Sequence** (CRITICAL):
 1. **Write YAML first**: `.phase_working/{SESSION_ID}/data/P7_mitigation_plan.yaml`
@@ -161,34 +167,12 @@ $SKILL_PATH/kb --asvs-level L2                  # ASVS requirements
 
 ---
 
-## ⚠️ MANDATORY OUTPUT RULES
+### ⚠️ Dual Output (YAML first → MD second)
 
-> **CRITICAL**: Phase 7 requires TWO outputs - a YAML data file AND a Markdown report.
-
-### Dual Output Requirement
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│  PHASE 7 MUST PRODUCE TWO FILES:                                    │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                      │
-│  1. DATA FILE (PRIMARY - Write First!)                              │
-│     Path: .phase_working/{SESSION_ID}/data/P7_mitigation_plan.yaml  │
-│     Purpose: Structured mitigation data for P8 to read              │
-│     Format: Valid YAML with schema_version: "3.0.3 (20260209a)"                   │
-│                                                                      │
-│  2. REPORT FILE (SECONDARY - Write After Data!)                     │
-│     Path: .phase_working/{SESSION_ID}/reports/P7-MITIGATION-PLAN.md │
-│     Purpose: Human-readable mitigation roadmap                      │
-│     Format: Markdown with code examples and timelines               │
-│                                                                      │
-│  INPUT REQUIREMENT:                                                  │
-│     Read: .phase_working/{SESSION_ID}/data/P6_validated_risks.yaml  │
-│     ❌ DO NOT read previous .md reports for data extraction         │
-│     ✅ REQUIRED: Parse YAML files for validated_risks               │
-│                                                                      │
-└─────────────────────────────────────────────────────────────────────┘
-```
+1. **YAML** (PRIMARY): `.phase_working/{SESSION_ID}/data/P7_mitigation_plan.yaml`
+2. **MD** (SECONDARY): `.phase_working/{SESSION_ID}/reports/P7-MITIGATION-PLAN.md`
+- **Input**: Read `P6_validated_risks.yaml` (❌ NOT .md reports)
+- ❌ Writing only .md without .yaml | ✅ .yaml is the authoritative data source
 
 ### Required Data Sections in YAML
 
@@ -272,7 +256,7 @@ $SKILL_PATH/kb --cwe CWE-89 --mitigations      # CWE-specific mitigations
 $SKILL_PATH/kb --control authentication         # Security control details
 $SKILL_PATH/kb --asvs-level L2                  # ASVS requirements
 $SKILL_PATH/kb --asvs-chapter V4                # ASVS by chapter
-$SKILL_PATH/kb --wstg V1                        # OWASP WSTG tests
+$SKILL_PATH/kb --wstg-category ATHN              # OWASP WSTG tests
 ```
 
 ### KB Mitigation Sources (MANDATORY per GAP-4 Contract)
@@ -654,4 +638,4 @@ Before marking Phase 7 complete:
 
 ---
 
-**End of Phase 7 Instructions** (~250 lines, ~2K tokens)
+**End of Phase 7 Instructions** (~640 lines, ~5K tokens)

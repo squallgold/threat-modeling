@@ -1,4 +1,4 @@
-<!-- Threat Modeling Skill | Version 3.0.3 (20260209a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.0.5 (20260312a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 # Phase 8: Report Generation
 
@@ -8,9 +8,7 @@
 
 ---
 
-## ⚠️ MANDATORY: 4-Phase Gating Protocol (BLOCKING)
-
-> **CRITICAL**: You MUST complete the following four stages in sequence and **output the result of each stage**. Skipping any stage will degrade analysis quality!
+## ⚠️ 4-Phase Gating Protocol — THINKING → PLANNING → EXECUTION → REFLECTION (output each stage)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ### 🧠 THINKING - Phase 8 Entry Gate
@@ -101,20 +99,24 @@ cat .phase_working/{SESSION_ID}/data/P7_mitigation_plan.yaml
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-**Step 3: TaskCreate for ALL sub-tasks** (MANDATORY)
+**Step 3**: ⚠️ `TaskCreate` ALL sub-tasks before implementation (MANDATORY).
 
-⚠️ BEFORE starting any implementation, you MUST execute `TaskCreate` to create ALL sub-tasks!
+**Step 4: Parallel Report Generation** (RECOMMENDED)
+
+Launch 4 `‖` sub-agent groups via `Task` tool (`subagent_type: "general-purpose"`, `model: "opus"`). Each generates 2 reports from P1-P7 data:
+
+| ‖ Group | Report A | Report B |
+|---------|----------|----------|
+| **‖ G1** | {PROJECT}-RISK-ASSESSMENT-REPORT.md (main, 10 sections) | {PROJECT}-RISK-INVENTORY.md |
+| **‖ G2** | {PROJECT}-MITIGATION-MEASURES.md | {PROJECT}-PENETRATION-TEST-PLAN.md |
+| **‖ G3** | {PROJECT}-ARCHITECTURE-ANALYSIS.md | {PROJECT}-DFD-DIAGRAM.md |
+| **‖ G4** | {PROJECT}-COMPLIANCE-REPORT.md | {PROJECT}-ATTACK-PATH-VALIDATION.md |
+
+**Constraint**: Each report MUST include complete P6 POC code and P7 mitigation code — NO summarization or truncation.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-### ⚡ EXECUTION LOOP
+### ⚡ EXECUTION — TaskUpdate(in_progress) → Execute → Verify → TaskUpdate(completed) | Fail → Retry 3x → CHECKPOINT
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-For each sub-task:
-1. `TaskUpdate(status: "in_progress")`
-2. Execute sub-task
-3. Verify: Does output meet expectations?
-4. If verification passes: `TaskUpdate(status: "completed")` → proceed to next
-5. If verification fails: Diagnose → Fix → Retry (max 3x) → If still failing: CHECKPOINT to request user decision
 
 **Output Sequence** (CRITICAL):
 1. **Write YAML first**: `.phase_working/{SESSION_ID}/data/P8_report_manifest.yaml`
@@ -225,7 +227,7 @@ Phase 8 CANNOT complete until:
 # P8_report_manifest.yaml Schema Definition
 session_id: "{SESSION_ID}"
 timestamp: "ISO8601"
-version: "3.0.3 (20260209a)"
+version: "3.0.5 (20260312a)"
 
 generation_summary:
   total_reports: 8
@@ -308,7 +310,7 @@ Synthesize all phase outputs into complete threat model documentation. Every fin
 ```bash
 $SKILL_PATH/kb --compliance nist-csf
 $SKILL_PATH/kb --compliance iso27001
-$SKILL_PATH/kb --asvs-level L2 --chapter V1
+$SKILL_PATH/kb --asvs-level L2 --asvs-chapter V1
 ```
 
 ---
@@ -368,7 +370,7 @@ Create all 8 mandatory reports in `Risk_Assessment_Report/`
 # {PROJECT} Risk Assessment Report
 
 **Generated**: {timestamp}
-**Skill Version**: 3.0.3
+**Skill Version**: 3.0.5
 **Assessment Scope**: {project_path}
 
 ---
@@ -980,4 +982,4 @@ Before marking Phase 8 complete:
 
 ---
 
-**End of Phase 8 Instructions** (~450 lines, ~4K tokens)
+**End of Phase 8 Instructions** (~985 lines, ~8K tokens)

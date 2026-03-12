@@ -1,11 +1,11 @@
-<!-- Threat Modeling Skill | Version 3.0.3 (20260209a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.0.5 (20260312a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 ---
 description: No Hardcoded Credentials
 alwaysApply: true
 ---
 
-rule_id: codeguard-1-hardcoded-credentials
+rule_id: control-set-ext-10-hardcoded-credentials
 
 # No Hardcoded Credentials
 

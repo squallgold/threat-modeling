@@ -1,4 +1,4 @@
-<!-- Threat Modeling Skill | Version 3.0.3 (20260209a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.0.5 (20260312a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 # Phase 6: Risk Validation
 
@@ -8,10 +8,9 @@
 
 ---
 
-## ⚠️ MANDATORY: 4-Phase Gating Protocol (BLOCKING)
+## ⚠️ 4-Phase Gating Protocol — THINKING → PLANNING → EXECUTION → REFLECTION (output each stage)
 
-> **CRITICAL**: You MUST complete the following four stages in sequence and **output the result of each stage**. Skipping any stage will degrade analysis quality!
-> **⚠️ CHECKPOINT PHASE**: P6 is a user checkpoint - request user confirmation after completing complex analysis.
+> **⚠️ CHECKPOINT**: P6 — Request user confirmation after risk validation.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ### 🧠 THINKING - Phase 6 Entry Gate
@@ -105,20 +104,25 @@ cat .phase_working/{SESSION_ID}/data/P5_threat_inventory.yaml
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-**Step 3: TaskCreate for ALL sub-tasks** (MANDATORY)
+**Step 3**: ⚠️ `TaskCreate` ALL sub-tasks before implementation (MANDATORY).
 
-⚠️ BEFORE starting any implementation, you MUST execute `TaskCreate` to create ALL sub-tasks!
+**Step 4: Multi-Perspective Parallel Analysis** (RECOMMENDED)
+
+Launch 4 `‖` sub-agents via `Task` tool (`subagent_type: "general-purpose"`, `model: "opus"`). Each receives P1-P5 data + its perspective prompt:
+
+**‖ Architect**: "Validate risks from an architecture perspective. Focus: systemic risk patterns across component boundaries, cascading failure scenarios, architectural single-points-of-failure, risk amplification through component coupling, defense-in-depth gap analysis for validated threats."
+
+**‖ Attack Path Analyst**: "Design attack paths (AP-xxx) and multi-step attack chains (AC-xxx) for all threats. Focus: chain construction showing prerequisite→exploit→impact flow, lateral movement paths, privilege escalation sequences, ASCII attack chain diagrams."
+
+**‖ Vulnerability Researcher**: "Validate threat exploitability using CVE/KEV correlation, CVSS scoring, and known vulnerability databases. Focus: real-world evidence of exploitability, severity calibration with environmental context, verified vs theoretical vs pending classification."
+
+**‖ Penetration Test Planner**: "Design POC specifications (POC-xxx) and test cases for Critical/High threats. Focus: specific tools and commands, execution steps, success/failure criteria, environment prerequisites, safe testing boundaries."
+
+**Merge**: Union of all VR-xxx → cross-reference: architectural risk patterns from Architect + AP/AC from Analyst + CVE/CVSS from Researcher + POC from Planner into each validated risk.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-### ⚡ EXECUTION LOOP
+### ⚡ EXECUTION — TaskUpdate(in_progress) → Execute → Verify → TaskUpdate(completed) | Fail → Retry 3x → CHECKPOINT
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-For each sub-task:
-1. `TaskUpdate(status: "in_progress")`
-2. Execute sub-task
-3. Verify: Does output meet expectations?
-4. If verification passes: `TaskUpdate(status: "completed")` → proceed to next
-5. If verification fails: Diagnose → Fix → Retry (max 3x) → If still failing: CHECKPOINT to request user decision
 
 **Output Sequence** (CRITICAL):
 1. **Write YAML first**: `.phase_working/{SESSION_ID}/data/P6_validated_risks.yaml`
@@ -162,35 +166,12 @@ P5.threat_inventory.total = verified + theoretical + pending + excluded
 
 ---
 
-## ⚠️ MANDATORY OUTPUT RULES
+### ⚠️ Dual Output (YAML first → MD second)
 
-> **CRITICAL**: Phase 6 requires TWO outputs - a YAML data file AND a Markdown report.
-
-### Dual Output Requirement
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│  PHASE 6 MUST PRODUCE TWO FILES:                                    │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                      │
-│  1. DATA FILE (PRIMARY - Write First!)                              │
-│     Path: .phase_working/{SESSION_ID}/data/P6_validated_risks.yaml  │
-│     Purpose: Structured validated risk data for P7 to read          │
-│     Format: Valid YAML with schema_version: "3.0.3 (20260209a)"                   │
-│                                                                      │
-│  2. REPORT FILE (SECONDARY - Write After Data!)                     │
-│     Path: .phase_working/{SESSION_ID}/reports/P6-RISK-VALIDATION.md │
-│     Purpose: Human-readable risk validation with POCs               │
-│     Format: Markdown with attack chains and ASCII diagrams          │
-│                                                                      │
-│  INPUT REQUIREMENT:                                                  │
-│     Read: .phase_working/{SESSION_ID}/data/P5_threat_inventory.yaml │
-│     Read: .phase_working/{SESSION_ID}/data/P4_security_gaps.yaml    │
-│     ❌ DO NOT read previous .md reports for data extraction         │
-│     ✅ REQUIRED: Parse YAML files for threat_inventory, gaps        │
-│                                                                      │
-└─────────────────────────────────────────────────────────────────────┘
-```
+1. **YAML** (PRIMARY): `.phase_working/{SESSION_ID}/data/P6_validated_risks.yaml`
+2. **MD** (SECONDARY): `.phase_working/{SESSION_ID}/reports/P6-RISK-VALIDATION.md`
+- **Input**: Read `P5_threat_inventory.yaml` + `P4_security_gaps.yaml` (❌ NOT .md reports)
+- ❌ Writing only .md without .yaml | ✅ .yaml is the authoritative data source
 
 ### Required Data Sections in YAML
 
@@ -273,7 +254,7 @@ Do NOT validate risks from memory. MUST read P5 threat data to verify counts!
 ```yaml
 # Required section in P6_validated_risks.yaml
 input_aggregation:
-  schema_version: "3.0.3 (20260209a)"
+  schema_version: "3.0.5 (20260312a)"
   aggregated_at: "2026-01-31T12:00:00Z"
 
   # Source file checksums for integrity verification
@@ -1130,4 +1111,4 @@ Before marking Phase 6 complete:
 
 ---
 
-**End of Phase 6 Instructions** (~550 lines, ~4.5K tokens)
+**End of Phase 6 Instructions** (~1110 lines, ~9K tokens)

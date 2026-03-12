@@ -1,4 +1,4 @@
-<!-- Threat Modeling Skill | Version 3.0.3 (20260209a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.0.5 (20260312a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 # Phase 5: STRIDE Threat Analysis
 
@@ -8,9 +8,9 @@
 
 ---
 
-## ⚠️ MANDATORY: 4-Phase Gating Protocol (BLOCKING)
+## ⚠️ 4-Phase Gating Protocol — THINKING → PLANNING → EXECUTION → REFLECTION (output each stage)
 
-> **CRITICAL**: You MUST complete the following four stages in sequence and **output the result of each stage**. Skipping any stage will degrade analysis quality!
+> **⚠️ CHECKPOINT**: P5 — Request user confirmation after threat enumeration.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ### 🧠 THINKING - Phase 5 Entry Gate
@@ -102,20 +102,25 @@ cat .phase_working/{SESSION_ID}/data/P4_security_gaps.yaml
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-**Step 3: TaskCreate for ALL sub-tasks** (MANDATORY)
+**Step 3**: ⚠️ `TaskCreate` ALL sub-tasks before implementation (MANDATORY).
 
-⚠️ BEFORE starting any implementation, you MUST execute `TaskCreate` to create ALL sub-tasks!
+**Step 4: Multi-Perspective Parallel Analysis** (RECOMMENDED)
+
+Launch 4 `‖` sub-agents via `Task` tool (`subagent_type: "general-purpose"`, `model: "opus"`). Each applies STRIDE to ALL DFD elements from its unique angle. Each receives P2-P4 data + its perspective prompt:
+
+**‖ Architecture Perspective**: "Apply STRIDE to all DFD elements from an architecture viewpoint. Focus: threats from architectural design decisions, component interaction patterns, trust boundary violations, defense-in-depth gaps, systemic/structural weaknesses."
+
+**‖ Code Implementation Perspective**: "Apply STRIDE to all DFD elements from a code implementation viewpoint. Focus: threats from coding practices, implementation flaws, injection points, buffer handling, CWE mapping, insecure API usage, hardcoded credentials."
+
+**‖ Security Testing Perspective**: "Apply STRIDE to all DFD elements from a security testing viewpoint. Focus: threats detectable via SAST/DAST/IAST, OWASP Testing Guide (WSTG) coverage, test case design per element, false-positive-resistant threat identification."
+
+**‖ Penetration Testing Perspective**: "Apply STRIDE to all DFD elements from an offensive security viewpoint. Focus: threats exploitable by real attackers, CAPEC/ATT&CK mapping, attack chain construction, exploitation feasibility, real-world impact assessment."
+
+**Merge**: Union of all T-{STRIDE}-{Element}-{Seq} → deduplicate by element+category → keep highest severity → union of unique CWE/CAPEC/ATT&CK mappings.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-### ⚡ EXECUTION LOOP
+### ⚡ EXECUTION — TaskUpdate(in_progress) → Execute → Verify → TaskUpdate(completed) | Fail → Retry 3x → CHECKPOINT
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-For each sub-task:
-1. `TaskUpdate(status: "in_progress")`
-2. Execute sub-task
-3. Verify: Does output meet expectations?
-4. If verification passes: `TaskUpdate(status: "completed")` → proceed to next
-5. If verification fails: Diagnose → Fix → Retry (max 3x) → If still failing: CHECKPOINT to request user decision
 
 **Output Sequence** (CRITICAL):
 1. **Write YAML first**: `.phase_working/{SESSION_ID}/data/P5_threat_inventory.yaml`
@@ -163,35 +168,12 @@ $SKILL_PATH/kb --cwe CWE-287               # Specific CWE details
 
 ---
 
-## ⚠️ MANDATORY OUTPUT RULES
+### ⚠️ Dual Output (YAML first → MD second)
 
-> **CRITICAL**: Phase 5 requires TWO outputs - a YAML data file AND a Markdown report.
-
-### Dual Output Requirement
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│  PHASE 5 MUST PRODUCE TWO FILES:                                    │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                      │
-│  1. DATA FILE (PRIMARY - Write First!)                              │
-│     Path: .phase_working/{SESSION_ID}/data/P5_threat_inventory.yaml │
-│     Purpose: Structured threat data for P6 to read                  │
-│     Format: Valid YAML with schema_version: "3.0.3 (20260209a)"                   │
-│                                                                      │
-│  2. REPORT FILE (SECONDARY - Write After Data!)                     │
-│     Path: .phase_working/{SESSION_ID}/reports/P5-STRIDE-THREATS.md  │
-│     Purpose: Human-readable STRIDE analysis report                  │
-│     Format: Markdown with threat tables and matrices                │
-│                                                                      │
-│  INPUT REQUIREMENT:                                                  │
-│     Read: .phase_working/{SESSION_ID}/data/P2_dfd_elements.yaml     │
-│     Read: .phase_working/{SESSION_ID}/data/P4_security_gaps.yaml    │
-│     ❌ DO NOT read previous .md reports for data extraction         │
-│     ✅ REQUIRED: Parse YAML files for dfd_elements, security_gaps   │
-│                                                                      │
-└─────────────────────────────────────────────────────────────────────┘
-```
+1. **YAML** (PRIMARY): `.phase_working/{SESSION_ID}/data/P5_threat_inventory.yaml`
+2. **MD** (SECONDARY): `.phase_working/{SESSION_ID}/reports/P5-STRIDE-THREATS.md`
+- **Input**: Read `P2_dfd_elements.yaml` + `P4_security_gaps.yaml` (❌ NOT .md reports)
+- ❌ Writing only .md without .yaml | ✅ .yaml is the authoritative data source
 
 ### Required Data Sections in YAML
 
@@ -455,7 +437,7 @@ $SKILL_PATH/kb --stride tampering
 $SKILL_PATH/kb --full-chain CWE-89         # Complete chain: STRIDE→CWE→CAPEC→ATT&CK
 $SKILL_PATH/kb --all-llm                   # LLM-specific threats
 $SKILL_PATH/kb --cwe CWE-287               # Specific CWE details
-$SKILL_PATH/kb --capec CWE-287             # CAPEC patterns for CWE
+$SKILL_PATH/kb --full-chain CWE-287        # Full chain: STRIDE→CWE→CAPEC→ATT&CK
 ```
 
 ### KB Enrichment Log (MANDATORY per GAP-4 Contract)
@@ -464,15 +446,15 @@ $SKILL_PATH/kb --capec CWE-287             # CAPEC patterns for CWE
 
 **Required Queries**:
 1. `--cwe CWE-{NNN}` - For each threat's CWE classification
-2. `--capec CWE-{NNN}` - For CAPEC attack pattern mapping
-3. `--stride-mapping {S|T|R|I|D|E}` - For category-wide enrichment
+2. `--full-chain CWE-{NNN}` - For full chain: STRIDE→CWE→CAPEC→ATT&CK mapping
+3. `--stride-controls {S|T|R|I|D|E}` - For category-wide enrichment
 
 ```yaml
 # In P5_threat_inventory.yaml - MANDATORY section (GAP-4 Contract)
 kb_enrichment_log:
   # Query record for auditability
   queries_made:
-    - query: "--stride-mapping S"
+    - query: "--stride-controls S"
       timestamp: "2026-01-31T10:15:30Z"
       result_count: 25
       usage: "Informed spoofing threats T-S-*"
@@ -482,7 +464,7 @@ kb_enrichment_log:
       result_count: 1
       usage: "Enriched T-S-P-001-001"
       cache_hit: true
-    - query: "--capec CWE-287"
+    - query: "--full-chain CWE-287"
       timestamp: "2026-01-31T10:16:00Z"
       result_count: 3
       usage: "Mapped CAPEC-114, CAPEC-151, CAPEC-194"
@@ -978,4 +960,4 @@ Before marking Phase 5 complete:
 
 ---
 
-**End of Phase 5 Instructions** (~250 lines, ~2K tokens)
+**End of Phase 5 Instructions** (~960 lines, ~8K tokens)

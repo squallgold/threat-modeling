@@ -1,4 +1,4 @@
-<!-- Threat Modeling Skill | Version 3.0.3 (20260209a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.0.5 (20260312a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 # Phase 4: Security Design Review
 
@@ -8,9 +8,7 @@
 
 ---
 
-## ⚠️ MANDATORY: 4-Phase Gating Protocol (BLOCKING)
-
-> **CRITICAL**: You MUST complete the following four stages in sequence and **output the result of each stage**. Skipping any stage will degrade analysis quality!
+## ⚠️ 4-Phase Gating Protocol — THINKING → PLANNING → EXECUTION → REFLECTION (output each stage)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ### 🧠 THINKING - Phase 4 Entry Gate
@@ -97,20 +95,35 @@ cat .phase_working/{SESSION_ID}/data/P3_boundary_context.yaml
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-**Step 3: TaskCreate for ALL sub-tasks** (MANDATORY)
+**Step 3**: ⚠️ `TaskCreate` ALL sub-tasks before implementation (MANDATORY).
 
-⚠️ BEFORE starting any implementation, you MUST execute `TaskCreate` to create ALL sub-tasks!
+**Step 4: Multi-Perspective Parallel Analysis** (RECOMMENDED)
+
+Launch 7 `‖` sub-agents via `Task` tool (`subagent_type: "general-purpose"`, `model: "opus"`). Each receives P1-P3 data + its perspective prompt:
+
+**Domain Experts** (assess specific security control domains):
+
+**‖ Infrastructure Expert**: "Assess NETWORK, CLOUD, CONFIG, ext-11 (Infrastructure) domains. Evaluate infrastructure controls, network segmentation, cloud configuration hardening, deployment security, infrastructure-as-code practices."
+
+**‖ AppSec Expert**: "Assess AUTHN, AUTHZ, SESSION, ACCESS domains. Evaluate identity management, authentication mechanisms, permission models, session handling, access control enforcement, OAuth/OIDC implementation."
+
+**‖ Data Expert**: "Assess INPUT, OUTPUT, CRYPTO, DATA domains. Evaluate input validation, output encoding, cryptographic implementations (algorithms/key management), data protection at rest and in transit."
+
+**‖ Advanced Threat Expert**: "Assess AUDIT, ERROR, API, AI/LLM (ext-13), Agentic (ext-16), Supply Chain (ext-12) domains. Evaluate logging/monitoring, error handling, API security, prompt injection defenses, agent tool-use controls, dependency integrity."
+
+**Cross-cutting Perspectives** (complementary angles on ALL domains):
+
+**‖ Architect**: "As security architect, review ALL 16+ domains for defense-in-depth coherence. Focus: architectural blind spots, missing security layers, design pattern weaknesses, cross-domain interaction risks."
+
+**‖ Code Auditor**: "As code auditor, review ALL domains for implementation-level vulnerabilities. Focus: CWE mapping, insecure coding patterns, missing sanitization in specific code paths, hardcoded secrets, unsafe deserialization."
+
+**‖ Penetration Tester**: "As penetration tester, review ALL domains for real-world exploitability. Focus: attack chain feasibility, exploitation prerequisites, attacker-perspective severity ranking, quick wins vs. complex attack paths."
+
+**Merge**: Union of all GAP-xxx → deduplicate by domain+control → cross-reference perspectives for severity calibration.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-### ⚡ EXECUTION LOOP
+### ⚡ EXECUTION — TaskUpdate(in_progress) → Execute → Verify → TaskUpdate(completed) | Fail → Retry 3x → CHECKPOINT
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-For each sub-task:
-1. `TaskUpdate(status: "in_progress")`
-2. Execute sub-task
-3. Verify: Does output meet expectations?
-4. If verification passes: `TaskUpdate(status: "completed")` → proceed to next
-5. If verification fails: Diagnose → Fix → Retry (max 3x) → If still failing: CHECKPOINT to request user decision
 
 **Output Sequence** (CRITICAL):
 1. **Write YAML FIRST**: `.phase_working/{SESSION_ID}/data/P4_security_gaps.yaml`
@@ -146,33 +159,11 @@ For each sub-task:
 
 ---
 
-## ⚠️ MANDATORY OUTPUT RULES
+### ⚠️ Dual Output (YAML first → MD second)
 
-> **CRITICAL**: Phase 4 requires TWO outputs - a YAML data file AND a Markdown report.
-
-### Dual Output Requirement
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│  PHASE 4 MUST PRODUCE TWO FILES:                                    │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                      │
-│  1. DATA FILE (PRIMARY - Write First!)                              │
-│     Path: .phase_working/{SESSION_ID}/data/P4_security_gaps.yaml    │
-│     Purpose: Structured gap data for P5/P6/P7 to read               │
-│     Format: Valid YAML with schema_version: "3.0.3 (20260209a)"                   │
-│                                                                      │
-│  2. REPORT FILE (SECONDARY - Write After Data!)                     │
-│     Path: .phase_working/{SESSION_ID}/reports/P4-SECURITY-REVIEW.md │
-│     Purpose: Human-readable security design assessment              │
-│     Format: Markdown with assessment matrix and gap analysis        │
-│                                                                      │
-│  ❌ FORBIDDEN: Writing only .md without .yaml                       │
-│  ❌ FORBIDDEN: Embedding YAML blocks inside .md as data source      │
-│  ✅ REQUIRED: .yaml file is the authoritative data source           │
-│                                                                      │
-└─────────────────────────────────────────────────────────────────────┘
-```
+1. **YAML** (PRIMARY): `.phase_working/{SESSION_ID}/data/P4_security_gaps.yaml`
+2. **MD** (SECONDARY): `.phase_working/{SESSION_ID}/reports/P4-SECURITY-REVIEW.md`
+- ❌ Writing only .md without .yaml | ✅ .yaml is the authoritative data source
 
 ### Required Data Sections in YAML
 
@@ -573,8 +564,8 @@ Evaluate project's design maturity across all 16 security domains, identify gaps
 ```bash
 $SKILL_PATH/kb --control authentication       # Domain-specific controls
 $SKILL_PATH/kb --stride-controls S            # STRIDE category controls
-$SKILL_PATH/kb --control api --full           # Full control details
-$SKILL_PATH/kb --control {ext_domain} --full  # Extended domain (may have limited support)
+$SKILL_PATH/kb --control api                  # Full control details
+$SKILL_PATH/kb --control {ext_domain}         # Extended domain (may have limited support)
 ```
 
 ### KB Usage Log (MANDATORY per GAP-4 Contract)
@@ -867,7 +858,7 @@ For each domain:
 
 ```yaml
 # P4_security_gaps.yaml - Phase 4 Data Output
-schema_version: "3.0.3 (20260209a)"
+schema_version: "3.0.5 (20260312a)"
 phase: 4
 generated_at: "ISO8601 timestamp"
 
@@ -1099,7 +1090,7 @@ Before marking Phase 4 complete:
 
 **Data File Requirements**:
 - [ ] `.phase_working/{SESSION_ID}/data/P4_security_gaps.yaml` exists
-- [ ] YAML is valid with `schema_version: "3.0.3 (20260209a)"`
+- [ ] YAML is valid with `schema_version: "3.0.5 (20260312a)"`
 - [ ] `security_gaps.summary` contains all required statistics
 - [ ] `security_gaps.design_matrix` has all 16 domains
 - [ ] Each domain has `assessed`, `rating`, `gaps_count`, `risk_level`
@@ -1126,4 +1117,4 @@ Before marking Phase 4 complete:
 
 ---
 
-**End of Phase 4 Instructions** (~200 lines, ~2K tokens)
+**End of Phase 4 Instructions** (~1120 lines, ~9K tokens)

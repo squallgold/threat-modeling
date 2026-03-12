@@ -1,4 +1,4 @@
-<!-- Threat Modeling Skill | Version 3.0.3 (20260209a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.0.5 (20260312a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 ---
 description: Client-side web security (XSS/DOM XSS, CSP, CSRF, clickjacking, XS-Leaks, third-party JS)
@@ -12,7 +12,7 @@ languages:
 alwaysApply: false
 ---
 
-rule_id: codeguard-0-client-side-web-security
+rule_id: control-set-05-client-side
 
 ## Client‑side Web Security
 

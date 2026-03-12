@@ -1,4 +1,4 @@
-<!-- Threat Modeling Skill | Version 3.0.3 (20260209a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.0.5 (20260312a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 ---
 description: Data & storage security (DB isolation, TLS, least privilege, RLS/CLS, backups, auditing)
@@ -10,7 +10,7 @@ languages:
 alwaysApply: false
 ---
 
-rule_id: codeguard-0-data-storage
+rule_id: control-set-10-data-protection
 
 ## Database Security Guidelines
 

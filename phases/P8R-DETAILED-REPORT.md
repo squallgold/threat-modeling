@@ -1,4 +1,4 @@
-<!-- Threat Modeling Skill | Version 3.0.3 (20260209a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.0.5 (20260312a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 # Phase 8R: Detailed Risk Analysis Reports (Optional)
 
@@ -15,7 +15,7 @@ P8R activates through ANY of:
 
 1. **Post-P8 prompt**: After P8 completion, ask: "Generate detailed per-risk analysis reports? [Y/N]"
 2. **`--detailed` flag**: Set at session start → auto-trigger after P8
-3. **Standalone invocation**: `python phase_data.py --p8r --session {SESSION_ID}`
+3. **Standalone invocation**: After P8 completion, user requests detailed reports
 
 > **P8R is OPTIONAL** — skipping does NOT affect main P8 reports. The P1-P8 workflow remains unchanged.
 
@@ -70,13 +70,13 @@ Generate {VR_count} detailed risk analysis reports, each with 12 analysis elemen
 ```
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-### 🗺️ PLANNING - Phase 8R Execution Plan
+### 📋 PLANNING - Phase 8R Execution Plan
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 **⚠️ You MUST output PLANNING results in the following format:**
 
 ```
-🗺️ PLANNING - P8R Execution Plan
+📋 PLANNING - P8R Execution Plan
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 📋 EXECUTION PLAN
@@ -101,7 +101,7 @@ VR-xxx → F-xxx (from P1-P3)
 ```
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-### 🔨 EXECUTING - Phase 8R Report Generation
+### ⚡ EXECUTION - Phase 8R Report Generation
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ---
@@ -112,13 +112,13 @@ VR-xxx → F-xxx (from P1-P3)
 
 ```bash
 # Load all VR data with cross-references
-python scripts/phase_data.py --query --phase 6 --session {SESSION_ID}
+python scripts/phase_data.py --query --phase 6 --session-id {SESSION_ID}
 
 # Load mitigation mappings
-python scripts/phase_data.py --query --phase 7 --session {SESSION_ID}
+python scripts/phase_data.py --query --phase 7 --session-id {SESSION_ID}
 
 # Load P8 manifest for report structure
-python scripts/phase_data.py --query --phase 8 --session {SESSION_ID}
+python scripts/phase_data.py --query --phase 8 --session-id {SESSION_ID}
 ```
 
 ### 1.2 Build VR Index
@@ -394,7 +394,7 @@ Risk_Assessment_Report/
 Write to `.phase_working/{SESSION_ID}/data/P8R_manifest.yaml`:
 
 ```yaml
-schema_version: "3.0.3"
+schema_version: "3.0.5 (20260312a)"
 phase: "P8R"
 session_id: "{SESSION_ID}"
 generated_at: "{ISO_8601_TIMESTAMP}"
@@ -439,13 +439,13 @@ count_check:
 ## §5 Validation Gates
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-### 🔍 REFLECTING - Phase 8R Completion Gate
+### 🔍 REFLECTION - Phase 8R Completion Gate
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-**⚠️ You MUST output REFLECTING results in the following format:**
+**⚠️ You MUST output REFLECTION results in the following format:**
 
 ```
-🔍 REFLECTING - P8R Completion Gate
+🔍 REFLECTION - P8R Completion Gate
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ✅ VALIDATION CHECKLIST

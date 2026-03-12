@@ -1,4 +1,4 @@
-<!-- Threat Modeling Skill | Version 3.0.3 (20260209a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.0.5 (20260312a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 # Phase 3: Trust Boundary Evaluation
 
@@ -8,9 +8,7 @@
 
 ---
 
-## ⚠️ MANDATORY: 4-Phase Gating Protocol (BLOCKING)
-
-> **CRITICAL**: You MUST complete the following four stages in sequence and **output the result of each stage**. Skipping any stage will degrade analysis quality!
+## ⚠️ 4-Phase Gating Protocol — THINKING → PLANNING → EXECUTION → REFLECTION (output each stage)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ### 🧠 THINKING - Phase 3 Entry Gate
@@ -95,20 +93,21 @@ cat .phase_working/{SESSION_ID}/data/P2_dfd_elements.yaml
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-**Step 3: TaskCreate for ALL sub-tasks** (MANDATORY)
+**Step 3**: ⚠️ `TaskCreate` ALL sub-tasks before implementation (MANDATORY).
 
-⚠️ Before starting any implementation, you MUST execute `TaskCreate` to create all sub-tasks!
+**Step 4: Multi-Perspective Parallel Analysis** (RECOMMENDED)
+
+Launch `‖` sub-agents via `Task` tool (`subagent_type: "general-purpose"`, `model: "opus"`). Each receives P2 DFD data + its perspective prompt:
+
+**‖ Architect**: "Evaluate trust boundaries as a software architect. Focus: boundary placement correctness, zone topology design, network segmentation layering, defense-in-depth structure. Verify all DFD components assigned to correct zones and all inter-zone connections identified."
+
+**‖ Security Expert**: "Evaluate trust boundaries as a security expert. Focus: cross-boundary control adequacy (authn/authz/encryption at each crossing), attack surface at boundary interfaces, trust assumption gaps, privilege escalation paths between zones."
+
+**Merge**: Union of findings → deduplicate by boundary ID → keep highest severity on conflict.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-### ⚡ EXECUTION LOOP
+### ⚡ EXECUTION — TaskUpdate(in_progress) → Execute → Verify → TaskUpdate(completed) | Fail → Retry 3x → CHECKPOINT
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-For each sub-task:
-1. `TaskUpdate(status: "in_progress")`
-2. Implement sub-task
-3. Verify: Does output match expectations?
-4. If verification passes: `TaskUpdate(status: "completed")` → Next sub-task
-5. If verification fails: Diagnose → Fix → Retry (max 3x) → If still failing: CHECKPOINT to request user decision
 
 **Output Order** (CRITICAL):
 1. **Write YAML first**: `.phase_working/{SESSION_ID}/data/P3_boundary_context.yaml`
@@ -145,34 +144,12 @@ For each sub-task:
 
 ---
 
-## ⚠️ MANDATORY OUTPUT RULES
+### ⚠️ Dual Output (YAML first → MD second)
 
-> **CRITICAL**: Phase 3 requires TWO outputs - a YAML data file AND a Markdown report.
-
-### Dual Output Requirement
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│  PHASE 3 MUST PRODUCE TWO FILES:                                    │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                      │
-│  1. DATA FILE (PRIMARY - Write First!)                              │
-│     Path: .phase_working/{SESSION_ID}/data/P3_boundary_context.yaml │
-│     Purpose: Structured data for P4 to read                         │
-│     Format: Valid YAML with schema_version: "3.0.3 (20260209a)"                   │
-│                                                                      │
-│  2. REPORT FILE (SECONDARY - Write After Data!)                     │
-│     Path: .phase_working/{SESSION_ID}/reports/P3-TRUST-BOUNDARY.md  │
-│     Purpose: Human-readable trust boundary analysis                 │
-│     Format: Markdown with diagrams and matrices                     │
-│                                                                      │
-│  INPUT REQUIREMENT:                                                  │
-│     Read: .phase_working/{SESSION_ID}/data/P2_dfd_elements.yaml     │
-│     ❌ DO NOT read P2's .md report for data extraction              │
-│     ✅ REQUIRED: Parse P2's YAML for dfd_elements                   │
-│                                                                      │
-└─────────────────────────────────────────────────────────────────────┘
-```
+1. **YAML** (PRIMARY): `.phase_working/{SESSION_ID}/data/P3_boundary_context.yaml`
+2. **MD** (SECONDARY): `.phase_working/{SESSION_ID}/reports/P3-TRUST-BOUNDARY.md`
+- **Input**: Read `P2_dfd_elements.yaml` (❌ NOT .md reports)
+- ❌ Writing only .md without .yaml | ✅ .yaml is the authoritative data source
 
 ### Required Data Sections in YAML
 
@@ -241,7 +218,7 @@ Based on DFD, identify trust boundaries, key interfaces, and data nodes; evaluat
 - Least Privilege (LP): Minimum permissions required
 - Least Agency (LA): Limit AI agent autonomy
 
-**Security Domains**: AUTHN, AUTHZ, API from `security-design.yaml`
+**Security Domains**: AUTHN, AUTHZ, DATA from `security-design.yaml`
 
 ---
 
@@ -529,4 +506,4 @@ Before marking Phase 3 complete:
 
 ---
 
-**End of Phase 3 Instructions** (~200 lines, ~1.5K tokens)
+**End of Phase 3 Instructions** (~510 lines, ~4K tokens)

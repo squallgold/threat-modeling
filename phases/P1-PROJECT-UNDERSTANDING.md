@@ -1,4 +1,4 @@
-<!-- Threat Modeling Skill | Version 3.0.3 (20260209a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.0.5 (20260312a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 # Phase 1: Project Understanding
 
@@ -8,9 +8,7 @@
 
 ---
 
-## ⚠️ MANDATORY: 4-Phase Gating Protocol (BLOCKING)
-
-> **CRITICAL**: You MUST complete the following four stages in sequence and **output the result of each stage**. Skipping any stage will degrade analysis quality!
+## ⚠️ 4-Phase Gating Protocol — THINKING → PLANNING → EXECUTION → REFLECTION (output each stage)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ### 🧠 THINKING - Phase 1 Entry Gate
@@ -92,20 +90,11 @@ ls ./Risk_Assessment_Report/.phase_working/ 2>/dev/null || echo "Will create"
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-**Step 3: TaskCreate for ALL sub-tasks** (MANDATORY)
-
-⚠️ Before starting any implementation, you MUST execute `TaskCreate` to create all sub-tasks!
+**Step 3**: ⚠️ `TaskCreate` ALL sub-tasks before implementation (MANDATORY).
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-### ⚡ EXECUTION LOOP
+### ⚡ EXECUTION — TaskUpdate(in_progress) → Execute → Verify → TaskUpdate(completed) | Fail → Retry 3x → CHECKPOINT
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-For each sub-task:
-1. `TaskUpdate(status: "in_progress")`
-2. Implement sub-task
-3. Verify: Does output match expectations?
-4. If verification passes: `TaskUpdate(status: "completed")` → Next sub-task
-5. If verification fails: Diagnose → Fix → Retry (max 3x) → If still failing: CHECKPOINT to request user decision
 
 **Output Order** (CRITICAL):
 1. **Write YAML first**: `.phase_working/{SESSION_ID}/data/P1_project_context.yaml`
@@ -152,33 +141,11 @@ python $SKILL_PATH/scripts/phase_data.py --validate --phase 1 --root .
 
 ---
 
-## ⚠️ MANDATORY OUTPUT RULES
+### ⚠️ Dual Output (YAML first → MD second)
 
-> **CRITICAL**: Phase 1 requires TWO outputs - a YAML data file AND a Markdown report.
-
-### Dual Output Requirement
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│  PHASE 1 MUST PRODUCE TWO FILES:                                    │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                      │
-│  1. DATA FILE (PRIMARY - Write First!)                              │
-│     Path: .phase_working/{SESSION_ID}/data/P1_project_context.yaml  │
-│     Purpose: Structured data for P2 to read                         │
-│     Format: Valid YAML with schema_version: "3.0.3 (20260209a)"                   │
-│                                                                      │
-│  2. REPORT FILE (SECONDARY - Write After Data!)                     │
-│     Path: .phase_working/{SESSION_ID}/reports/P1-PROJECT-UNDER...md │
-│     Purpose: Human-readable analysis report                         │
-│     Format: Markdown with sections and tables                       │
-│                                                                      │
-│  ❌ FORBIDDEN: Writing only .md without .yaml                       │
-│  ❌ FORBIDDEN: Embedding YAML blocks inside .md as data source      │
-│  ✅ REQUIRED: .yaml file is the authoritative data source           │
-│                                                                      │
-└─────────────────────────────────────────────────────────────────────┘
-```
+1. **YAML** (PRIMARY): `.phase_working/{SESSION_ID}/data/P1_project_context.yaml`
+2. **MD** (SECONDARY): `.phase_working/{SESSION_ID}/reports/P1-PROJECT-UNDERSTANDING.md`
+- ❌ Writing only .md without .yaml | ✅ .yaml is the authoritative data source
 
 ### Required Data Sections in YAML
 
@@ -187,7 +154,7 @@ python $SKILL_PATH/scripts/phase_data.py --validate --phase 1 --root .
 | `project_context` | BLOCKING - project_type, tech_stack required |
 | `module_inventory` | BLOCKING - all modules with security_level |
 | `entry_point_inventory` | BLOCKING - all entry points with unique IDs |
-| `discovery_checklist` | BLOCKING - all 10 entry types with scanned:true |
+| `discovery_checklist` | BLOCKING - all 14 entry types with scanned:true |
 | `doc_analysis` | CONDITIONAL - if quality_grade != "none" |
 | `architecture_findings` | WARNING - security observations discovered during analysis |
 
@@ -195,7 +162,7 @@ python $SKILL_PATH/scripts/phase_data.py --validate --phase 1 --root .
 
 Phase 1 CANNOT complete until:
 1. `.phase_working/{SESSION_ID}/data/P1_project_context.yaml` exists and is valid YAML
-2. `discovery_checklist` has all 10 entry types with `scanned: true`
+2. `discovery_checklist` has all 14 entry types with `scanned: true`
 3. Every module has `security_level` assigned
 4. Every entry point has unique ID (EP-xxx format)
 5. `.phase_working/{SESSION_ID}/reports/P1-PROJECT-UNDERSTANDING.md` exists
@@ -472,7 +439,7 @@ When enhanced tools successfully execute:
 **Output**: `yaml:doc_analysis`
 
 ```yaml:doc_analysis
-schema_version: "3.0.3 (20260209a)"
+schema_version: "3.0.5 (20260312a)"
 phase: 1
 sub_phase: "P1.1"
 analyzed_at: "ISO8601"
@@ -750,7 +717,7 @@ python $SKILL_PATH/scripts/phase_data.py --p1-source-alignment --root .
 ### Output: P1_source_alignment.yaml
 
 ```yaml
-schema_version: "3.0.3 (20260209a)"
+schema_version: "3.0.5 (20260312a)"
 overall_alignment_score: 0.82
 alignment_by_category:
   entry_points:
@@ -961,4 +928,4 @@ Before marking Phase 1 complete:
 
 ---
 
-**End of Phase 1 Instructions** (~450 lines, ~3.5K tokens)
+**End of Phase 1 Instructions** (~930 lines, ~7K tokens)

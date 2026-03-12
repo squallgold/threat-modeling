@@ -1,5 +1,3 @@
-<!-- Threat Modeling Skill | Version 3.0.3 (20260209a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
-
 ---
 name: threat-modeling
 description: |
@@ -19,27 +17,20 @@ description: |
     --debug    Enable debug mode, publish internal YAML data files and evaluation reports
     --lang=xx  Set output language (en, zh, ja, ko, es, fr, de, pt, ru)
     --detailed Auto-trigger P8R detailed per-VR analysis reports after P8 completes
-hooks:
-  PostToolUse:
-    - matcher: "Write"
-      hooks:
-        - type: command
-          command: "./hooks/phase_end_hook.sh"  # Path relative to SKILL_PATH
-          timeout: 30
 ---
+
+<!-- Threat Modeling Skill | Version 3.0.5 (20260312a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 > **Note**: All relative paths in this skill are relative to `SKILL_PATH` (the directory containing this SKILL.md file).
 
-# Threat Modeling Skill v3.0.3 (20260209a)
+# Threat Modeling Skill v3.0.5 (20260312a)
 
 AI-native automated software risk analysis skill. LLM-driven, Code-First approach for comprehensive security risk assessment, threat modeling, security testing, penetration testing, and compliance checking.
 
 ## Version Banner
 
 ```
-════════════════════════════════════════════════════════════════════════════════
-  🛡️ Threat Modeling Skill v3.0.3 (20260209a)
-════════════════════════════════════════════════════════════════════════════════
+━━━ 🛡️ Threat Modeling Skill v3.0.5 (20260312a) ━━━
 ```
 
 ## Command Line Flags
@@ -249,13 +240,13 @@ FOR each phase N in [1..8]:
 
 ```yaml
 # .phase_working/{SESSION_ID}/_session_meta.yaml
-schema_version: "3.0.3 (20260209a)"
+schema_version: "3.0.5 (20260312a)"
 session_id: "OPEN-WEBUI_20260130_143022"  # {PROJECT}_{YYYYMMDD_HHMMSS}
 project_name: "OPEN-WEBUI"
 project_path: "/path/to/project"
 started_at: "ISO8601 timestamp"
 language: "en"
-skill_version: "3.0.3 (20260209a)"
+skill_version: "3.0.5 (20260312a)"
 
 phases:
   P1:
@@ -423,11 +414,11 @@ Supported: en, zh, ja, ko, es, fr, de, pt, ru
 
 This skill uses progressive disclosure:
 
-1. **Always Loaded**: This file (SKILL.md) - ~5K tokens
+1. **Always Loaded**: This file (SKILL.md) - ~4.5K tokens
 2. **Session Start**: @WORKFLOW.md - ~3K tokens
-3. **Per Phase**: @phases/P{N}-*.md - ~2K tokens each
+3. **Per Phase**: @phases/P{N}-*.md - ~4K-10K tokens each (varies by phase)
 
-Total per-phase context: ~10K tokens (vs 30K monolithic)
+Total per-phase context: ~12K-18K tokens per phase (vs 30K monolithic)
 
 **Loading Pattern**:
 ```
@@ -465,9 +456,8 @@ Post-P8 (Optional):
 | @scripts/unified_kb_query.py | Knowledge base queries |
 | @scripts/report_generator.py | MD→HTML batch converter |
 | @phases/P8R-DETAILED-REPORT.md | Optional per-VR detailed reports |
-| @docs/REPORT-DESIGN.md | v3.0.3 report enhancement design |
+| @docs/REPORT-DESIGN.md | v3.0.3+ report enhancement design |
 | @skill_path.sh | SKILL_PATH resolution helper |
-| @hooks/phase_end_hook.sh | PostToolUse automation |
 
 ---
 
@@ -534,20 +524,9 @@ Post-P8 (Optional):
 | Pn → Pn+1 (unvalidated) | Violates data contract completeness (S2) |
 | Parallel Phase execution | Data dependencies cannot be satisfied |
 
-### FSM State Machine Reference
-
-```
-States: {INIT, P1, P2, P3, P4, P5, P6, P7, P8, P8R, DONE, ERROR}
-Transitions: δ(Pn, pn_complete) → P(n+1) where n ∈ {1..7}
-             δ(P8, p8_complete ∧ detailed) → P8R
-             δ(P8, p8_complete ∧ ¬detailed) → DONE
-             δ(P8R, p8r_complete) → DONE
-Accepting: {DONE}
-```
-
-> **Complete FSM Specification**: See WORKFLOW.md §1.5 Workflow State Machine
+> **Complete FSM Specification**: See WORKFLOW.md §1
 > **Formal Properties**: See docs/SKILL-ARCHITECTURE-DESIGN.md §0.2
 
 ---
 
-**End of SKILL.md** (~470 lines, ~5.5K tokens)
+**End of SKILL.md** (~540 lines, ~5.5K tokens)

@@ -1,8 +1,8 @@
-<!-- Threat Modeling Skill | Version 3.0.3 (20260209a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.0.5 (20260312a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 # WORKFLOW.md - Orchestration Contracts
 
-**Version**: 3.0.3 (20260209a)
+**Version**: 3.0.5 (20260312a)
 **Purpose**: Phase orchestration, **structured data contracts**, validation gates, **FSM-enforced execution**
 
 > **Cross-References**:
@@ -106,13 +106,13 @@ mkdir -p ".phase_working/${SESSION_ID}/reports"
 
 ```yaml
 # .phase_working/{SESSION_ID}/_session_meta.yaml
-schema_version: "3.0.3 (20260209a)"
+schema_version: "3.0.5 (20260312a)"
 session_id: "{PROJECT}_{YYYYMMDD_HHMMSS}"
 project_name: "PROJECT-NAME"
 project_path: "/absolute/path"
 started_at: "ISO8601"
 language: "en"                    # en|zh|ja|ko
-skill_version: "3.0.3 (20260209a)"
+skill_version: "3.0.5 (20260312a)"
 current_state: "P1"               # FSM current state
 
 phases:
@@ -202,6 +202,26 @@ POST-P8 (Optional P8R):
 | P6 | After risk validation | User confirms attack paths before mitigation |
 | P7 | After mitigation planning | User confirms remediation plan before report |
 
+### §2.1 Multi-Perspective Parallel Analysis
+
+Each phase (P2-P8) supports parallel sub-agent delegation via `Task` tool (`subagent_type: "general-purpose"`, `model: "opus"`). Multiple independent perspectives analyze the same upstream data, then merge results for comprehensive coverage.
+
+> **Rationale**: A single reviewer gravitates toward one issue type. Independent perspectives provide complementary coverage.
+> **Detailed Prompts**: See each `@phases/P{N}-*.md` Step 4
+
+| Phase | Perspectives | Roles |
+|-------|-------------|-------|
+| P1 | — | Lead only (project understanding, no security analysis) |
+| P2 | 2 | Architect, Security Expert |
+| P3 | 2 | Architect, Security Expert |
+| P4 | 7 | Infrastructure Expert, AppSec Expert, Data Expert, Advanced Threat Expert, Architect, Code Auditor, Penetration Tester |
+| P5 | 4 | Architecture Perspective, Code Implementation Perspective, Security Testing Perspective, Penetration Testing Perspective |
+| P6 | 4 | Architect, Attack Path Analyst, Vulnerability Researcher, Penetration Test Planner |
+| P7 | 5 | Architect, Code Auditor, Security Researcher, Penetration Tester, Tester |
+| P8 | 4 groups | 8 reports → 4 parallel groups × 2 reports each |
+
+**Merge Protocol**: Union of findings → deduplicate by entity ID → keep highest severity on conflict → union of unique CWE/CAPEC/ATT&CK mappings.
+
 ---
 
 ## §3 Phase Data Contracts (YAML Files)
@@ -215,7 +235,7 @@ POST-P8 (Optional P8R):
 | P1 | `P1_project_context.yaml` | module_inventory, entry_point_inventory, discovery_checklist | checklist.coverage == 100% |
 | P2 | `P2_dfd_elements.yaml` | interface_inventory, data_flow_traces, dfd_elements | l1_coverage == 100% |
 | P3 | `P3_boundary_context.yaml` | boundaries[], interfaces[], cross_boundary_flows[] | boundaries non-empty |
-| P4 | `P4_security_gaps.yaml` | gaps[], design_matrix (16 domains), findings[] | 16 domains assessed |
+| P4 | `P4_security_gaps.yaml` | gaps[], design_matrix (16 domains) | 16 domains assessed |
 | P5 | `P5_threat_inventory.yaml` | threats[], summary (by_stride, by_element, by_risk) | total > 0 |
 | P6 | `P6_validated_risks.yaml` | risk_details[], poc_details[], attack_paths[] | count conservation |
 | P7 | `P7_mitigation_plan.yaml` | mitigations[], roadmap (P0-P3) | every VR has MIT |
@@ -225,7 +245,7 @@ POST-P8 (Optional P8R):
 ### Common Header (All Phases)
 
 ```yaml
-schema_version: "3.0.3 (20260209a)"
+schema_version: "3.0.5 (20260312a)"
 phase: {N}
 generated_at: "ISO8601"
 input_ref: "P{N-1}_*.yaml"  # Traceability (except P1)
@@ -374,4 +394,4 @@ P5.threat_inventory.summary.total ==
 
 ---
 
-**End of WORKFLOW.md** (~380 lines, ~4.5K tokens)
+**End of WORKFLOW.md** (~397 lines, ~4.8K tokens)
