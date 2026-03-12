@@ -1,4 +1,4 @@
-<!-- Threat Modeling Skill | Version 3.0.5 (20260312a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.1.0 (20260312a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 # Phase 8R: Detailed Risk Analysis Reports (Optional)
 
@@ -394,7 +394,7 @@ Risk_Assessment_Report/
 Write to `.phase_working/{SESSION_ID}/data/P8R_manifest.yaml`:
 
 ```yaml
-schema_version: "3.0.5 (20260312a)"
+schema_version: "3.1.0 (20260312a)"
 phase: "P8R"
 session_id: "{SESSION_ID}"
 generated_at: "{ISO_8601_TIMESTAMP}"

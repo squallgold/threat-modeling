@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Threat Modeling Skill | Version 3.0.5 (20260312a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause
+# Threat Modeling Skill | Version 3.1.0 (20260312a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause
 
 """
 Phase Data Manager for STRIDE Threat Modeling Workflow.
@@ -64,8 +64,8 @@ import yaml
 # Configuration
 # ============================================================================
 
-SCHEMA_VERSION = "3.0.5"
-SESSION_SCHEMA_VERSION = "3.0.5"  # Version for session management
+SCHEMA_VERSION = "3.1.0"
+SESSION_SCHEMA_VERSION = "3.1.0"  # Version for session management
 
 # Standard YAML block names per phase (from WORKFLOW.md v2.2.2)
 # NOTE: l1_coverage is EMBEDDED inside data_flows block, not extracted separately
@@ -5429,7 +5429,7 @@ def phase_end_protocol(
         result["error"] = f"Invalid phase number: {phase}. Must be 1-8."
         return result
 
-    # FSM enforcement: verify precondition (方案A - v3.0.5)
+    # FSM enforcement: verify precondition (方案A - v3.1.0)
     # Ensures phases execute in order: P(N) requires P(N-1) completed
     if phase > 1 and session_id:
         session = load_session(project_root, session_id)

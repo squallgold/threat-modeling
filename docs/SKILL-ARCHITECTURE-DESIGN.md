@@ -1,8 +1,8 @@
-<!-- Threat Modeling Skill | Version 3.0.5 (20260312a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.1.0 (20260312a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 # STRIDE Threat Modeling System Architecture Analysis
 
-> **Version**: 3.0.5
+> **Version**: 3.1.0
 > **Date**: 2026-02-04 (updated 2026-03-12)
 > **Purpose**: Comprehensive system architecture analysis with diagrams, module relationships, and formal workflow specification
 
@@ -1068,5 +1068,5 @@ Property L2: Error Recoverability
 
 ---
 
-**Document Version**: 3.0.5
+**Document Version**: 3.1.0
 **Last Updated**: 2026-03-12

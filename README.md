@@ -1,10 +1,10 @@
-<!-- Threat Modeling Skill | Version 3.0.5 (20260312a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.1.0 (20260312a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
-# Threat Modeling Skill v3.0.5
+# Threat Modeling Skill v3.1.0
 
 AI-native automated software risk analysis skill. LLM-driven, Code-First approach for comprehensive security risk assessment, threat modeling, security analysis, security audit, and penetration testing.
 
-## What's New in v3.0.5
+## What's New in v3.1.0
 
 - Comprehensively optimized the report system — reports are now more detailed and complete, with significantly enhanced human readability
 - Now supports HTML format report output

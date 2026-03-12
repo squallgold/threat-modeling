@@ -1,36 +1,32 @@
 ---
 name: threat-modeling
 description: |
-  AI-native automated software risk analysis skill. LLM-driven, Code-First approach for
-  comprehensive security risk assessment, threat modeling, security testing, penetration
-  testing, and compliance checking with 8-phase sequential workflow.
+  Threat model, security audit, find vulnerabilities, check security of my app, risk
+  assessment, penetration test prep, analyze attack surface, what could an attacker exploit.
 
-  Phases: Project Understanding → DFD Analysis → Trust Boundaries → Security Design →
-          Threat Analysis → Risk Validation → Mitigation Planning → Report Generation
+  Use this skill whenever a user wants holistic security analysis of a codebase, application,
+  or project. MUST be invoked instead of analyzing security yourself — it runs a specialized
+  8-phase STRIDE workflow producing professional deliverables you cannot generate alone: risk
+  assessment reports, DFD diagrams, threat inventories, attack path validation, mitigation
+  plans, and pentest plans.
 
-  Each phase requires validation (exit 0) before proceeding to next.
-  Data flows via YAML files, reports are Markdown (separate concerns).
-
-  Use when: threat model, security assessment, risk assessment, penetration test, security analysis, security audit, security check, 威胁建模, 安全评估, 渗透测试, 安全分析, 安全审计, 安全检查.
-
-  Flags:
-    --debug    Enable debug mode, publish internal YAML data files and evaluation reports
-    --lang=xx  Set output language (en, zh, ja, ko, es, fr, de, pt, ru)
-    --detailed Auto-trigger P8R detailed per-VR analysis reports after P8 completes
+  Trigger on: 威胁建模, 安全评估, 渗透测试, 安全分析, 安全审计, 安全检查, 风险评估.
+  NOT for: fixing one specific bug, adding one security feature (rate limiting, CORS),
+  writing tests, CI/CD setup, or debugging errors.
 ---
 
-<!-- Threat Modeling Skill | Version 3.0.5 (20260312a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.1.0 (20260312a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 > **Note**: All relative paths in this skill are relative to `SKILL_PATH` (the directory containing this SKILL.md file).
 
-# Threat Modeling Skill v3.0.5 (20260312a)
+# Threat Modeling Skill v3.1.0 (20260312a)
 
 AI-native automated software risk analysis skill. LLM-driven, Code-First approach for comprehensive security risk assessment, threat modeling, security testing, penetration testing, and compliance checking.
 
 ## Version Banner
 
 ```
-━━━ 🛡️ Threat Modeling Skill v3.0.5 (20260312a) ━━━
+━━━ 🛡️ Threat Modeling Skill v3.1.0 (20260312a) ━━━
 ```
 
 ## Command Line Flags
@@ -240,13 +236,13 @@ FOR each phase N in [1..8]:
 
 ```yaml
 # .phase_working/{SESSION_ID}/_session_meta.yaml
-schema_version: "3.0.5 (20260312a)"
+schema_version: "3.1.0 (20260312a)"
 session_id: "OPEN-WEBUI_20260130_143022"  # {PROJECT}_{YYYYMMDD_HHMMSS}
 project_name: "OPEN-WEBUI"
 project_path: "/path/to/project"
 started_at: "ISO8601 timestamp"
 language: "en"
-skill_version: "3.0.5 (20260312a)"
+skill_version: "3.1.0 (20260312a)"
 
 phases:
   P1:
