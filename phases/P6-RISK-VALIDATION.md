@@ -1,4 +1,4 @@
-<!-- Threat Modeling Skill | Version 3.1.0 (20260312a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.1.0 (20260313a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 # Phase 6: Risk Validation
 
@@ -254,7 +254,7 @@ Do NOT validate risks from memory. MUST read P5 threat data to verify counts!
 ```yaml
 # Required section in P6_validated_risks.yaml
 input_aggregation:
-  schema_version: "3.1.0 (20260312a)"
+  schema_version: "3.1.0 (20260313a)"
   aggregated_at: "2026-01-31T12:00:00Z"
 
   # Source file checksums for integrity verification

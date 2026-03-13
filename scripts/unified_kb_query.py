@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Threat Modeling Skill | Version 3.1.0 (20260312a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause
+# Threat Modeling Skill | Version 3.1.0 (20260313a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause
 
 """
 Unified Security Knowledge Base Query Tool for STRIDE Threat Modeling.
@@ -40,9 +40,10 @@ import urllib.request
 import urllib.error
 from pathlib import Path
 from typing import Optional, Dict, List, Any
-from dataclasses import dataclass, asdict
-from enum import Enum
+from dataclasses import dataclass
 import logging
+import os
+import re
 
 # Setup logging
 logging.basicConfig(level=logging.WARNING)
@@ -172,7 +173,7 @@ class NVDClient:
         except urllib.error.URLError as e:
             logger.error(f"NVD API Network error: {e.reason}")
             return None
-        except Exception as e:
+        except (json.JSONDecodeError, OSError, TimeoutError) as e:
             logger.error(f"NVD API Request error: {e}")
             return None
 
@@ -414,7 +415,7 @@ class SemanticSearcher:
 
             return results
 
-        except Exception as e:
+        except (ValueError, TypeError, RuntimeError) as e:
             logger.error(f"Semantic search error: {e}")
             return []
 
@@ -432,6 +433,26 @@ class SemanticSearcher:
             "search_method": "sentence-transformers" if self._use_transformers else "tfidf",
             "index_built": self._index_built,
         }
+
+
+# =============================================================================
+# FTS5 Query Sanitization
+# =============================================================================
+
+def _sanitize_fts5_query(query: str) -> str:
+    """Sanitize user input for FTS5 MATCH to prevent query manipulation.
+
+    Strips FTS5 special operators and wraps terms in quotes for literal matching.
+    """
+    # Remove FTS5 operators and special characters
+    sanitized = re.sub(r'[*()"\']', '', query)
+    # Collapse whitespace
+    sanitized = ' '.join(sanitized.split())
+    if not sanitized:
+        return '""'  # Empty query returns nothing
+    # Quote individual terms to force literal matching
+    terms = sanitized.split()
+    return ' '.join(f'"{term}"' for term in terms if term)
 
 
 # =============================================================================
@@ -661,7 +682,7 @@ class UnifiedKnowledgeBase:
                         result["description"] = row[1][:200] if row[1] else ""
 
             return results
-        except Exception as e:
+        except (sqlite3.Error, ValueError, TypeError) as e:
             logger.error(f"Vector search error: {e}")
             return []
         finally:
@@ -691,7 +712,7 @@ class UnifiedKnowledgeBase:
                     cursor.execute("""
                         SELECT id, name, snippet(cwe_fts, 2, '[', ']', '...', 32)
                         FROM cwe_fts WHERE cwe_fts MATCH ? LIMIT ?
-                    """, (query, per_type_limit))
+                    """, (_sanitize_fts5_query(query), per_type_limit))
                     for row in cursor.fetchall():
                         results.append({
                             "id": row[0],
@@ -709,7 +730,7 @@ class UnifiedKnowledgeBase:
                     cursor.execute("""
                         SELECT id, name, snippet(capec_fts, 2, '[', ']', '...', 32)
                         FROM capec_fts WHERE capec_fts MATCH ? LIMIT ?
-                    """, (query, per_type_limit))
+                    """, (_sanitize_fts5_query(query), per_type_limit))
                     for row in cursor.fetchall():
                         results.append({
                             "id": row[0],
@@ -727,7 +748,7 @@ class UnifiedKnowledgeBase:
                     cursor.execute("""
                         SELECT id, name, snippet(attack_fts, 2, '[', ']', '...', 32)
                         FROM attack_fts WHERE attack_fts MATCH ? LIMIT ?
-                    """, (query, per_type_limit))
+                    """, (_sanitize_fts5_query(query), per_type_limit))
                     for row in cursor.fetchall():
                         results.append({
                             "id": row[0],
@@ -740,7 +761,7 @@ class UnifiedKnowledgeBase:
                     pass
 
             return results[:limit]
-        except Exception as e:
+        except (sqlite3.Error, ValueError) as e:
             logger.error(f"FTS search error: {e}")
             return []
         finally:
@@ -765,7 +786,7 @@ class UnifiedKnowledgeBase:
                 data = yaml.safe_load(f) or {}
             self._yaml_cache[filename] = data
             return data
-        except Exception as e:
+        except (yaml.YAMLError, OSError, UnicodeDecodeError) as e:
             logger.error(f"Error loading {path}: {e}")
             return {}
 
@@ -795,7 +816,13 @@ class UnifiedKnowledgeBase:
     # =========================================================================
 
     def _get_sqlite_connection(self) -> Optional[sqlite3.Connection]:
-        """Get SQLite connection if database exists."""
+        """Get SQLite connection if database exists.
+
+        NOTE (D2): No schema version validation is performed. The tool relies on
+        table/column existence checks at query time (OperationalError handling)
+        rather than upfront schema validation. This is acceptable for a read-only
+        query tool where schema mismatches produce clear error messages.
+        """
         if not self.sqlite_path.exists():
             logger.warning(f"SQLite database not found: {self.sqlite_path}")
             return None
@@ -1138,7 +1165,7 @@ class UnifiedKnowledgeBase:
                     JOIN attack_technique at ON attack_fts.id = at.id
                     WHERE attack_fts MATCH ?
                     LIMIT ?
-                """, (query, limit))
+                """, (_sanitize_fts5_query(query), limit))
                 return [
                     {
                         "technique_id": r[0],
@@ -1269,7 +1296,7 @@ class UnifiedKnowledgeBase:
 
             self._kev_loaded = True
             logger.info(f"Loaded {len(self._kev_cache)} KEV entries")
-        except Exception as e:
+        except (json.JSONDecodeError, OSError, KeyError) as e:
             logger.error(f"Error loading KEV: {e}")
             self._kev_loaded = True
 
@@ -1524,7 +1551,7 @@ class UnifiedKnowledgeBase:
                     AND c.cvss_severity = ?
                     ORDER BY rank
                     LIMIT ?
-                """, (query, severity.upper(), limit))
+                """, (_sanitize_fts5_query(query), severity.upper(), limit))
             else:
                 cursor.execute("""
                     SELECT c.id, c.cvss_score, c.cvss_severity,
@@ -1535,7 +1562,7 @@ class UnifiedKnowledgeBase:
                     WHERE cve_fts MATCH ?
                     ORDER BY rank
                     LIMIT ?
-                """, (query, limit))
+                """, (_sanitize_fts5_query(query), limit))
 
             return [
                 {
@@ -1801,7 +1828,7 @@ class UnifiedKnowledgeBase:
                 "capec_patterns": len(capec_data.get("attack_patterns", {})),
                 "llm_top10": len(llm_data.get("owasp_llm_top10", {})),
             }
-        except Exception as e:
+        except (yaml.YAMLError, OSError, KeyError, TypeError) as e:
             stats["data_sources"]["yaml_curated"]["error"] = str(e)
 
         # SQLite Core statistics
@@ -2718,7 +2745,7 @@ Examples:
     parser.add_argument("--nvd-cwe", help="Search CVEs by CWE from NVD API (e.g., CWE-89)")
     parser.add_argument("--nvd-limit", type=int, default=10,
         help="Limit NVD search results (default: 10, max: 100)")
-    parser.add_argument("--nvd-api-key", help="NVD API key for higher rate limits (optional)")
+    parser.add_argument("--nvd-api-key", help="NVD API key (prefer NVD_API_KEY env var for security)")
 
     # Cloud arguments
     parser.add_argument("--cloud",
@@ -2820,6 +2847,9 @@ Examples:
     )
 
     args = parser.parse_args()
+
+    # S9 fix: Prefer environment variable for API key
+    nvd_api_key = args.nvd_api_key or os.environ.get("NVD_API_KEY")
 
     # Initialize knowledge base
     kb = UnifiedKnowledgeBase()
@@ -3028,7 +3058,7 @@ Examples:
 
     elif args.nvd_cve:
         # Real-time CVE lookup from NVD API
-        nvd_client = NVDClient(api_key=args.nvd_api_key)
+        nvd_client = NVDClient(api_key=nvd_api_key)
         cve_data = nvd_client.get_cve(args.nvd_cve)
         if cve_data:
             # Enrich with KEV status
@@ -3050,7 +3080,7 @@ Examples:
 
     elif args.nvd_cwe:
         # Search CVEs by CWE from NVD API
-        nvd_client = NVDClient(api_key=args.nvd_api_key)
+        nvd_client = NVDClient(api_key=nvd_api_key)
         cwe_id = kb._normalize_cwe_id(args.nvd_cwe)
         limit = min(args.nvd_limit, 100)
 

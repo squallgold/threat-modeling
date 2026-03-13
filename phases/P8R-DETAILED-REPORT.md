@@ -1,4 +1,4 @@
-<!-- Threat Modeling Skill | Version 3.1.0 (20260312a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.1.0 (20260313a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 # Phase 8R: Detailed Risk Analysis Reports (Optional)
 
@@ -136,6 +136,12 @@ Construct a master index from P6 validated risks:
 
 > **MANDATORY**: Generate one report per VR using the following 12-element template.
 > Each report file: `Risk_Assessment_Report/detailed/VR-{NNN}-{title-slug}.md`
+
+> **LANGUAGE ADAPTATION**: The template below uses Chinese headings with English in parentheses
+> as the reference format. **Adapt all headings and field labels to match the session language**
+> (from session metadata `language` field). For English sessions, use only English headings
+> (e.g., "## 1. Risk Overview" instead of "## 1. 风险概述 (Risk Overview)").
+> For other languages, translate headings accordingly while preserving the 12-element structure.
 
 ### Report Template
 
@@ -394,7 +400,7 @@ Risk_Assessment_Report/
 Write to `.phase_working/{SESSION_ID}/data/P8R_manifest.yaml`:
 
 ```yaml
-schema_version: "3.1.0 (20260312a)"
+schema_version: "3.1.0 (20260313a)"
 phase: "P8R"
 session_id: "{SESSION_ID}"
 generated_at: "{ISO_8601_TIMESTAMP}"

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Threat Modeling Skill | Version 3.1.0 (20260312a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause
+# Threat Modeling Skill | Version 3.1.0 (20260313a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause
 
 """
 STRIDE per Interaction Matrix Calculator.
@@ -27,7 +27,7 @@ import argparse
 import json
 import re
 import sys
-from typing import List, Dict, Tuple, Optional
+from typing import Dict, Optional
 
 
 # Element ID validation pattern
@@ -224,6 +224,11 @@ def generate_threat_id(stride_code: str, element_id: str, sequence: str) -> Dict
     if element_id_error:
         return {"error": element_id_error}
 
+    # SM-S4 fix: Validate sequence is numeric
+    sequence = sequence.strip()
+    if not sequence.isdigit():
+        return {"error": f"Sequence must be numeric, got: {sequence}"}
+
     # Normalize element_id (strip whitespace)
     element_id = element_id.strip()
 
@@ -331,6 +336,10 @@ Examples:
         print(json.dumps(result, indent=2, ensure_ascii=False))
     else:
         print(json.dumps(result, ensure_ascii=False))
+
+    # SM-Q2 fix: Exit with error code if result contains error
+    if result and isinstance(result, dict) and "error" in result:
+        sys.exit(1)
 
 
 if __name__ == "__main__":

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Threat Modeling Skill | Version 3.1.0 (20260312a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause
+# Threat Modeling Skill | Version 3.1.0 (20260313a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause
 
 """
 Module Discovery Script for STRIDE Threat Modeling (P1 Phase).
@@ -46,7 +46,6 @@ import fnmatch
 import json
 import os
 import re
-import shutil
 import subprocess
 import sys
 from datetime import datetime
@@ -534,6 +533,8 @@ def list_files(
     if excludes is None:
         excludes = DEFAULT_EXCLUDES
 
+    root = root.resolve()  # S2 fix: Canonicalize to prevent path traversal
+
     files = []
     directories = []
     total_size = 0
@@ -553,6 +554,15 @@ def list_files(
         for entry in entries:
             if should_exclude(entry, excludes):
                 continue
+
+            # S1 fix: Symlink boundary check — prevent escape from project root
+            if entry.is_symlink():
+                try:
+                    resolved = entry.resolve()
+                    if not str(resolved).startswith(str(root.resolve())):
+                        continue  # Skip symlinks pointing outside project
+                except (OSError, ValueError):
+                    continue
 
             if entry.is_dir():
                 rel_path = entry.relative_to(root)
@@ -1102,7 +1112,10 @@ def discover_layer1_routes(
 
     # File extension to language mapping
     ext_to_lang = {
-        ".py": ["python_flask", "python_fastapi", "python_django"],
+        ".py": ["python_flask", "python_fastapi", "python_django",
+                "python_graphql", "python_websocket", "python_celery",
+                "python_scheduler", "python_file_upload",
+                "debug_endpoints", "health_endpoints", "grpc_service"],
         ".js": ["javascript_express"],
         ".ts": ["javascript_express"],
         ".java": ["java_spring"],

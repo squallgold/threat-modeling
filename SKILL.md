@@ -15,18 +15,18 @@ description: |
   writing tests, CI/CD setup, or debugging errors.
 ---
 
-<!-- Threat Modeling Skill | Version 3.1.0 (20260312a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.1.0 (20260313a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 > **Note**: All relative paths in this skill are relative to `SKILL_PATH` (the directory containing this SKILL.md file).
 
-# Threat Modeling Skill v3.1.0 (20260312a)
+# Threat Modeling Skill v3.1.0 (20260313a)
 
 AI-native automated software risk analysis skill. LLM-driven, Code-First approach for comprehensive security risk assessment, threat modeling, security testing, penetration testing, and compliance checking.
 
 ## Version Banner
 
 ```
-━━━ 🛡️ Threat Modeling Skill v3.1.0 (20260312a) ━━━
+━━━ 🛡️ Threat Modeling Skill v3.1.0 (20260313a) ━━━
 ```
 
 ## Command Line Flags
@@ -236,13 +236,13 @@ FOR each phase N in [1..8]:
 
 ```yaml
 # .phase_working/{SESSION_ID}/_session_meta.yaml
-schema_version: "3.1.0 (20260312a)"
+schema_version: "3.1.0 (20260313a)"
 session_id: "OPEN-WEBUI_20260130_143022"  # {PROJECT}_{YYYYMMDD_HHMMSS}
 project_name: "OPEN-WEBUI"
 project_path: "/path/to/project"
 started_at: "ISO8601 timestamp"
 language: "en"
-skill_version: "3.1.0 (20260312a)"
+skill_version: "3.1.0 (20260313a)"
 
 phases:
   P1:

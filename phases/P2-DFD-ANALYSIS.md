@@ -1,4 +1,4 @@
-<!-- Threat Modeling Skill | Version 3.1.0 (20260312a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.1.0 (20260313a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 # Phase 2: Call Flow & DFD Analysis
 
@@ -319,7 +319,7 @@ P2 uses a two-track analysis approach:
 **Output**: `P2_traversal_tasks.yaml`
 
 ```yaml:P2_traversal_tasks
-schema_version: "3.1.0 (20260312a)"
+schema_version: "3.1.0 (20260313a)"
 session_id: "OPEN-WEBUI-20260130_143022"
 generated_at: "2026-01-30T14:30:22Z"
 
@@ -411,7 +411,7 @@ Output required:
 > **ID Numbering Convention**: Sub-agents use offset sequences (100+, 200+, etc.) to avoid ID conflicts during parallel analysis. The merge step (P2.T.2) normalizes all IDs to standard `{Entity}-{Seq:03d}` format.
 
 ```yaml:P2_traverse_001
-schema_version: "3.1.0 (20260312a)"
+schema_version: "3.1.0 (20260313a)"
 task_id: TT-001
 target_id: M-001
 analyzed_at: "2026-01-30T14:35:00Z"
@@ -455,7 +455,7 @@ coverage_metrics:
 **Output**: `P2_full_traversal.yaml`
 
 ```yaml:P2_full_traversal
-schema_version: "3.1.0 (20260312a)"
+schema_version: "3.1.0 (20260313a)"
 session_id: "OPEN-WEBUI-20260130_143022"
 merged_at: "2026-01-30T15:00:00Z"
 
@@ -505,7 +505,7 @@ else:
 **Output**: `P2_coverage_report.yaml`
 
 ```yaml:P2_coverage_report
-schema_version: "3.1.0 (20260312a)"
+schema_version: "3.1.0 (20260313a)"
 session_id: "OPEN-WEBUI-20260130_143022"
 validated_at: "2026-01-30T15:10:00Z"
 
@@ -565,7 +565,7 @@ validation_result:
 | `unknown` | Unknown root cause | High | Manual investigation required |
 
 ```yaml:P2_gap_tasks
-schema_version: "3.1.0 (20260312a)"
+schema_version: "3.1.0 (20260313a)"
 analyzed_at: "2026-01-30T15:15:00Z"
 
 gaps_identified:

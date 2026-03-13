@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Threat Modeling Skill | Version 3.1.0 (20260312a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause
+# Threat Modeling Skill | Version 3.1.0 (20260313a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause
 
 """
 Phase Data Manager for STRIDE Threat Modeling Workflow.
@@ -1871,15 +1871,16 @@ def validate_p1_checklist(project_root: str) -> Dict:
         }
 
     # P1-GAP-12: Validate schema_version
+    # Tolerates both bare "3.1.0" and date-suffixed "3.1.0 (20260313a)" formats
     schema_version = phase_data.get("schema_version", "")
-    if schema_version != SCHEMA_VERSION:
+    if not schema_version.startswith(SCHEMA_VERSION):
         return {
             "status": "blocking",
             "phase": 1,
             "gate": "schema_version",
-            "message": f"Invalid schema_version: '{schema_version}'. Expected: '{SCHEMA_VERSION}'",
+            "message": f"Invalid schema_version: '{schema_version}'. Expected prefix: '{SCHEMA_VERSION}'",
             "action_required": "FIX",
-            "hint": f"Ensure P1_project_context.yaml has 'schema_version: \"{SCHEMA_VERSION}\"' at the top",
+            "hint": f"Ensure P1_project_context.yaml has 'schema_version: \"{SCHEMA_VERSION}\"' or \"{SCHEMA_VERSION} (YYYYMMDD{chr(97)})\" at the top",
         }
 
     blocks = phase_data.get("blocks", phase_data)

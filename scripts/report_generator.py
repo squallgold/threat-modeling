@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Threat Modeling Skill | Version 3.1.0 (20260312a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause
+# Threat Modeling Skill | Version 3.1.0 (20260313a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause
 
 """
 Report Generator: Batch Markdown → HTML converter for threat modeling reports.
@@ -27,13 +27,14 @@ Usage:
     python report_generator.py --input /path/to/Risk_Assessment_Report --detailed
 """
 
-SCHEMA_VERSION = "3.1.0 (20260312a)"
+SCHEMA_VERSION = "3.1.0 (20260313a)"
 
 import argparse
 import re
 import sys
 from datetime import datetime
 from pathlib import Path
+import html as html_mod
 
 try:
     import markdown
@@ -388,10 +389,15 @@ def convert_mermaid_blocks(html: str) -> str:
 
 
 def extract_title(html: str, fallback: str = "Security Report") -> str:
-    """Extract title from first H1 tag."""
+    """Extract title from first H1 tag.
+
+    Returns plain text (HTML-decoded) so callers can safely re-escape for their context.
+    This prevents double-encoding (e.g. &amp;amp;) when the title is later html.escape()'d.
+    """
     match = re.search(r"<h1[^>]*>(.*?)</h1>", html)
     title = match.group(1) if match else fallback
-    return re.sub(r"<[^>]+>", "", title)
+    title = re.sub(r"<[^>]+>", "", title)
+    return html_mod.unescape(title)
 
 
 def build_sidebar_html(report_files: list[dict], current_file: str = "") -> str:
@@ -408,7 +414,7 @@ def build_sidebar_html(report_files: list[dict], current_file: str = "") -> str:
     lines.append(f'<li><a href="index.html">Index</a></li>')
     for r in main_reports:
         active = ' class="active"' if r["html_name"] == current_file else ""
-        lines.append(f'<li><a href="{r["html_name"]}"{active}>{r["display_name"]}</a></li>')
+        lines.append(f'<li><a href="{html_mod.escape(r["html_name"], quote=True)}"{active}>{html_mod.escape(r["display_name"])}</a></li>')
     lines.append("</ul>")
 
     # Detailed reports
@@ -417,7 +423,7 @@ def build_sidebar_html(report_files: list[dict], current_file: str = "") -> str:
         lines.append("<ul>")
         for r in detailed_reports:
             active = ' class="active"' if r["html_name"] == current_file else ""
-            lines.append(f'<li><a href="{r["html_name"]}"{active}>{r["display_name"]}</a></li>')
+            lines.append(f'<li><a href="{html_mod.escape(r["html_name"], quote=True)}"{active}>{html_mod.escape(r["display_name"])}</a></li>')
         lines.append("</ul>")
 
     lines.append("</nav>")
@@ -468,7 +474,7 @@ def convert_md_to_html(
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{title}</title>
+<title>{html_mod.escape(title)}</title>
 <style>
 {CSS_BASE}
 </style>
@@ -506,16 +512,16 @@ def generate_index_page(
     detailed_reports = [r for r in report_files if r.get("is_detailed")]
 
     lines = []
-    lines.append(f"<h1>{project_name} - Report Index</h1>")
+    lines.append(f"<h1>{html_mod.escape(project_name)} - Report Index</h1>")
     lines.append(f'<p>Generated: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}</p>')
 
     # Main reports section
     lines.append("<h2>Main Reports</h2>")
     lines.append('<ul class="report-list">')
     for r in main_reports:
-        lines.append(f"""<li><a href="{r['html_name']}">
-<div class="report-title">{r['display_name']}</div>
-<div class="report-meta">{r['md_name']}</div>
+        lines.append(f"""<li><a href="{html_mod.escape(r['html_name'], quote=True)}">
+<div class="report-title">{html_mod.escape(r['display_name'])}</div>
+<div class="report-meta">{html_mod.escape(r['md_name'])}</div>
 </a></li>""")
     lines.append("</ul>")
 
@@ -524,9 +530,9 @@ def generate_index_page(
         lines.append("<h2>Detailed Risk Analysis Reports</h2>")
         lines.append('<ul class="report-list">')
         for r in detailed_reports:
-            lines.append(f"""<li><a href="{r['html_name']}">
-<div class="report-title">{r['display_name']}</div>
-<div class="report-meta">{r['md_name']}</div>
+            lines.append(f"""<li><a href="{html_mod.escape(r['html_name'], quote=True)}">
+<div class="report-title">{html_mod.escape(r['display_name'])}</div>
+<div class="report-meta">{html_mod.escape(r['md_name'])}</div>
 </a></li>""")
         lines.append("</ul>")
 
@@ -538,7 +544,7 @@ def generate_index_page(
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{project_name} - Report Index</title>
+<title>{html_mod.escape(project_name)} - Report Index</title>
 <style>
 {CSS_INDEX}
 </style>
@@ -675,7 +681,7 @@ def batch_convert(
             )
             results.append(result)
             print(f"  [{len(results):2d}] {report['md_name']} → {report['html_name']} ({result['size_kb']:.1f} KB)")
-        except Exception as e:
+        except (OSError, ValueError, UnicodeDecodeError) as e:
             errors.append({"file": report["md_name"], "error": str(e)})
             print(f"  ERROR: {report['md_name']}: {e}", file=sys.stderr)
 
