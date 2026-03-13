@@ -34,8 +34,8 @@ Usage:
     python phase_data.py --query --phase 1 --summary
 
     # Validate phase completion
-    python phase_data.py --validate --phase 1 --checklist
-    python phase_data.py --validate --phase 2 --l1-coverage
+    python phase_data.py --validate --phase 1
+    python phase_data.py --validate --phase 2
 
     # Store JSON directly (Option B backup)
     python phase_data.py --store --phase 5 --input-json threats.json
@@ -122,7 +122,7 @@ ENTRY_POINT_TYPES = [
 # YAML block extraction pattern
 # Matches ```yaml:{block_name} ... ``` blocks
 YAML_BLOCK_PATTERN = re.compile(
-    r'```yaml:(\w+)\s*\n(.*?)```',
+    r'```yaml:([\w-]+)\s*\n(.*?)```',
     re.DOTALL | re.MULTILINE
 )
 
@@ -155,13 +155,13 @@ ID_PATTERNS = {
     'threat_alt': re.compile(r'^T-[STRIDE]-[A-Z]+\d+-\d{3}$'), # T-S-P1-001 (legacy format)
 
     # P6 Risk Patterns
-    'validated_risk': re.compile(r'^VR-\d{3}$'),             # VR-001
-    'poc': re.compile(r'^POC-\d{3}$'),                       # POC-001
-    'attack_path': re.compile(r'^AP-\d{3}$'),                # AP-001
-    'attack_chain': re.compile(r'^AC-\d{3}$'),               # AC-001
+    'validated_risk': re.compile(r'^VR-\d{3,}$'),            # VR-001 (L2: 3+ digits)
+    'poc': re.compile(r'^POC-\d{3,}$'),                      # POC-001 (L2: 3+ digits)
+    'attack_path': re.compile(r'^AP-\d{3,}$'),               # AP-001 (L2: 3+ digits)
+    'attack_chain': re.compile(r'^AC-\d{3,}$'),              # AC-001 (L2: 3+ digits)
 
     # P7 Mitigation Patterns
-    'mitigation': re.compile(r'^MIT-\d{3}$'),                # MIT-001 (changed from M-xxx)
+    'mitigation': re.compile(r'^MIT-\d{3,}$'),               # MIT-001 (L2: 3+ digits)
 
     # Forbidden formats
     'forbidden_risk': re.compile(r'^RISK-\d+$'),              # RISK-001 (should be VR-xxx)
@@ -281,6 +281,8 @@ PHASE_REPORT_FILES = {
 }
 
 # Minimum required fields per phase YAML (for completeness validation)
+# NOTE: Currently not referenced by validators (they use inline checks).
+# Available for future centralized schema validation via load_phase_data().
 YAML_REQUIRED_FIELDS = {
     1: {
         "P1_project_context.yaml": ["module_inventory", "entry_point_inventory"],
@@ -315,6 +317,15 @@ def get_phase_working_dir(project_root: str) -> Path:
     return Path(project_root) / "Risk_Assessment_Report" / ".phase_working"
 
 
+def _validate_session_id(session_id: str) -> bool:
+    """Validate session_id to prevent path traversal. Returns True if safe."""
+    if not session_id:
+        return False
+    if '..' in session_id or '/' in session_id or '\\' in session_id:
+        return False
+    return True
+
+
 def get_phase_data_dir(project_root: str, session_id: Optional[str] = None) -> Path:
     """
     Get the phase data directory path.
@@ -334,6 +345,9 @@ def get_phase_data_dir(project_root: str, session_id: Optional[str] = None) -> P
 
     # If session_id provided, use that session's data directory
     if session_id:
+        if not _validate_session_id(session_id):
+            print(f"Warning: Invalid session_id rejected: {session_id!r}", file=sys.stderr)
+            return phase_working / "data"
         return phase_working / session_id / "data"
 
     # Try to get current session
@@ -385,8 +399,8 @@ def get_current_session_dir(project_root: str) -> Optional[Path]:
         if session_dir.exists():
             return session_dir
 
-    except (yaml.YAMLError, IOError):
-        pass
+    except (yaml.YAMLError, IOError) as e:
+        print(f"Warning: Failed to read session metadata: {e}", file=sys.stderr)
 
     return None
 
@@ -404,6 +418,10 @@ def ensure_directories(project_root: str, session_id: Optional[str] = None) -> D
     """
     phase_working = get_phase_working_dir(project_root)
     phase_working.mkdir(parents=True, exist_ok=True)
+
+    # L9: Also ensure reports/ subdirectory exists per WORKFLOW.md
+    report_dir = Path(project_root) / "Risk_Assessment_Report"
+    report_dir.mkdir(parents=True, exist_ok=True)
 
     if session_id:
         # Session-specific structure
@@ -469,7 +487,7 @@ def _generate_session_id(project_name: str) -> str:
     normalized = normalized.strip("-")
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    return f"{normalized}-{timestamp}"
+    return f"{normalized}_{timestamp}"
 
 
 def _detect_legacy_session(project_root: str) -> bool:
@@ -525,7 +543,8 @@ def _load_session_meta(project_root: str) -> Optional[Dict]:
     try:
         with open(meta_file, "r", encoding="utf-8") as f:
             return yaml.safe_load(f)
-    except (yaml.YAMLError, IOError):
+    except (yaml.YAMLError, IOError) as e:
+        print(f"Warning: {e}", file=sys.stderr)
         return None
 
 
@@ -689,8 +708,8 @@ def check_session(project_root: str) -> Dict:
                     "started_at": legacy_data.get("started_at"),
                     "message": "Legacy single-file session detected. Use --migrate-session to upgrade.",
                 })
-        except (yaml.YAMLError, IOError):
-            pass
+        except (yaml.YAMLError, IOError) as e:
+            print(f"Warning: {e}", file=sys.stderr)
 
         return result
 
@@ -726,8 +745,8 @@ def check_session(project_root: str) -> Dict:
                     if session_data:
                         session_info["current_phase"] = session_data.get("current_phase", 1)
                         session_info["project_name"] = session_data.get("project_name")
-                except (yaml.YAMLError, IOError):
-                    pass
+                except (yaml.YAMLError, IOError) as e:
+                    print(f"Warning: {e}", file=sys.stderr)
 
             result["incomplete_sessions"].append(session_info)
 
@@ -893,8 +912,8 @@ def resume_session(project_root: str, session_id: Optional[str] = None) -> Dict:
         try:
             with open(session_file, "r", encoding="utf-8") as f:
                 session_data = yaml.safe_load(f)
-        except (yaml.YAMLError, IOError):
-            pass
+        except (yaml.YAMLError, IOError) as e:
+            print(f"Warning: {e}", file=sys.stderr)
 
     return {
         "status": "success",
@@ -1089,8 +1108,8 @@ def list_sessions(project_root: str) -> Dict:
                 if session_data:
                     session_info["project_name"] = session_data.get("project_name")
                     session_info["current_phase"] = session_data.get("current_phase")
-            except (yaml.YAMLError, IOError):
-                pass
+            except (yaml.YAMLError, IOError) as e:
+                print(f"Warning: {e}", file=sys.stderr)
 
         result["sessions"].append(session_info)
 
@@ -1185,15 +1204,15 @@ def load_session(project_root: str, session_id: Optional[str] = None) -> Optiona
 
     # If session_id provided, load that session
     if session_id:
-        # Validate session_id to prevent path traversal
-        if '..' in session_id or '/' in session_id or '\\' in session_id:
+        if not _validate_session_id(session_id):
             return None
         session_file = phase_working / session_id / "_session.yaml"
         if session_file.exists():
             try:
                 with open(session_file, "r", encoding="utf-8") as f:
                     return yaml.safe_load(f)
-            except (yaml.YAMLError, IOError):
+            except (yaml.YAMLError, IOError) as e:
+                print(f"Warning: {e}", file=sys.stderr)
                 return None
         return None
 
@@ -1205,8 +1224,8 @@ def load_session(project_root: str, session_id: Optional[str] = None) -> Optiona
             try:
                 with open(session_file, "r", encoding="utf-8") as f:
                     return yaml.safe_load(f)
-            except (yaml.YAMLError, IOError):
-                pass
+            except (yaml.YAMLError, IOError) as e:
+                print(f"Warning: {e}", file=sys.stderr)
 
     # Fallback to legacy session file
     legacy_session_file = phase_working / "_session.yaml"
@@ -1217,8 +1236,8 @@ def load_session(project_root: str, session_id: Optional[str] = None) -> Optiona
                 if data:
                     data["_legacy"] = True  # Mark as legacy session
                 return data
-        except (yaml.YAMLError, IOError):
-            pass
+        except (yaml.YAMLError, IOError) as e:
+            print(f"Warning: {e}", file=sys.stderr)
 
     return None
 
@@ -1226,6 +1245,17 @@ def load_session(project_root: str, session_id: Optional[str] = None) -> Optiona
 def update_session(project_root: str, updates: Dict, session_id: Optional[str] = None) -> Dict:
     """
     Update session metadata.
+
+    NOTE (L3): This function writes to _session.yaml AND _session_meta.yaml (dual-write).
+    This is intentional: _session.yaml is the per-session source of truth; _session_meta.yaml
+    is the global index for session discovery. Both must stay in sync. A future improvement
+    could use a transaction wrapper, but for single-user CLI usage the sequential write is safe.
+
+    NOTE (L4): No file locking is used. This is acceptable because the tool is designed for
+    single-user CLI usage where concurrent writes don't occur.
+
+    NOTE (L5): No state transition validation is performed. The FSM enforcement is handled
+    at the phase_end_protocol level (M9 fix), not at the generic update_session level.
 
     Args:
         project_root: Project root directory
@@ -1302,6 +1332,8 @@ def extract_yaml_blocks(markdown_content: str) -> Dict[str, Any]:
 
         try:
             parsed = yaml.safe_load(yaml_content)
+            if block_name in blocks:
+                print(f"Warning: Duplicate YAML block '{block_name}' — later definition wins", file=sys.stderr)
             blocks[block_name] = parsed
         except yaml.YAMLError as e:
             errors.append({
@@ -1322,7 +1354,8 @@ def extract_from_markdown(
     markdown_file: str,
     phase: int,
     project_root: str,
-    session_id: Optional[str] = None
+    session_id: Optional[str] = None,
+    mark_complete: bool = True
 ) -> Dict:
     """
     Extract YAML blocks from a Markdown report and store them.
@@ -1332,6 +1365,7 @@ def extract_from_markdown(
         phase: Phase number (1-8)
         project_root: Project root directory
         session_id: Optional session ID (uses current session if not specified)
+        mark_complete: If True, mark phase as completed in session state (M9 fix)
 
     Returns:
         Extraction result with status and stored data info
@@ -1404,29 +1438,30 @@ def extract_from_markdown(
             "blocks": extraction["block_names"],
         }
 
-        # NOTE: Phase marked complete after extraction, before validation.
-        # Validation results are advisory (exit 0 always). If stricter enforcement
-        # is needed (v3.1.0 FSM), move completion marking after validation pass.
-        if "phases_completed" not in session:
-            session["phases_completed"] = []
+        # Mark phase complete in session state (M9 fix: gated by mark_complete param)
+        # When called from phase_end_protocol, mark_complete=False — completion
+        # is deferred until after validation passes.
+        if mark_complete:
+            if "phases_completed" not in session:
+                session["phases_completed"] = []
 
-        if phase not in session["phases_completed"]:
-            session["phases_completed"].append(phase)
-            session["phases_completed"].sort()
+            if phase not in session["phases_completed"]:
+                session["phases_completed"].append(phase)
+                session["phases_completed"].sort()
 
-        session["current_phase"] = max(session.get("current_phase", 1), phase + 1)
-        update_session(project_root, session, session_id)
+            session["current_phase"] = max(session.get("current_phase", 1), phase + 1)
+            update_session(project_root, session, session_id)
 
-        # Also update session meta
-        if session_id:
-            _update_session_meta(
-                project_root,
-                session_id,
-                session.get("project_name", ""),
-                "update",
-                current_phase=session["current_phase"],
-                phases_completed=session["phases_completed"]
-            )
+            # Also update session meta
+            if session_id:
+                _update_session_meta(
+                    project_root,
+                    session_id,
+                    session.get("project_name", ""),
+                    "update",
+                    current_phase=session["current_phase"],
+                    phases_completed=session["phases_completed"]
+                )
 
     return {
         "status": "success",
@@ -1547,6 +1582,9 @@ def store_json(
 # Query Functions
 # ============================================================================
 
+# F9: Module-level cache for load_phase_data (keyed by resolved file path)
+_PHASE_DATA_CACHE: Dict[str, Optional[Dict]] = {}
+
 def load_phase_data(
     phase: int,
     project_root: str,
@@ -1593,17 +1631,24 @@ def load_phase_data(
             if not session_id:
                 legacy_file = get_phase_working_dir(project_root) / "phase_data" / f"phase{phase}.yaml"
                 if legacy_file.exists():
-                    try:
-                        with open(legacy_file, "r", encoding="utf-8") as f:
-                            return yaml.safe_load(f)
-                    except (yaml.YAMLError, IOError):
-                        pass
-            return None
+                    phase_file = legacy_file
+                else:
+                    return None
+            else:
+                return None
+
+    # F9: Cache lookup by resolved file path
+    cache_key = str(phase_file.resolve())
+    if cache_key in _PHASE_DATA_CACHE:
+        return _PHASE_DATA_CACHE[cache_key]
 
     try:
         with open(phase_file, "r", encoding="utf-8") as f:
-            return yaml.safe_load(f)
-    except (yaml.YAMLError, IOError):
+            data = yaml.safe_load(f)
+            _PHASE_DATA_CACHE[cache_key] = data
+            return data
+    except (yaml.YAMLError, IOError) as e:
+        print(f"Warning: {e}", file=sys.stderr)
         return None
 
 
@@ -1837,7 +1882,7 @@ def validate_p1_checklist(project_root: str) -> Dict:
             "hint": f"Ensure P1_project_context.yaml has 'schema_version: \"{SCHEMA_VERSION}\"' at the top",
         }
 
-    blocks = phase_data.get("blocks", {})
+    blocks = phase_data.get("blocks", phase_data)
     checklist = blocks.get("discovery_checklist", {})
     entry_points = blocks.get("entry_point_inventory", {})
 
@@ -2068,7 +2113,7 @@ def validate_p2_l1_coverage(project_root: str) -> Dict:
             "message": "Phase 2 data not found. Run --extract first.",
         }
 
-    blocks = phase_data.get("blocks", {})
+    blocks = phase_data.get("blocks", phase_data)
     data_flows = blocks.get("data_flows", {})
 
     # Get L1 coverage info
@@ -2176,7 +2221,7 @@ def validate_p3_trust_boundaries(project_root: str) -> Dict:
             "message": "Phase 3 data not found. Run --extract first.",
         }
 
-    blocks = phase_data.get("blocks", {})
+    blocks = phase_data.get("blocks", phase_data)
     boundaries = blocks.get("trust_boundaries", {})
     interfaces = blocks.get("interfaces", {})
     data_nodes = blocks.get("data_nodes", {})
@@ -2249,6 +2294,22 @@ def validate_p3_trust_boundaries(project_root: str) -> Dict:
                     "severity": "WARNING",
                 })
 
+    # Validate cross_boundary_flows reference defined boundaries (L1 fix)
+    flow_list = cross_flows if isinstance(cross_flows, list) else cross_flows.get("flows", [])
+    for flow in flow_list:
+        if isinstance(flow, dict):
+            for field in ("source_boundary", "target_boundary"):
+                ref = flow.get(field, "")
+                if ref and ref not in boundary_ids:
+                    warnings.append({
+                        "type": "undefined_boundary_ref",
+                        "flow_id": flow.get("id", "unknown"),
+                        "field": field,
+                        "reference": ref,
+                        "issue": f"Cross-boundary flow references undefined boundary: {ref}",
+                        "severity": "WARNING",
+                    })
+
     # Validate data nodes (WARNING level)
     node_list = data_nodes if isinstance(data_nodes, list) else data_nodes.get("data_nodes", [])
     for node in node_list:
@@ -2315,7 +2376,7 @@ def validate_p4_security_design(project_root: str) -> Dict:
             "message": "Phase 4 data not found. Run --extract first.",
         }
 
-    blocks = phase_data.get("blocks", {})
+    blocks = phase_data.get("blocks", phase_data)
     security_gaps = blocks.get("security_gaps", {})
     design_matrix = blocks.get("design_matrix", {})
 
@@ -2485,7 +2546,7 @@ def validate_p5_threat_inventory(project_root: str) -> Dict:
             "message": "Phase 5 data not found. Run --extract first.",
         }
 
-    blocks = phase_data.get("blocks", {})
+    blocks = phase_data.get("blocks", phase_data)
     threat_inventory = blocks.get("threat_inventory", {})
 
     if not threat_inventory:
@@ -2553,6 +2614,18 @@ def validate_p5_threat_inventory(project_root: str) -> Dict:
                     "stride_type": stride_type,
                     "issue": f"Invalid STRIDE type: {stride_type}",
                     "expected": STRIDE_CATEGORIES,
+                    "severity": "WARNING",
+                })
+
+            # Required field presence check (M6)
+            THREAT_REQUIRED_FIELDS = ["element_id", "title", "description"]
+            missing_fields = [f for f in THREAT_REQUIRED_FIELDS if not threat.get(f)]
+            if missing_fields:
+                warnings.append({
+                    "type": "missing_required_fields",
+                    "id": tid,
+                    "missing": missing_fields,
+                    "issue": f"Threat {tid} missing fields: {missing_fields}",
                     "severity": "WARNING",
                 })
 
@@ -2675,7 +2748,7 @@ def validate_p6_validated_risks(project_root: str) -> Dict:
             "message": "Phase 6 data not found. Run --extract first.",
         }
 
-    blocks = phase_data.get("blocks", {})
+    blocks = phase_data.get("blocks", phase_data)
     validated_risks = blocks.get("validated_risks", {})
     poc_details = blocks.get("poc_details", {})
     attack_chains = blocks.get("attack_chains", {})
@@ -2763,13 +2836,13 @@ def validate_p6_validated_risks(project_root: str) -> Dict:
     declared_identified = risk_summary.get("total_identified", 0)
 
     if declared_counts > 0 and declared_identified > 0 and declared_counts != declared_identified:
-        warnings.append({
-            "type": "count_conservation_warning",
-            "issue": "Risk summary counts may not balance",
+        blocking_issues.append({
+            "type": "count_conservation_violation",
+            "issue": "Risk summary counts do not balance (CP1 violation)",
             "identified": declared_identified,
             "sum": declared_counts,
             "hint": "Run --validate-checkpoints for full CP1 validation",
-            "severity": "WARNING",
+            "severity": "BLOCKING",
         })
 
     # POC coverage warning
@@ -2889,7 +2962,7 @@ def validate_p7_mitigation_plan(project_root: str) -> Dict:
             "message": "Phase 7 data not found. Run --extract first.",
         }
 
-    blocks = phase_data.get("blocks", {})
+    blocks = phase_data.get("blocks", phase_data)
     mitigation_plan = blocks.get("mitigation_plan", {})
     roadmap = blocks.get("roadmap", {})
 
@@ -3125,9 +3198,12 @@ def _validate_p8_reports(project_root: str) -> Dict:
     found_reports = []
     missing_reports = []
 
+    # Glob once, iterate cached list (M13 fix: was 8 redundant globs)
+    all_md_files = list(report_dir.glob("**/*.md"))
+
     for report_name in required_reports:
         found = False
-        for f in report_dir.glob("**/*.md"):
+        for f in all_md_files:
             if report_name.upper() in f.name.upper():
                 found = True
                 found_reports.append(f.name)
@@ -3250,11 +3326,14 @@ def aggregate_phases(
 # ============================================================================
 # Count Conservation Validation (CP1/CP2/CP3)
 # Migrated from validate_count_conservation.py v2.1.0
+# NOTE (M12): CP validators use UPPERCASE status (PASS/FAIL/WARN) per migration origin.
+# Phase validators use lowercase (passed/blocking/error/warning). Consumers at
+# boundaries must use the correct case; main() normalizes via .lower() for exit codes.
 # ============================================================================
 
 # Regex patterns for content parsing (from validate_count_conservation.py)
-_THREAT_PATTERN = re.compile(r'T-[STRIDE]-[A-Z]+\d+-\d{3}')
-_VR_PATTERN = re.compile(r'VR-\d{3}')
+_THREAT_PATTERN = re.compile(r'T-[STRIDE]-[A-Z]+-\d{3}(?:-\d{3})?')
+_VR_PATTERN = re.compile(r'VR-\d{3,}')  # L2: 3+ digits for >999 VRs
 _TOTAL_PATTERN = re.compile(r'(?:total|总数|总计)[\s:]*(\d+)', re.IGNORECASE)
 _THREAT_REF_PATTERN = re.compile(r'threat_refs?\s*[:\|]\s*\[?([^\]\n]+)\]?', re.IGNORECASE)
 
@@ -3621,18 +3700,26 @@ def validate_cp1_threat_conservation(project_root: str, markdown_mode: bool = Fa
         consolidated.extend(refs)
     consolidated = list(set(consolidated))
 
-    # Calculate
+    # Detect overlap between consolidated and excluded (M10 fix)
+    overlap = set(consolidated) & set(excluded)
+
+    # Calculate using union to avoid double-counting overlapping threats
     consolidated_count = len(consolidated)
     excluded_count = len(excluded)
-    total_accounted = consolidated_count + excluded_count
+    all_accounted = set(consolidated) | set(excluded)
+    total_accounted = len(all_accounted)
 
     details = {
         "p5_total": p5_total,
         "consolidated": consolidated_count,
         "excluded": excluded_count,
         "accounted": total_accounted,
-        "formula": f"{consolidated_count} + {excluded_count} = {total_accounted}",
+        "formula": f"{consolidated_count} consolidated + {excluded_count} excluded = {total_accounted} unique",
     }
+
+    if overlap:
+        details["overlap"] = sorted(overlap)
+        details["overlap_warning"] = f"{len(overlap)} threat(s) in both consolidated and excluded: {sorted(overlap)}"
 
     # Determine status
     if total_accounted == p5_total:
@@ -4300,7 +4387,7 @@ def verify_p4_coverage(project_root: str, session_id: Optional[str] = None) -> D
 
         result["checked_at"] = datetime.now().isoformat()
 
-    except Exception as e:
+    except (KeyError, TypeError, AttributeError, ValueError, ZeroDivisionError, yaml.YAMLError, IOError) as e:
         result["status"] = "ERROR"
         result["error"] = str(e)
 
@@ -4553,7 +4640,7 @@ def verify_p5_element_coverage(project_root: str, session_id: Optional[str] = No
 
         result["checked_at"] = datetime.now().isoformat()
 
-    except Exception as e:
+    except (KeyError, TypeError, AttributeError, ValueError, ZeroDivisionError, yaml.YAMLError, IOError) as e:
         result["status"] = "ERROR"
         result["error"] = str(e)
 
@@ -4790,7 +4877,7 @@ def verify_p6_findings_coverage(project_root: str, session_id: Optional[str] = N
 
         result["checked_at"] = datetime.now().isoformat()
 
-    except Exception as e:
+    except (KeyError, TypeError, AttributeError, ValueError, ZeroDivisionError, yaml.YAMLError, IOError) as e:
         result["status"] = "ERROR"
         result["error"] = str(e)
 
@@ -5042,7 +5129,7 @@ def verify_p8_attack_coverage(project_root: str, session_id: Optional[str] = Non
 
         result["checked_at"] = datetime.now().isoformat()
 
-    except Exception as e:
+    except (KeyError, TypeError, AttributeError, ValueError, ZeroDivisionError, yaml.YAMLError, IOError) as e:
         result["status"] = "ERROR"
         result["error"] = str(e)
 
@@ -5429,6 +5516,14 @@ def phase_end_protocol(
         result["error"] = f"Invalid phase number: {phase}. Must be 1-8."
         return result
 
+    # Determine session ID if not provided (MUST run before FSM check - F1 fix)
+    if not session_id:
+        current_session_dir = get_current_session_dir(project_root)
+        if current_session_dir:
+            session_id = current_session_dir.name
+
+    result["session_id"] = session_id
+
     # FSM enforcement: verify precondition (方案A - v3.1.0)
     # Ensures phases execute in order: P(N) requires P(N-1) completed
     if phase > 1 and session_id:
@@ -5441,14 +5536,6 @@ def phase_end_protocol(
                 result["error"] = f"FSM violation: Phase {phase} requires Phase {required_phase} to be completed first"
                 result["hint"] = f"Complete Phase {required_phase} before proceeding to Phase {phase}"
                 return result
-
-    # Determine session ID if not provided
-    if not session_id:
-        current_session_dir = get_current_session_dir(project_root)
-        if current_session_dir:
-            session_id = current_session_dir.name
-
-    result["session_id"] = session_id
 
     # Step 1: Find markdown file
     md_path = None
@@ -5474,7 +5561,8 @@ def phase_end_protocol(
         str(md_path),
         phase,
         project_root,
-        session_id=session_id
+        session_id=session_id,
+        mark_complete=False  # M9 fix: defer completion until after validation
     )
 
     result["extraction"] = extraction_result
@@ -5507,14 +5595,15 @@ def phase_end_protocol(
     summary = _generate_phase_summary(phase, phase_data)
     result["summary"] = summary
 
-    # Step 5: Update session state
+    # Step 5: Update session state (M9 fix: only mark complete if validation passed)
     session = load_session(project_root, session_id)
     if session:
-        # Update phases_completed
+        # Update phases_completed — gate on validation status
         phases_completed = session.get("phases_completed", [])
-        if phase not in phases_completed:
-            phases_completed.append(phase)
-            phases_completed.sort()
+        if validation_status not in ("blocking", "error"):
+            if phase not in phases_completed:
+                phases_completed.append(phase)
+                phases_completed.sort()
 
         # Update current_phase to next phase
         next_phase_num = phase + 1 if phase < 8 else 8
@@ -5748,7 +5837,7 @@ def p2_extract_traversal_tasks(project_root: str, session_id: Optional[str] = No
         result["output_file"] = str(output_file)
         result["task_summary"] = output_data["task_summary"]
 
-    except Exception as e:
+    except (KeyError, TypeError, AttributeError, ValueError, ZeroDivisionError, yaml.YAMLError, IOError) as e:
         result["error"] = str(e)
 
     return result
@@ -5762,10 +5851,10 @@ def _estimate_complexity(item: Dict) -> int:
     if item.get("security_relevant", False):
         complexity += 1
 
-    # Increase for multiple entry points
+    # Increase for multiple entry points (L10 fix: differentiate >5 from >2)
     entry_points = item.get("entry_points", [])
     if len(entry_points) > 5:
-        complexity += 1
+        complexity += 2
     elif len(entry_points) > 2:
         complexity += 1
 
@@ -5880,7 +5969,7 @@ def p2_merge_traversal_results(project_root: str, session_id: Optional[str] = No
         result["output_file"] = str(output_file)
         result["deduplication_count"] = len(deduplication_log)
 
-    except Exception as e:
+    except (KeyError, TypeError, AttributeError, ValueError, ZeroDivisionError, yaml.YAMLError, IOError) as e:
         result["error"] = str(e)
 
     return result
@@ -6214,7 +6303,7 @@ def p2_validate_coverage(project_root: str, session_id: Optional[str] = None) ->
             result["halt_reason"] = f"Coverage threshold not met after {max_iterations} iterations"
             result["user_decision_required"] = True
 
-    except Exception as e:
+    except (KeyError, TypeError, AttributeError, ValueError, ZeroDivisionError, yaml.YAMLError, IOError) as e:
         result["error"] = str(e)
 
     return result
@@ -6475,7 +6564,7 @@ def p2_gap_analysis(project_root: str, session_id: Optional[str] = None) -> Dict
             result["warning"] = "This is the final iteration. If gaps persist, workflow will halt."
             result["halt_recommended"] = True
 
-    except Exception as e:
+    except (KeyError, TypeError, AttributeError, ValueError, ZeroDivisionError, yaml.YAMLError, IOError) as e:
         result["error"] = str(e)
 
     return result
@@ -6621,7 +6710,7 @@ def p2_final_aggregation(project_root: str, session_id: Optional[str] = None) ->
             result["warning"] = f"Coverage is {final_coverage:.1f}%. Need 100% before proceeding to P3."
             result["next_action"] = "p2_gap_analysis"
 
-    except Exception as e:
+    except (KeyError, TypeError, AttributeError, ValueError, ZeroDivisionError, yaml.YAMLError, IOError) as e:
         result["error"] = str(e)
 
     return result
@@ -6732,7 +6821,7 @@ def p2_dispatch_gap_tasks(project_root: str, session_id: Optional[str] = None) -
         result["iteration"] = current_iteration
         result["next_action"] = "Claude should analyze each task and update P2_full_traversal.yaml"
 
-    except Exception as e:
+    except (KeyError, TypeError, AttributeError, ValueError, ZeroDivisionError, yaml.YAMLError, IOError) as e:
         result["error"] = str(e)
 
     return result
@@ -6868,7 +6957,7 @@ def p1_check_doc_analysis_required(project_root: str, session_id: Optional[str] 
         if result["p1_1_required"]:
             result["doc_priority_order"] = documentation.get("doc_priority_order", [])[:10]
 
-    except Exception as e:
+    except (KeyError, TypeError, AttributeError, ValueError, ZeroDivisionError, yaml.YAMLError, IOError) as e:
         result["status"] = "error"
         result["error"] = str(e)
 
@@ -7093,7 +7182,7 @@ def p1_source_alignment(project_root: str, session_id: Optional[str] = None) -> 
         if overall_score < 0.70:
             result["warning"] = "Low alignment score. Review single-source items before proceeding."
 
-    except Exception as e:
+    except (KeyError, TypeError, AttributeError, ValueError, ZeroDivisionError, yaml.YAMLError, IOError) as e:
         result["error"] = str(e)
 
     return result
@@ -7441,6 +7530,10 @@ Examples:
 
     args = parser.parse_args()
 
+    # L8: Validate --root directory exists (skip for --help which already exited)
+    if not Path(args.root).is_dir():
+        parser.error(f"--root directory does not exist: {args.root}")
+
     # Execute command
     result = None
 
@@ -7500,6 +7593,9 @@ Examples:
         if not args.phases:
             parser.error("--aggregate requires --phases")
         phase_list = [int(p.strip()) for p in args.phases.split(",")]
+        invalid = [p for p in phase_list if p < 1 or p > 8]
+        if invalid:
+            parser.error(f"--phases values must be 1-8, got invalid: {invalid}")
         result = aggregate_phases(phase_list, args.root, args.format)
 
     elif args.status:
@@ -7587,12 +7683,27 @@ Examples:
     elif args.verify_all_coverage:
         result = verify_all_coverage(args.root, session_id=args.session_id)
 
+    # F10: Normalize error response — ensure both status fields present
+    if result:
+        if "overall_status" in result and "status" not in result:
+            result["status"] = result["overall_status"]
+        elif "status" in result and "overall_status" not in result:
+            result["overall_status"] = result["status"]
+
     # Output JSON
     if result:
         if args.pretty:
             print(json.dumps(result, indent=2, ensure_ascii=False))
         else:
             print(json.dumps(result, ensure_ascii=False))
+
+        # Exit code per WORKFLOW.md contract (F3 fix)
+        status = result.get("overall_status") or result.get("status", "")
+        status_lower = status.lower() if isinstance(status, str) else ""
+        if status_lower in ("error", "blocking", "fail"):
+            sys.exit(1)
+        elif status_lower in ("warning", "warn"):
+            sys.exit(2)
 
 
 if __name__ == "__main__":
