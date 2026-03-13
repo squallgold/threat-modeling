@@ -3,8 +3,8 @@
 # STRIDE Skill Set - 知识架构 v5.2.2
 
 **版本**: 5.2.2
-**日期**: 2026-01-27
-**状态**: Production - v2.2.1 Phase 2 DFD/CFD Enhancement
+**日期**: 2026-01-27 (updated 2026-03-13)
+**状态**: Production - v3.1.0
 
 ---
 

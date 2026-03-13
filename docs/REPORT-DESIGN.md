@@ -99,7 +99,6 @@ Optional post-P8 phase generating per-VR detailed analysis reports.
 #### Trigger Conditions
 1. P8 completion prompt: "Generate detailed risk analysis? [Y/N]"
 2. `--detailed` flag at session start
-3. Standalone invocation: `phase_data.py --p8r --session {SESSION_ID}`
 
 #### Output Structure
 ```

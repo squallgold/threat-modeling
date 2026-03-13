@@ -171,7 +171,7 @@ FOR each phase N in [1..8]:
     ├── P4-SECURITY-DESIGN-REVIEW.md
     ├── P5-STRIDE-THREATS.md
     ├── P6-RISK-VALIDATION.md
-    ├── P7-MITIGATION-PLANNING.md
+    ├── P7-MITIGATION-PLAN.md
     ├── detailed/                              ← P8R only (--detailed flag)
     │   ├── VR-001-{title-slug}.md
     │   └── ...
@@ -312,7 +312,7 @@ All threats from P5 must be accounted for in P6 (no threat loss).
 
 ## §4 Security Knowledge Architecture
 
-> See @knowledge/ for complete reference materials (26+ MB, 113 files).
+> See @knowledge/ for complete reference materials (~11 MB, 113 files).
 
 ### Three Knowledge Sets
 

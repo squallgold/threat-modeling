@@ -1,4 +1,4 @@
-<!-- Threat Modeling Skill | Version 3.1.0 (20260312a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.1.0 (20260313a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 # Changelog
 
@@ -7,13 +7,51 @@ All notable changes to the Threat Modeling Skill will be documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [3.1.0] - 2026-03-12 (In Development)
+## [3.1.0] - 2026-03-13
 
-### Planned
-- God Object refactoring (phase_data.py split)
-- Description eval loop optimization
-- Architecture: Data-First vs Markdown-First resolution
-- 20 deferred items from v3.0.5 audit
+### Comprehensive Security Audit (60 fixes across 6 scripts)
+
+**phase_data.py** (30 fixes):
+- **P0 CRITICAL**: Schema version validator tolerance — `startswith()` instead of `==` to accept both bare `"3.1.0"` and date-suffixed `"3.1.0 (20260313a)"` formats
+- **HIGH (4)**: Regex DoS protection, deepcopy for YAML data isolation, data-first/markdown-first bridge with `dict.get("blocks", dict_itself)`, correct P5 coverage denominator
+- **HIGH-Robustness (4)**: P1 `None` guard, safe `.get()` for optional fields, FSM bounds check on phase numbers, zero-division guard in P2 percentages
+- **HIGH-Performance (7)**: Regex precompilation (22 patterns), knowledge path caching, glob caching for P8 reports, YAML safe_load verification, DFD element extraction optimization
+- **MEDIUM (6)**: P5 required field validation, FSM completion gating (`mark_complete` parameter), CP1 overlap detection (set algebra), narrow `except Exception` (8 locations), status casing convention documented, P8 glob cached
+- **LOW (9)**: P3 cross-boundary flow validation, entity regex `\d{3}` → `\d{3,}`, dual-write design documented, single-user file locking documented, FSM state transition documented, `--phases` bounds check, `--root` directory check, `Risk_Assessment_Report/` auto-creation, complexity estimator correction
+
+**unified_kb_query.py** (4 fixes):
+- **MEDIUM**: FTS5 query sanitization (`_sanitize_fts5_query()` strips operators, quotes terms)
+- **MEDIUM**: NVD API key from `NVD_API_KEY` env var (CLI arg as fallback with deprecation warning)
+- **MEDIUM**: Narrow 7 `except Exception` → specific types (JSONDecodeError, sqlite3.Error, yaml.YAMLError, OSError)
+- **MEDIUM**: Schema version design documented on `_get_sqlite_connection()`
+
+**module_discovery.py** (3 fixes):
+- **HIGH**: Symlink boundary check in `list_files()` — prevent path traversal escape from project root
+- **MEDIUM**: Path canonicalization with `root.resolve()` at entry
+- **MEDIUM**: `ext_to_lang` mapping expanded from 5 to 11 pattern groups
+
+**report_generator.py** (3 fixes):
+- **HIGH**: HTML escape for title/project_name via `html.escape()` (XSS prevention in 3 locations)
+- **MEDIUM**: Sidebar + index page href/display escaping (6 locations)
+- **MEDIUM**: Narrow `except Exception` → `(OSError, ValueError, UnicodeDecodeError)`
+
+**stride_matrix.py** (2 fixes):
+- **MEDIUM**: Numeric validation + strip for `sequence` parameter in `generate_threat_id()`
+- **LOW**: `sys.exit(1)` on error result in `main()`
+
+**build_knowledge_base.py** (4 fixes, dev-only):
+- Added standard version header
+- Removed unused imports (re, datetime, Set, Tuple)
+- Added `encoding="utf-8"` to 3 `open()` calls
+- Added defusedxml decision comment
+
+### Additional Changes
+- `extract_title()` double-escape prevention — `html.unescape()` at extraction point
+- `data-model.yaml`: TrustBoundary.type expanded (Model, Agent), ArchitectureFinding.category expanded (dynamic_route)
+- P8R language adaptation instruction added
+- Hook version updated 3.0.0 → 3.1.0
+- All 137 files synced to date suffix `20260313a`
+- Documentation and version consistency audit across all files
 
 ## [3.0.5] - 2026-03-12
 

@@ -3,7 +3,7 @@
 # STRIDE Threat Modeling System Architecture Analysis
 
 > **Version**: 3.1.0
-> **Date**: 2026-02-04 (updated 2026-03-12)
+> **Date**: 2026-02-04 (updated 2026-03-13)
 > **Purpose**: Comprehensive system architecture analysis with diagrams, module relationships, and formal workflow specification
 
 > **Note (v3.0.2)**: Architecture refactored for clarity and determinism:
@@ -76,16 +76,18 @@
 │                    STRIDE Threat Modeling FSM                    │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                  │
-│  States: {INIT, P1, P2, P3, P4, P5, P6, P7, P8, DONE, ERROR}    │
+│  States: {INIT, P1, P2, P3, P4, P5, P6, P7, P8, P8R, DONE, ERROR} │
 │                                                                  │
 │  Alphabet (Transitions):                                         │
 │    σ = {start, p1_complete, p2_complete, ..., p8_complete,      │
-│         validation_fail, recovery_success, abort}                │
+│         p8r_complete, validation_fail, recovery_success, abort}  │
 │                                                                  │
 │  Transition Function δ:                                          │
 │    δ(INIT, start) → P1                                          │
 │    δ(Pn, pn_complete) → P(n+1)  where n ∈ {1..7}                │
-│    δ(P8, p8_complete) → DONE                                    │
+│    δ(P8, p8_complete ∧ ¬detailed) → DONE                        │
+│    δ(P8, p8_complete ∧ detailed) → P8R                           │
+│    δ(P8R, p8r_complete) → DONE                                   │
 │    δ(Pn, validation_fail) → ERROR                               │
 │    δ(ERROR, recovery_success) → Pn  (rollback to last valid)    │
 │    δ(ERROR, abort) → DONE (with partial results)                │
@@ -227,7 +229,7 @@ Property L2: Error Recoverability
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────────────────┐
-│                           Code-First Deep Risk Analysis System v2.1.0                          │
+│                           Code-First Deep Risk Analysis System v3.1.0                          │
 ├─────────────────────────────────────────────────────────────────────────────────────────────┤
 │                                                                                              │
 │  ┌───────────────────────────────────────────────────────────────────────────────────────┐ │
@@ -295,7 +297,7 @@ Property L2: Error Recoverability
 │  │  ├── stride_matrix.py (7.6KB)        ◄── Phase 5: STRIDE per Interaction             │ │
 │  │  │   └── Threat category calculation                                                 │ │
 │  │  │                                                                                    │ │
-│  │  ├── phase_data.py                    ◄── Cross-Phase Data & Validation (v2.2.2)    │ │
+│  │  ├── phase_data.py                    ◄── Cross-Phase Data & Validation (v3.1.0)    │ │
 │  │  │   └── YAML extraction, CP1/CP2/CP3 validation                                    │ │
 │  │  │                                                                                    │ │
 │  │  │  [Development Only - Not in Release]                                              │ │
@@ -405,7 +407,7 @@ Property L2: Error Recoverability
 │  │         ▼                                                                             │  │
 │  │  ╔═══════════════╗      DF-04: security_gaps                                         │  │
 │  │  ║   Phase 4     ║ ────────────────────────────────────────────────────────────►     │  │
-│  │  ║   Security    ║      - domain_assessments[15], gaps[], recommendations[]          │  │
+│  │  ║   Security    ║      - domain_assessments[16], gaps[], recommendations[]          │  │
 │  │  ║   Design      ║      - security_coverage_matrix                                   │  │
 │  │  ╚═══════════════╝                                                                   │  │
 │  │         │              ┌──────────────────────────────────────────────────────┐      │  │
@@ -531,31 +533,13 @@ Property L2: Error Recoverability
 │                                        │ use                                                │
 │                                        ▼                                                    │
 │  ┌──────────────────────────────────────────────────────────────────────────────────────┐  │
-│  │                              assets/templates/ (9 files)                                     │  │
-│  │                              ═════════════════════                                    │  │
+│  │                              assets/contracts/ (1 file)                                      │  │
+│  │                              ══════════════════════                                  │  │
 │  │                                                                                       │  │
-│  │  RISK-ASSESSMENT-REPORT.template.md  ◄── Main report structure (9 chapters)          │  │
-│  │  RISK-INVENTORY.template.md          ◄── VR table with threat_refs                   │  │
-│  │  MITIGATION-MEASURES.template.md     ◄── M-{Seq} with fix_location                   │  │
-│  │  PENETRATION-TEST-PLAN.template.md   ◄── POC-based testing plan                      │  │
-│  │  ARCHITECTURE-ANALYSIS.template.md   ◄── System architecture                         │  │
-│  │  ATTACK-PATH-VALIDATION.template.md  ◄── Attack chain analysis                       │  │
-│  │  COMPLIANCE-REPORT.template.md       ◄── Compliance mapping                          │  │
-│  │  DFD-DIAGRAM.template.md             ◄── DFD visualization                           │  │
-│  │  DFD-TEMPLATES.md                    ◄── DFD ASCII patterns                          │  │
+│  │  data-model.yaml              ◄── Entity schemas, data contracts, type definitions   │  │
 │  │                                                                                       │  │
-│  └──────────────────────────────────────────────────────────────────────────────────────┘  │
-│                                        │                                                    │
-│                                        │ validated by                                       │
-│                                        ▼                                                    │
-│  ┌──────────────────────────────────────────────────────────────────────────────────────┐  │
-│  │                              assets/schemas/ (4 files)                                       │  │
-│  │                              ══════════════════                                       │  │
-│  │                                                                                       │  │
-│  │  risk-detail.schema.md        ◄── VR structure, threat_refs required                 │  │
-│  │  phase-risk-summary.schema.md ◄── threat_disposition, count conservation             │  │
-│  │  report-naming.schema.md      ◄── {PROJECT}-{TYPE}.md naming rules                   │  │
-│  │  mitigation-detail.schema.md  ◄── M-{Seq} structure, fix_location schema             │  │
+│  │  Note: assets/templates/ and assets/schemas/ are reserved (empty).                   │  │
+│  │  Report templates are defined inline in phase instruction files (P8, P8R).            │  │
 │  │                                                                                       │  │
 │  └──────────────────────────────────────────────────────────────────────────────────────┘  │
 │                                                                                              │
@@ -566,12 +550,11 @@ Property L2: Error Recoverability
 
 | Module | Type | Purpose | Dependencies |
 |--------|------|---------|--------------|
-| SKILL.md | Definition | Entry point, workflow definition, data model | - |
-| WORKFLOW.md | Execution | Phase 1-5 step-by-step guide | SKILL.md |
-| VALIDATION.md | Execution | Phase 6 consolidation and validation | SKILL.md, WORKFLOW.md |
-| REPORT.md | Execution | Phase 7-8 mitigation and report | SKILL.md, VALIDATION.md |
-| assets/templates/*.md | Template | Report structure and placeholders | Schemas |
-| assets/schemas/*.md | Schema | Data validation rules | SKILL.md |
+| SKILL.md | Definition | Entry point, data model, global constraints | - |
+| WORKFLOW.md | Execution | Phase orchestration, FSM, data contracts | SKILL.md |
+| phases/P1-P8-*.md | Execution | Per-phase instructions (9 files including P8R) | SKILL.md, WORKFLOW.md |
+| scripts/*.py | Automation | Session management, KB queries, validation | SKILL.md |
+| assets/contracts/data-model.yaml | Schema | Entity schemas and data contracts | SKILL.md |
 
 ---
 
@@ -645,7 +628,7 @@ Property L2: Error Recoverability
 │  ║  3. Rate coverage (✅/⚠️/❌)                                                          ║ │
 │  ║                                                                                        ║ │
 │  ║  Output: P4-SECURITY-DESIGN-REVIEW.md                                                  ║ │
-│  ║  Data: security_gaps {domain_assessments[15], gaps[], coverage_matrix}                ║ │
+│  ║  Data: security_gaps {domain_assessments[16], gaps[], coverage_matrix}                ║ │
 │  ╚═══════════════════════════════════════════════════════════════════════════════════════╝ │
 │                                              │                                              │
 │                                              ▼                                              │
@@ -761,7 +744,7 @@ Property L2: Error Recoverability
 │  ├─ --stride-compliance         │    │    │    │    │    │    │    │ ●  │                  │
 │  └─ --search (semantic)         │    │    │ ○  │ ○  │ ○  │ ○  │ ○  │    │                  │
 │                                 │    │    │    │    │    │    │    │    │                  │
-│  phase_data.py (v2.2.2)         │ ●  │ ●  │    │    │ ●  │ ●  │ ●  │ ●● │                  │
+│  phase_data.py (v3.1.0)         │ ●  │ ●  │    │    │ ●  │ ●  │ ●  │ ●● │                  │
 │  └─ Cross-phase data & CP valid │    │    │    │    │    │    │    │    │                  │
 │                                                                                              │
 │  Legend: ●● Primary usage  ● Secondary usage  ○ Optional usage                             │

@@ -8,7 +8,7 @@ This directory contains PostToolUse hooks for automating the threat modeling wor
 
 **File:** `phase_end_hook.sh`
 
-Automatically runs `phase_data.py --phase-end` after each phase report is written to `.phase_working/P{N}-*.md`.
+Automatically runs `phase_data.py --phase-end` after each phase report is written to `.phase_working/{SESSION_ID}/reports/P{N}-*.md`.
 
 ### Trigger Conditions
 

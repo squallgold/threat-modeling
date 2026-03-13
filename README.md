@@ -385,7 +385,7 @@ P1 → P2 → P3 → P4 → P5 → P6 → P7 → P8
 | Threat Patterns | CWE/CAPEC/ATT&CK (1,900+ patterns) |
 | AI/LLM Threats | 350+ threats |
 | Compliance | OWASP ASVS, WSTG, MASTG |
-| SQLite Index | 26+ MB searchable |
+| SQLite Index | ~8 MB searchable |
 
 ## Project Types Supported
 

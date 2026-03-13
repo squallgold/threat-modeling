@@ -387,7 +387,7 @@ P1 → P2 → P3 → P4 → P5 → P6 → P7 → P8
 | 威胁模式 | CWE/CAPEC/ATT&CK（1,900+模式） |
 | AI/LLM威胁 | 350+威胁 |
 | 合规标准 | OWASP ASVS, WSTG, MASTG |
-| SQLite索引 | 26+ MB可搜索 |
+| SQLite索引 | ~8 MB可搜索 |
 
 ## 支持的项目类型
 

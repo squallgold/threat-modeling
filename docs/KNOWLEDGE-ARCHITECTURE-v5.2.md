@@ -3,8 +3,8 @@
 # STRIDE Skill Set - Knowledge Architecture v5.2
 
 **Version**: 5.2.1
-**Date**: 2026-01-04
-**Status**: Production - v2.1.0 Agentic Security Updated
+**Date**: 2026-01-04 (updated 2026-03-13)
+**Status**: Production - v3.1.0
 
 ---
 

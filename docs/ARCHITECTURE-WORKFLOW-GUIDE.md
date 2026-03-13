@@ -2,9 +2,9 @@
 
 # STRIDE Skill Set 综合架构与工作流指南
 
-**版本**: 2.1.0
-**日期**: 2026-01-04
-**状态**: Production - v2.1.0 Agentic Security Updated
+**版本**: 3.1.0
+**日期**: 2026-01-04 (updated 2026-03-13)
+**状态**: Production - v3.1.0
 
 ---
 
@@ -41,7 +41,7 @@
 │  ║                                    ▼ 指导                                      ║  │
 │  ║  ┌─────────────────────────────────────────────────────────────────────────┐  ║  │
 │  ║  │ L2: Security Design (16个安全域)                                         │  ║  │
-│  ║  │     位置: assets/knowledge/security-design.yaml                                 │  ║  │
+│  ║  │     位置: knowledge/security-design.yaml                                 │  ║  │
 │  ║  │     核心域(10): AUTHN, AUTHZ, INPUT, OUTPUT, CLIENT,                     │  ║  │
 │  ║  │                 CRYPTO, LOG, ERROR, API, DATA                            │  ║  │
 │  ║  │     扩展域(6): INFRA, SUPPLY, AI, MOBILE, CLOUD, AGENT                  │  ║  │
@@ -51,7 +51,7 @@
 │  ║                                    ▼ 实现                                      ║  │
 │  ║  ┌─────────────────────────────────────────────────────────────────────────┐  ║  │
 │  ║  │ L3: Security Controls (18个控制集文件, 107个控制)                        │  ║  │
-│  ║  │     位置: assets/knowledge/security-controls/control-set-*.md                   │  ║  │
+│  ║  │     位置: knowledge/security-controls/control-set-*.md                   │  ║  │
 │  ║  │     内容: 具体安全控制要求和实施指南                                     │  ║  │
 │  ║  │     用途: Phase 4 安全功能评估的检查清单                                 │  ║  │
 │  ║  └─────────────────────────────────────────────────────────────────────────┘  ║  │
@@ -59,7 +59,7 @@
 │  ║                                    ▼ 实践                                      ║  │
 │  ║  ┌─────────────────────────────────────────────────────────────────────────┐  ║  │
 │  ║  │ L4: Scenario Practices (73个OWASP参考文件)                               │  ║  │
-│  ║  │     位置: assets/knowledge/security-controls/references/reference-set-*.md      │  ║  │
+│  ║  │     位置: knowledge/security-controls/references/reference-set-*.md      │  ║  │
 │  ║  │     内容: OWASP Cheat Sheet 详细实践指南                                 │  ║  │
 │  ║  │     用途: Phase 7 缓解建议的技术参考                                     │  ║  │
 │  ║  └─────────────────────────────────────────────────────────────────────────┘  ║  │
@@ -71,7 +71,7 @@
 │  ║                                                                                ║  │
 │  ║  ┌─────────────────────────────────────────────────────────────────────────┐  ║  │
 │  ║  │ L1: STRIDE 威胁分类模型 (STRIDE Threat Classification)                   │  ║  │
-│  ║  │     位置: assets/knowledge/stride-library.yaml                                  │  ║  │
+│  ║  │     位置: knowledge/stride-library.yaml                                  │  ║  │
 │  ║  │     内容: 6大威胁类别 (S/T/R/I/D/E) + 元素适用矩阵                       │  ║  │
 │  ║  │     用途: Phase 5 威胁分析的分类基础                                     │  ║  │
 │  ║  │                                                                          │  ║  │

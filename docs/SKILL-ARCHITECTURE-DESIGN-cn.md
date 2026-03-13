@@ -2,8 +2,8 @@
 
 # STRIDE 威胁建模系统架构分析
 
-> **版本**: 2.1.0
-> **日期**: 2026-01-03
+> **版本**: 3.1.0
+> **日期**: 2026-01-03 (updated 2026-03-13)
 > **目的**: 包含图表和模块关系的综合系统架构分析
 
 > **注意 (v2.1.0)**: 目录结构已重构:
@@ -18,7 +18,7 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────────────────┐
-│                           Code-First Deep Risk Analysis System v2.1.0                                      │
+│                           Code-First Deep Risk Analysis System v3.1.0                                      │
 ├─────────────────────────────────────────────────────────────────────────────────────────────┤
 │                                                                                              │
 │  ┌───────────────────────────────────────────────────────────────────────────────────────┐ │
@@ -86,7 +86,7 @@
 │  │  ├── stride_matrix.py (7.6KB)        ◄── Phase 5: STRIDE per Interaction            │ │
 │  │  │   └── 威胁类别计算                                                                │ │
 │  │  │                                                                                    │ │
-│  │  └── phase_data.py                    ◄── 跨阶段数据和验证 (v2.2.2)                  │ │
+│  │  └── phase_data.py                    ◄── 跨阶段数据和验证 (v3.1.0)                  │ │
 │  │      └── YAML提取, CP1/CP2/CP3验证                                                   │ │
 │  │                                                                                        │ │
 │  │  [仅开发环境 - 不含于发布版本]                                                         │ │
@@ -322,31 +322,13 @@
 │                                        │ 使用                                               │
 │                                        ▼                                                    │
 │  ┌──────────────────────────────────────────────────────────────────────────────────────┐  │
-│  │                              assets/templates/ (9 文件)                               │  │
-│  │                              ═════════════════════                                    │  │
+│  │                              assets/contracts/ (1 文件)                                │  │
+│  │                              ══════════════════════                                  │  │
 │  │                                                                                       │  │
-│  │  RISK-ASSESSMENT-REPORT.template.md  ◄── 主报告结构 (9 章)                           │  │
-│  │  RISK-INVENTORY.template.md          ◄── VR 表 (含 threat_refs)                      │  │
-│  │  MITIGATION-MEASURES.template.md     ◄── M-{Seq} (含 fix_location)                   │  │
-│  │  PENETRATION-TEST-PLAN.template.md   ◄── 基于 POC 的测试方案                         │  │
-│  │  ARCHITECTURE-ANALYSIS.template.md   ◄── 系统架构                                    │  │
-│  │  ATTACK-PATH-VALIDATION.template.md  ◄── 攻击链分析                                  │  │
-│  │  COMPLIANCE-REPORT.template.md       ◄── 合规映射                                    │  │
-│  │  DFD-DIAGRAM.template.md             ◄── DFD 可视化                                  │  │
-│  │  DFD-TEMPLATES.md                    ◄── DFD ASCII 模式                              │  │
+│  │  data-model.yaml              ◄── 实体模式、数据契约、类型定义                       │  │
 │  │                                                                                       │  │
-│  └──────────────────────────────────────────────────────────────────────────────────────┘  │
-│                                        │                                                    │
-│                                        │ 由...验证                                          │
-│                                        ▼                                                    │
-│  ┌──────────────────────────────────────────────────────────────────────────────────────┐  │
-│  │                              assets/schemas/ (4 文件)                                 │  │
-│  │                              ══════════════════                                       │  │
-│  │                                                                                       │  │
-│  │  risk-detail.schema.md        ◄── VR 结构, threat_refs 必填                          │  │
-│  │  phase-risk-summary.schema.md ◄── threat_disposition, 计数守恒                       │  │
-│  │  report-naming.schema.md      ◄── {PROJECT}-{TYPE}.md 命名规则                       │  │
-│  │  mitigation-detail.schema.md  ◄── M-{Seq} 结构, fix_location 模式                    │  │
+│  │  注: assets/templates/ 和 assets/schemas/ 为预留目录（空）。                          │  │
+│  │  报告模板内联于阶段指令文件中 (P8, P8R)。                                            │  │
 │  │                                                                                       │  │
 │  └──────────────────────────────────────────────────────────────────────────────────────┘  │
 │                                                                                              │
@@ -357,12 +339,11 @@
 
 | 模块 | 类型 | 用途 | 依赖 |
 |--------|------|---------|--------------|
-| SKILL.md | 定义 | 入口点, 工作流定义, 数据模型 | - |
-| WORKFLOW.md | 执行 | Phase 1-5 分步指南 | SKILL.md |
-| VALIDATION.md | 执行 | Phase 6 合并和验证 | SKILL.md, WORKFLOW.md |
-| REPORT.md | 执行 | Phase 7-8 缓解和报告 | SKILL.md, VALIDATION.md |
-| assets/templates/*.md | 模板 | 报告结构和占位符 | Schemas |
-| assets/schemas/*.md | Schema | 数据验证规则 | SKILL.md |
+| SKILL.md | 定义 | 入口点, 数据模型, 全局约束 | - |
+| WORKFLOW.md | 执行 | 阶段编排, FSM, 数据契约 | SKILL.md |
+| phases/P1-P8-*.md | 执行 | 每阶段指令 (9 文件, 含 P8R) | SKILL.md, WORKFLOW.md |
+| scripts/*.py | 自动化 | 会话管理, KB 查询, 验证 | SKILL.md |
+| assets/contracts/data-model.yaml | Schema | 实体模式和数据契约 | SKILL.md |
 
 ---
 
@@ -552,7 +533,7 @@
 │  ├─ --stride-compliance         │    │    │    │    │    │    │    │ ●  │                  │
 │  └─ --search (语义)             │    │    │ ○  │ ○  │ ○  │ ○  │ ○  │    │                  │
 │                                 │    │    │    │    │    │    │    │    │                  │
-│  phase_data.py (v2.2.2)         │ ●  │ ●  │    │    │ ●  │ ●  │ ●  │ ●● │                  │
+│  phase_data.py (v3.1.0)         │ ●  │ ●  │    │    │ ●  │ ●  │ ●  │ ●● │                  │
 │  └─ 跨阶段数据和CP验证          │    │    │    │    │    │    │    │    │                  │
 │                                                                                              │
 │  图例: ●● 主要使用  ● 次要使用  ○ 可选使用                                                │
