@@ -13,7 +13,10 @@ metadata:
     - "OWASP Non-Human Identities (NHI) Top 10"
     - "MITRE ATLAS (Adversarial Threat Landscape for AI Systems)"
     - "NIST AI Risk Management Framework"
-  last_updated: "2026-01"
+    - "OWASP MCP Security Top 10 (2025)"
+    - "MITRE ATT&CK Enterprise v16"
+    - "Integrated from skill-audit Agent/Skill Security Knowledge Base"
+  last_updated: "2026-03"
   relationship:
     extends: "llm-threats.yaml"
     principle: "Agentic threats build upon and amplify LLM threats"
@@ -75,6 +78,8 @@ owasp_agentic_top10:
     cwes: ["CWE-77", "CWE-94", "CWE-1336"]
     capecs: ["CAPEC-248", "CAPEC-549"]
     atlas_techniques: ["AML.T0051", "AML.T0043"]
+    attack_techniques: ["T1059", "T1566"]
+    kill_chain_phases: ["delivery", "exploitation"]
     related_llm: ["LLM01"]
     related_controls: ["AGENT-01", "AGENT-06", "AGENT-09"]
     severity: "critical"
@@ -129,6 +134,8 @@ owasp_agentic_top10:
           - Alert on policy violations
     cwes: ["CWE-284", "CWE-862", "CWE-863", "CWE-77"]
     capecs: ["CAPEC-122", "CAPEC-233"]
+    attack_techniques: ["T1059", "T1105", "T1569"]
+    kill_chain_phases: ["exploitation", "actions_on_objectives"]
     related_llm: ["LLM07", "LLM08"]
     related_controls: ["AGENT-02", "AGENT-10"]
     severity: "high"
@@ -183,6 +190,8 @@ owasp_agentic_top10:
           - No shared credentials
     cwes: ["CWE-287", "CWE-522", "CWE-269", "CWE-250"]
     capecs: ["CAPEC-151", "CAPEC-194"]
+    attack_techniques: ["T1552", "T1078", "T1134"]
+    kill_chain_phases: ["credential_access", "actions_on_objectives"]
     related_llm: []
     related_controls: ["AGENT-03"]
     severity: "critical"
@@ -238,6 +247,8 @@ owasp_agentic_top10:
     cwes: ["CWE-829", "CWE-494", "CWE-506"]
     capecs: ["CAPEC-437", "CAPEC-438"]
     atlas_techniques: ["AML.T0010", "AML.T0011"]
+    attack_techniques: ["T1195", "T1195.001", "T1195.002"]
+    kill_chain_phases: ["delivery", "installation"]
     related_llm: ["LLM05"]
     related_controls: ["AGENT-10", "AGENT-02"]
     severity: "high"
@@ -291,6 +302,8 @@ owasp_agentic_top10:
           - Automatic termination on violations
     cwes: ["CWE-78", "CWE-94", "CWE-95", "CWE-96"]
     capecs: ["CAPEC-242", "CAPEC-108"]
+    attack_techniques: ["T1059.004", "T1059.006", "T1059.007", "T1203"]
+    kill_chain_phases: ["exploitation", "actions_on_objectives"]
     related_llm: ["LLM02"]
     related_controls: ["AGENT-02", "AGENT-06", "AGENT-08"]
     severity: "critical"
@@ -346,6 +359,8 @@ owasp_agentic_top10:
     cwes: ["CWE-502", "CWE-1321", "CWE-200"]
     capecs: ["CAPEC-538"]
     atlas_techniques: ["AML.T0020"]
+    attack_techniques: ["T1565", "T1565.001"]
+    kill_chain_phases: ["installation", "persistence"]
     related_llm: ["LLM03"]
     related_controls: ["AGENT-04"]
     severity: "high"
@@ -400,6 +415,8 @@ owasp_agentic_top10:
           - Collaboration auditing
     cwes: ["CWE-290", "CWE-319", "CWE-200"]
     capecs: ["CAPEC-94", "CAPEC-151"]
+    attack_techniques: ["T1557", "T1557.001"]
+    kill_chain_phases: ["lateral_movement", "collection"]
     related_llm: []
     related_controls: ["AGENT-05"]
     severity: "high"
@@ -454,6 +471,8 @@ owasp_agentic_top10:
           - Degradation monitoring
     cwes: ["CWE-400", "CWE-754", "CWE-755"]
     capecs: ["CAPEC-125", "CAPEC-130"]
+    attack_techniques: ["T1499", "T1499.004"]
+    kill_chain_phases: ["exploitation", "impact"]
     related_llm: ["LLM04"]
     related_controls: ["AGENT-07"]
     severity: "high"
@@ -508,6 +527,8 @@ owasp_agentic_top10:
           - Informed user consent
     cwes: ["CWE-754", "CWE-778"]
     capecs: ["CAPEC-98"]
+    attack_techniques: ["T1566", "T1204"]
+    kill_chain_phases: ["delivery", "exploitation"]
     related_llm: ["LLM09"]
     related_controls: ["AGENT-08", "AGENT-06"]
     severity: "high"
@@ -562,9 +583,258 @@ owasp_agentic_top10:
           - Automatic isolation mechanisms
     cwes: ["CWE-269", "CWE-250"]
     capecs: ["CAPEC-122"]
+    attack_techniques: ["T1059", "T1053"]
+    kill_chain_phases: ["actions_on_objectives", "persistence"]
     related_llm: ["LLM08"]
     related_controls: ["AGENT-06", "AGENT-01"]
     severity: "critical"
+
+# =============================================================================
+# OWASP MCP SECURITY THREATS
+# Integrated from skill-audit Agent/Skill Security Knowledge Base
+# Reference: OWASP MCP Security Top 10 (2025)
+# =============================================================================
+
+owasp_mcp_threats:
+  MCP01:
+    id: "MCP01"
+    name: "Tool Poisoning via Description"
+    description: |
+      MCP server manipulates tool descriptions to influence agent behavior.
+      Tool descriptions are consumed by the LLM as context, allowing indirect
+      prompt injection through tool metadata. The agent may execute unintended
+      actions based on poisoned descriptions.
+    stride_categories: ["tampering", "elevation_of_privilege", "spoofing"]
+    attack_vectors:
+      - "Inject instructions into tool description fields"
+      - "Use tool descriptions to override system prompt"
+      - "Embed hidden commands in tool metadata"
+      - "Manipulate tool parameter descriptions"
+    mitigations:
+      - id: "MCP01-M01"
+        name: "Tool description sanitization"
+        description: "Validate and sanitize tool descriptions before LLM consumption"
+        control_ref: "AGENT-02"
+        implementation: |
+          - Strip instruction-like content from tool descriptions
+          - Validate tool descriptions against schema
+          - Separate tool metadata from LLM-consumable context
+          - Monitor for description changes post-registration
+    cwes: ["CWE-1336", "CWE-829"]
+    attack_techniques: ["T1059"]
+    atlas_techniques: ["AML.T0081"]
+    kill_chain_phases: ["delivery"]
+    related_asi: ["ASI01", "ASI02"]
+    related_controls: ["AGENT-02", "AGENT-09"]
+    severity: "critical"
+
+  MCP02:
+    id: "MCP02"
+    name: "Cross-Origin Tool Access"
+    description: |
+      MCP tools from one origin accessing resources or data from another
+      origin without proper authorization. Lack of origin isolation enables
+      lateral movement between MCP server contexts.
+    stride_categories: ["information_disclosure", "elevation_of_privilege"]
+    attack_vectors:
+      - "Cross-MCP-server data access"
+      - "Shared context exploitation"
+      - "Tool chaining across trust boundaries"
+    mitigations:
+      - id: "MCP02-M01"
+        name: "MCP origin isolation"
+        description: "Enforce strict origin boundaries between MCP servers"
+        control_ref: "AGENT-02"
+        implementation: |
+          - Isolate MCP server execution contexts
+          - Enforce data access boundaries per MCP server
+          - Prevent cross-server tool chaining without authorization
+    cwes: ["CWE-284", "CWE-346"]
+    attack_techniques: ["T1021"]
+    kill_chain_phases: ["lateral_movement"]
+    related_asi: ["ASI02"]
+    related_controls: ["AGENT-02", "AGENT-05"]
+    severity: "high"
+
+  MCP03:
+    id: "MCP03"
+    name: "Tool Shadowing"
+    description: |
+      Malicious MCP server registers tools with names identical to legitimate
+      tools, intercepting calls intended for trusted tools. The shadow tool
+      can exfiltrate parameters or return poisoned results.
+    stride_categories: ["spoofing", "tampering"]
+    attack_vectors:
+      - "Register duplicate tool names across MCP servers"
+      - "Override legitimate tool with malicious version"
+      - "Exploit tool resolution order"
+    mitigations:
+      - id: "MCP03-M01"
+        name: "Tool namespace enforcement"
+        description: "Prevent tool name collisions across MCP servers"
+        control_ref: "AGENT-02"
+        implementation: |
+          - Enforce unique tool namespaces per MCP server
+          - Detect and alert on duplicate tool registrations
+          - Implement tool resolution priority policies
+          - Log all tool registration events
+    cwes: ["CWE-290", "CWE-694"]
+    attack_techniques: ["T1036"]
+    kill_chain_phases: ["installation", "exploitation"]
+    related_asi: ["ASI04"]
+    related_controls: ["AGENT-02", "AGENT-10"]
+    severity: "high"
+
+  MCP04:
+    id: "MCP04"
+    name: "Tool Argument Injection"
+    description: |
+      Attacker injects malicious content into tool arguments that gets
+      executed by the MCP server. This includes command injection through
+      tool parameters, path traversal in file arguments, and SQL injection
+      in database tool parameters.
+    stride_categories: ["tampering", "elevation_of_privilege"]
+    attack_vectors:
+      - "Shell command injection via tool parameters"
+      - "Path traversal in file operation tools"
+      - "SQL injection in database tools"
+      - "SSRF via URL parameters"
+    mitigations:
+      - id: "MCP04-M01"
+        name: "Tool argument validation"
+        description: "Strict validation of all tool arguments before execution"
+        control_ref: "AGENT-02"
+        implementation: |
+          - Schema validation for all tool parameters
+          - Input sanitization for shell/SQL/path arguments
+          - Allowlist-based argument validation
+          - Parameter type enforcement
+    cwes: ["CWE-77", "CWE-78", "CWE-22", "CWE-89"]
+    attack_techniques: ["T1059", "T1190"]
+    kill_chain_phases: ["exploitation"]
+    related_asi: ["ASI02", "ASI05"]
+    related_controls: ["AGENT-02"]
+    severity: "critical"
+
+  MCP05:
+    id: "MCP05"
+    name: "MCP Server Impersonation"
+    description: |
+      Attacker deploys a malicious MCP server that impersonates a legitimate
+      one. Without proper server authentication, the agent connects to the
+      malicious server and exposes sensitive data or executes malicious tools.
+    stride_categories: ["spoofing"]
+    attack_vectors:
+      - "Deploy fake MCP server with same name"
+      - "DNS/config hijack to redirect MCP connections"
+      - "Man-in-the-middle on stdio/SSE transport"
+    mitigations:
+      - id: "MCP05-M01"
+        name: "MCP server authentication"
+        description: "Verify MCP server identity before connection"
+        control_ref: "AGENT-10"
+        implementation: |
+          - Server certificate/signature verification
+          - Allowlisted server sources only
+          - Integrity check on server binaries
+          - Transport encryption enforcement
+    cwes: ["CWE-290", "CWE-295"]
+    attack_techniques: ["T1557"]
+    kill_chain_phases: ["delivery"]
+    related_asi: ["ASI04"]
+    related_controls: ["AGENT-10"]
+    severity: "high"
+
+  MCP06:
+    id: "MCP06"
+    name: "Indirect Prompt Injection via Tool Output"
+    description: |
+      MCP tool returns data containing embedded prompt injection payloads.
+      When the agent processes tool output, the injected instructions
+      override agent behavior. This is the tool-output variant of indirect
+      prompt injection.
+    stride_categories: ["tampering", "elevation_of_privilege", "spoofing"]
+    attack_vectors:
+      - "Embed instructions in tool response data"
+      - "Return poisoned search results"
+      - "Include injection payloads in error messages"
+      - "Manipulate structured data to contain instructions"
+    mitigations:
+      - id: "MCP06-M01"
+        name: "Tool output sanitization"
+        description: "Sanitize tool outputs before LLM consumption"
+        control_ref: "AGENT-02"
+        implementation: |
+          - Strip instruction-like content from tool outputs
+          - Validate tool output against expected schema
+          - Separate data from instructions in tool responses
+          - Monitor for anomalous tool output patterns
+    cwes: ["CWE-1336", "CWE-94"]
+    attack_techniques: ["T1059"]
+    atlas_techniques: ["AML.T0080"]
+    kill_chain_phases: ["delivery", "exploitation"]
+    related_asi: ["ASI01", "ASI02"]
+    related_controls: ["AGENT-01", "AGENT-02"]
+    severity: "critical"
+
+  MCP07:
+    id: "MCP07"
+    name: "Resource Exhaustion via Tools"
+    description: |
+      MCP tools are abused to exhaust system resources through excessive
+      file operations, network requests, or compute-intensive operations.
+      This can be triggered by malicious inputs that cause unbounded tool
+      invocations.
+    stride_categories: ["denial_of_service"]
+    attack_vectors:
+      - "Trigger unbounded recursive tool calls"
+      - "Request excessive file system operations"
+      - "Generate large network traffic through tools"
+      - "Exhaust memory through tool output accumulation"
+    mitigations:
+      - id: "MCP07-M01"
+        name: "Tool resource limits"
+        description: "Enforce resource limits on tool execution"
+        control_ref: "AGENT-07"
+        implementation: |
+          - Per-tool execution timeouts
+          - Rate limiting for tool invocations
+          - Output size limits
+          - Resource quota enforcement per MCP server
+    cwes: ["CWE-400", "CWE-770"]
+    attack_techniques: ["T1499"]
+    kill_chain_phases: ["impact"]
+    related_asi: ["ASI08"]
+    related_controls: ["AGENT-07", "AGENT-02"]
+    severity: "medium"
+
+  MCP08:
+    id: "MCP08"
+    name: "Capability Advertisement Falsification"
+    description: |
+      MCP server falsely advertises capabilities, claiming to support
+      operations it cannot perform safely or correctly. This leads to
+      incorrect agent decisions based on false capability information.
+    stride_categories: ["spoofing", "tampering"]
+    attack_vectors:
+      - "Declare capabilities beyond actual implementation"
+      - "Advertise security features not implemented"
+      - "Claim permissions not actually enforced"
+    mitigations:
+      - id: "MCP08-M01"
+        name: "Capability verification"
+        description: "Verify MCP server capabilities against actual behavior"
+        control_ref: "AGENT-02"
+        implementation: |
+          - Runtime capability testing before trust
+          - Capability claim auditing
+          - Behavioral verification against declared capabilities
+    cwes: ["CWE-250", "CWE-863"]
+    attack_techniques: ["T1036"]
+    kill_chain_phases: ["reconnaissance", "delivery"]
+    related_asi: ["ASI02", "ASI04"]
+    related_controls: ["AGENT-02", "AGENT-10"]
+    severity: "medium"
 
 # =============================================================================
 # AGENT COMPONENT STRIDE MAPPINGS
@@ -694,6 +964,33 @@ agent_components:
           mitigations: ["Template encryption", "Access controls", "Leakage detection"]
           cwes: ["CWE-200"]
           control_ref: "AGENT-09"
+      elevation_of_privilege:
+        - id: "AGENT-E-SKILL-001"
+          name: "Skill capability escalation"
+          description: "Skill executes beyond its declared capability scope"
+          mitigations: ["Capability enforcement", "Sandbox execution", "Permission boundaries"]
+          cwes: ["CWE-269"]
+          control_ref: "AGENT-02"
+        - id: "AGENT-E-SKILL-002"
+          name: "Cross-skill privilege abuse"
+          description: "Skill leverages other skills' permissions via shared context"
+          mitigations: ["Skill isolation", "Context separation", "Permission inheritance controls"]
+          cwes: ["CWE-250"]
+          control_ref: "AGENT-09"
+      spoofing:
+        - id: "AGENT-S-SKILL-001"
+          name: "Skill identity spoofing"
+          description: "Malicious skill impersonates a trusted skill"
+          mitigations: ["Skill signing", "Publisher verification", "Registry authentication"]
+          cwes: ["CWE-290"]
+          control_ref: "AGENT-10"
+      denial_of_service:
+        - id: "AGENT-D-SKILL-001"
+          name: "Skill resource exhaustion"
+          description: "Skill consumes excessive resources blocking other operations"
+          mitigations: ["Resource quotas", "Execution timeouts", "Rate limiting"]
+          cwes: ["CWE-400"]
+          control_ref: "AGENT-07"
 
   agent_memory:
     type: "data_store"
@@ -941,3 +1238,444 @@ compliance_mappings:
       - clause: "8.4"
         title: "Agent development and deployment"
         relevant_controls: ["AGENT-02", "AGENT-09", "AGENT-10"]
+
+# =============================================================================
+# SAO BEHAVIORAL MODEL (Subject-Action-Object)
+# Integrated from skill-audit Agent/Skill Security Knowledge Base
+# Purpose: Structured behavior enumeration for P5 STRIDE analysis of agent targets
+# =============================================================================
+
+sao_behavioral_model:
+  description: |
+    The SAO (Subject-Action-Object) behavioral taxonomy provides a structured
+    framework for enumerating agent/skill behaviors during STRIDE analysis.
+    When analyzing agent-type DFD elements in Phase 5, use SAO triples to
+    systematically identify threats: "What SUBJECT performs what ACTION on what OBJECT?"
+  usage_guidance: |
+    During P5 STRIDE analysis, for each agent/skill/MCP element:
+    1. Identify applicable Subjects from the element type
+    2. Enumerate Actions the element can perform
+    3. Map target Objects that could be affected
+    4. For each SAO triple, evaluate STRIDE categories
+    5. Cross-reference with attack_chains below for multi-step threats
+
+  subjects:
+    S_CODE:
+      description: "Executable code within a skill or tool"
+      applicable_elements: ["process", "skill_template"]
+      example: "Python script in skill definition"
+    S_PROMPT:
+      description: "Prompt or instruction content"
+      applicable_elements: ["skill_template", "agent_core"]
+      example: "System prompt, skill instructions"
+    S_METADATA:
+      description: "Skill/tool metadata (frontmatter, descriptions)"
+      applicable_elements: ["skill_template", "mcp_server"]
+      example: "YAML frontmatter, tool description field"
+    S_DEPENDENCY:
+      description: "External package or dependency"
+      applicable_elements: ["skill_template", "mcp_server"]
+      example: "npm package, pip dependency"
+    S_ENCODED:
+      description: "Encoded or obfuscated content"
+      applicable_elements: ["skill_template", "data_flow"]
+      example: "Base64-encoded payload, Unicode tricks"
+    S_NETWORK:
+      description: "Network operation or request"
+      applicable_elements: ["process", "mcp_server"]
+      example: "HTTP request, WebSocket connection"
+    S_TOOL:
+      description: "Agent tool invocation"
+      applicable_elements: ["mcp_server", "agent_core"]
+      example: "Bash tool call, file write operation"
+    S_AGENT:
+      description: "Agent or sub-agent instance"
+      applicable_elements: ["agent_core", "multi_agent_orchestrator"]
+      example: "Spawned sub-agent, delegated task"
+
+  actions:
+    A_EXEC:
+      description: "Execute code or commands"
+      stride: ["tampering", "elevation_of_privilege"]
+      related_tcs: ["TC-01"]
+    A_DOWNLOAD:
+      description: "Fetch remote content"
+      stride: ["tampering"]
+      related_tcs: ["TC-04"]
+    A_EXFIL:
+      description: "Send data to external endpoint"
+      stride: ["information_disclosure"]
+      related_tcs: ["TC-03"]
+    A_ACCESS:
+      description: "Read sensitive resources"
+      stride: ["information_disclosure", "spoofing"]
+      related_tcs: ["TC-02", "TC-11"]
+    A_ENCODE:
+      description: "Encode, obfuscate, or encrypt data"
+      stride: ["repudiation", "tampering"]
+      related_tcs: ["TC-06", "TC-13"]
+    A_PERSIST:
+      description: "Establish persistent access"
+      stride: ["tampering"]
+      related_tcs: ["TC-08"]
+    A_INJECT:
+      description: "Inject content, instructions, or code"
+      stride: ["tampering", "elevation_of_privilege", "spoofing"]
+      related_tcs: ["TC-05", "TC-09", "TC-10"]
+    A_INSTALL:
+      description: "Install packages or dependencies"
+      stride: ["tampering", "elevation_of_privilege"]
+      related_tcs: ["TC-07"]
+    A_ESCALATE:
+      description: "Elevate privileges or capabilities"
+      stride: ["elevation_of_privilege"]
+      related_tcs: ["TC-09"]
+    A_DISCOVER:
+      description: "Enumerate or probe for information"
+      stride: ["information_disclosure"]
+      related_tcs: ["TC-14"]
+    A_MANIPULATE:
+      description: "Modify configuration or settings"
+      stride: ["tampering"]
+      related_tcs: ["TC-09"]
+    A_DELEGATE:
+      description: "Delegate task to another agent or tool"
+      stride: ["elevation_of_privilege", "spoofing"]
+      related_tcs: ["TC-09"]
+    A_SCHEDULE:
+      description: "Schedule deferred or recurring task"
+      stride: ["tampering"]
+      related_tcs: ["TC-08"]
+
+  objects:
+    O_CREDENTIAL:
+      description: "SSH keys, API tokens, passwords, env vars"
+      sensitivity: "critical"
+      related_controls: ["AGENT-03"]
+    O_SYSTEM:
+      description: "Operating system, shell, file system"
+      sensitivity: "critical"
+      related_controls: ["AGENT-02", "AGENT-08"]
+    O_LLM:
+      description: "The LLM agent itself (context, memory, behavior)"
+      sensitivity: "critical"
+      related_controls: ["AGENT-01", "AGENT-04"]
+    O_MCP_SERVER:
+      description: "MCP server definitions and tool registrations"
+      sensitivity: "high"
+      related_controls: ["AGENT-02", "AGENT-10"]
+    O_SKILL:
+      description: "Skill definitions, prompt templates"
+      sensitivity: "high"
+      related_controls: ["AGENT-09", "AGENT-10"]
+    O_ENDPOINT:
+      description: "External network endpoints (URLs, APIs)"
+      sensitivity: "high"
+      related_controls: ["AGENT-02"]
+    O_SHELLPROFILE:
+      description: "Shell profiles (.bashrc, .zshrc, .profile)"
+      sensitivity: "critical"
+      related_controls: ["AGENT-02", "AGENT-08"]
+    O_CRONTAB:
+      description: "Scheduled tasks (cron, systemd timers)"
+      sensitivity: "high"
+      related_controls: ["AGENT-02"]
+    O_MEMORY:
+      description: "Agent persistent memory and context store"
+      sensitivity: "high"
+      related_controls: ["AGENT-04"]
+    O_REGISTRY:
+      description: "Package registries (npm, pip, cargo)"
+      sensitivity: "medium"
+      related_controls: ["AGENT-10"]
+    O_DATABASE:
+      description: "Databases, key-value stores, browser storage"
+      sensitivity: "high"
+      related_controls: ["AGENT-04"]
+    O_CICD:
+      description: "CI/CD pipelines and deployment configs"
+      sensitivity: "critical"
+      related_controls: ["AGENT-02", "AGENT-10"]
+    O_AGENT:
+      description: "Other agent instances in multi-agent systems"
+      sensitivity: "high"
+      related_controls: ["AGENT-05"]
+    O_USER:
+      description: "Human user (trust exploitation target)"
+      sensitivity: "critical"
+      related_controls: ["AGENT-08"]
+
+# =============================================================================
+# AGENT ATTACK CHAINS
+# Integrated from skill-audit Agent/Skill Security Knowledge Base
+# Purpose: Pre-built multi-step attack sequences for P6 attack path validation
+# =============================================================================
+
+agent_attack_chains:
+  description: |
+    Pre-built attack chain patterns for agent/skill environments. Use these
+    during Phase 6 (Risk Validation) to validate attack paths and design POCs.
+    Each chain represents a realistic multi-step attack using MITRE ATT&CK
+    technique sequences.
+
+  chains:
+    CHAIN_001:
+      name: "Credential Theft & Exfiltration"
+      description: "Skill reads credentials, obfuscates, and exfiltrates"
+      attack_techniques: ["T1552", "T1027", "T1041"]
+      kill_chain: ["credential_access", "defense_evasion", "exfiltration"]
+      sao_sequence:
+        - "S_CODE → A_ACCESS → O_CREDENTIAL"
+        - "S_ENCODED → A_ENCODE → O_CREDENTIAL"
+        - "S_NETWORK → A_EXFIL → O_ENDPOINT"
+      related_asi: ["ASI03", "ASI05"]
+      severity: "critical"
+
+    CHAIN_002:
+      name: "Download & Execute"
+      description: "Fetch remote payload and execute locally"
+      attack_techniques: ["T1105", "T1059"]
+      kill_chain: ["delivery", "exploitation"]
+      sao_sequence:
+        - "S_NETWORK → A_DOWNLOAD → O_ENDPOINT"
+        - "S_CODE → A_EXEC → O_SYSTEM"
+      related_asi: ["ASI05", "ASI04"]
+      severity: "critical"
+
+    CHAIN_003:
+      name: "Staged Payload"
+      description: "Download, decode hidden payload, execute"
+      attack_techniques: ["T1105", "T1140", "T1059"]
+      kill_chain: ["delivery", "defense_evasion", "exploitation"]
+      sao_sequence:
+        - "S_NETWORK → A_DOWNLOAD → O_ENDPOINT"
+        - "S_ENCODED → A_ENCODE → O_SYSTEM"
+        - "S_CODE → A_EXEC → O_SYSTEM"
+      related_asi: ["ASI05"]
+      severity: "critical"
+
+    CHAIN_004:
+      name: "Supply Chain Poisoning"
+      description: "Install trojanized package, execute payload, exfiltrate"
+      attack_techniques: ["T1195", "T1059", "T1041"]
+      kill_chain: ["delivery", "exploitation", "exfiltration"]
+      sao_sequence:
+        - "S_DEPENDENCY → A_INSTALL → O_REGISTRY"
+        - "S_CODE → A_EXEC → O_SYSTEM"
+        - "S_NETWORK → A_EXFIL → O_ENDPOINT"
+      related_asi: ["ASI04", "ASI05"]
+      severity: "critical"
+
+    CHAIN_005:
+      name: "Prompt Injection to Code Execution"
+      description: "Inject prompt to manipulate agent into executing code"
+      attack_techniques: ["T1566", "T1059"]
+      kill_chain: ["delivery", "exploitation"]
+      sao_sequence:
+        - "S_PROMPT → A_INJECT → O_LLM"
+        - "S_TOOL → A_EXEC → O_SYSTEM"
+      related_asi: ["ASI01", "ASI05"]
+      severity: "high"
+
+    CHAIN_006:
+      name: "Persistence Installation"
+      description: "Download payload, install persistence, execute on schedule"
+      attack_techniques: ["T1105", "T1546.004", "T1059"]
+      kill_chain: ["delivery", "installation", "persistence"]
+      sao_sequence:
+        - "S_NETWORK → A_DOWNLOAD → O_ENDPOINT"
+        - "S_CODE → A_PERSIST → O_SHELLPROFILE"
+        - "S_CODE → A_SCHEDULE → O_CRONTAB"
+      related_asi: ["ASI05", "ASI02"]
+      severity: "high"
+
+    CHAIN_007:
+      name: "MCP Tool Poisoning Chain"
+      description: "Poison tool description to inject prompt, hijack agent goals"
+      attack_techniques: ["T1036", "T1059"]
+      kill_chain: ["installation", "exploitation"]
+      sao_sequence:
+        - "S_METADATA → A_MANIPULATE → O_MCP_SERVER"
+        - "S_PROMPT → A_INJECT → O_LLM"
+        - "S_TOOL → A_ESCALATE → O_SYSTEM"
+      related_asi: ["ASI01", "ASI02"]
+      related_mcp: ["MCP01", "MCP03"]
+      severity: "critical"
+
+    CHAIN_008:
+      name: "Cross-Skill Contamination"
+      description: "Malicious skill poisons shared context to compromise other skills"
+      attack_techniques: ["T1565", "T1059"]
+      kill_chain: ["installation", "lateral_movement"]
+      sao_sequence:
+        - "S_CODE → A_MANIPULATE → O_MEMORY"
+        - "S_AGENT → A_DELEGATE → O_SKILL"
+        - "S_PROMPT → A_INJECT → O_LLM"
+      related_asi: ["ASI06", "ASI02"]
+      severity: "high"
+
+    CHAIN_009:
+      name: "Stealth Exfiltration"
+      description: "Obfuscate data, split across channels, exfiltrate"
+      attack_techniques: ["T1027", "T1059", "T1041", "T1048"]
+      kill_chain: ["defense_evasion", "exploitation", "exfiltration"]
+      sao_sequence:
+        - "S_ENCODED → A_ENCODE → O_CREDENTIAL"
+        - "S_CODE → A_EXEC → O_SYSTEM"
+        - "S_NETWORK → A_EXFIL → O_ENDPOINT"
+      related_asi: ["ASI03", "ASI05"]
+      severity: "critical"
+
+    CHAIN_010:
+      name: "Full Kill Chain"
+      description: "Download → execute → steal credentials → exfiltrate"
+      attack_techniques: ["T1105", "T1059", "T1552", "T1041"]
+      kill_chain: ["delivery", "exploitation", "credential_access", "exfiltration"]
+      sao_sequence:
+        - "S_NETWORK → A_DOWNLOAD → O_ENDPOINT"
+        - "S_CODE → A_EXEC → O_SYSTEM"
+        - "S_CODE → A_ACCESS → O_CREDENTIAL"
+        - "S_NETWORK → A_EXFIL → O_ENDPOINT"
+      related_asi: ["ASI04", "ASI05", "ASI03"]
+      severity: "critical"
+
+    CHAIN_011:
+      name: "Delegation Chain Abuse"
+      description: "Exploit agent delegation to escalate privileges across trust boundaries"
+      attack_techniques: ["T1134", "T1078"]
+      kill_chain: ["privilege_escalation", "lateral_movement"]
+      sao_sequence:
+        - "S_AGENT → A_DELEGATE → O_AGENT"
+        - "S_TOOL → A_ESCALATE → O_SYSTEM"
+        - "S_CODE → A_EXEC → O_SYSTEM"
+      related_asi: ["ASI03", "ASI07"]
+      severity: "critical"
+
+    CHAIN_012:
+      name: "Social Engineering via Agent"
+      description: "Manipulate agent to socially engineer human user"
+      attack_techniques: ["T1566", "T1204"]
+      kill_chain: ["delivery", "exploitation"]
+      sao_sequence:
+        - "S_PROMPT → A_INJECT → O_LLM"
+        - "S_AGENT → A_MANIPULATE → O_USER"
+      related_asi: ["ASI09", "ASI01"]
+      severity: "high"
+
+    CHAIN_013:
+      name: "Inject → Persist → Execute"
+      description: "Prompt injection establishes persistence, then executes on trigger"
+      attack_techniques: ["T1566", "T1546.004", "T1059"]
+      kill_chain: ["delivery", "installation", "exploitation"]
+      sao_sequence:
+        - "S_PROMPT → A_INJECT → O_LLM"
+        - "S_CODE → A_PERSIST → O_SHELLPROFILE"
+        - "S_CODE → A_EXEC → O_SYSTEM"
+      related_asi: ["ASI01", "ASI05"]
+      severity: "high"
+
+# =============================================================================
+# TRUST INVERSION MODEL
+# Integrated from skill-audit Agent/Skill Security Knowledge Base
+# Purpose: Formalize the trust inversion paradigm for P3 trust boundary analysis
+# =============================================================================
+
+trust_inversion_model:
+  description: |
+    In traditional application security, application code is TRUSTED and user
+    input is UNTRUSTED. In agent/skill systems, this model is INVERTED:
+    the skill instructions themselves (SKILL.MD) are the primary attack surface.
+    This model formalizes trust levels for P3 Trust Boundary analysis.
+
+  principle: |
+    "Code provenance determines trust. Skills are downloaded/installed artifacts
+    with potentially adversarial content — treat them as UNTRUSTED input, not
+    as TRUSTED application code."
+
+  trust_levels:
+    UNTRUSTED:
+      description: "Content that may be adversarial; must be validated before use"
+      examples:
+        - "SKILL.MD content and instructions"
+        - "MCP tool outputs (may contain injected content)"
+        - "Cross-skill shared state (other skills may be compromised)"
+        - "User-provided prompt inputs"
+        - "Downloaded/fetched external content"
+        - "Package dependencies from public registries"
+      threat_model: "Assume adversarial. Validate everything."
+      related_asi: ["ASI01", "ASI04", "ASI06"]
+
+    SEMI_TRUSTED:
+      description: "Content from verified sources with limited trust scope"
+      examples:
+        - "Tool calls initiated by user (user intended, but tool may misbehave)"
+        - "Agent memory (verified but may have been poisoned in prior sessions)"
+        - "MCP servers from allowlisted sources (verified provenance)"
+        - "Signed skill templates (verified publisher)"
+      threat_model: "Verify provenance. Monitor behavior. Limit scope."
+      related_asi: ["ASI02", "ASI03"]
+
+    TRUSTED:
+      description: "Core system components with verified integrity"
+      examples:
+        - "Agent runtime/framework (Claude Code, etc.)"
+        - "System prompt (hardcoded, not user-modifiable)"
+        - "Permission system (HITL gates, tool allowlists)"
+        - "Audit logging infrastructure"
+      threat_model: "Protect integrity. Monitor for compromise."
+      related_asi: ["ASI08", "ASI10"]
+
+  trust_boundaries_for_p3:
+    - name: "Skill Loading Boundary"
+      from: "UNTRUSTED (skill content)"
+      to: "SEMI_TRUSTED (agent context)"
+      crossing_risks:
+        - "Prompt injection via skill instructions"
+        - "Malicious code in skill hooks"
+        - "Supply chain poisoning via skill dependencies"
+      controls: ["AGENT-09", "AGENT-10"]
+
+    - name: "Tool Execution Boundary"
+      from: "SEMI_TRUSTED (agent decision)"
+      to: "TRUSTED (system resources)"
+      crossing_risks:
+        - "Tool argument injection"
+        - "Capability escalation"
+        - "Unauthorized resource access"
+      controls: ["AGENT-02", "AGENT-08"]
+
+    - name: "Tool Output Boundary"
+      from: "UNTRUSTED (tool response)"
+      to: "SEMI_TRUSTED (agent context)"
+      crossing_risks:
+        - "Indirect prompt injection via tool output"
+        - "Data poisoning"
+        - "Response manipulation"
+      controls: ["AGENT-01", "AGENT-02"]
+
+    - name: "Inter-Agent Boundary"
+      from: "SEMI_TRUSTED (peer agent)"
+      to: "SEMI_TRUSTED (this agent)"
+      crossing_risks:
+        - "Agent impersonation"
+        - "Message tampering"
+        - "Trust propagation abuse"
+      controls: ["AGENT-05", "AGENT-03"]
+
+    - name: "Memory Persistence Boundary"
+      from: "SEMI_TRUSTED (current session)"
+      to: "SEMI_TRUSTED (persisted memory)"
+      crossing_risks:
+        - "Memory poisoning for future sessions"
+        - "Cross-session data leakage"
+        - "Context manipulation"
+      controls: ["AGENT-04"]
+
+    - name: "Human-Agent Boundary"
+      from: "TRUSTED (human judgment)"
+      to: "SEMI_TRUSTED (agent action)"
+      crossing_risks:
+        - "Confirmation fatigue exploitation"
+        - "Social engineering through agent"
+        - "Authority impersonation"
+      controls: ["AGENT-08"]
