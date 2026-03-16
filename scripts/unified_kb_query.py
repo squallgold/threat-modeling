@@ -1177,12 +1177,14 @@ class UnifiedKnowledgeBase:
                 ]
             except (sqlite3.OperationalError, sqlite3.DatabaseError):
                 # Fallback to LIKE search (handles FTS errors and corrupted indexes)
+                # Escape LIKE wildcards to prevent unexpected pattern matching
+                like_query = query.replace("%", "\\%").replace("_", "\\_")
                 cursor.execute("""
                     SELECT id, name, tactics, description
                     FROM attack_technique
-                    WHERE name LIKE ? OR description LIKE ?
+                    WHERE name LIKE ? ESCAPE '\\' OR description LIKE ? ESCAPE '\\'
                     LIMIT ?
-                """, (f"%{query}%", f"%{query}%", limit))
+                """, (f"%{like_query}%", f"%{like_query}%", limit))
                 return [
                     {
                         "technique_id": r[0],

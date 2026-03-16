@@ -13,7 +13,7 @@ metadata:
     - "OWASP Non-Human Identities (NHI) Top 10"
     - "MITRE ATLAS (Adversarial Threat Landscape for AI Systems)"
     - "NIST AI Risk Management Framework"
-    - "OWASP MCP Security Top 10 (2025)"
+    - "OWASP MCP Top 10 (2025) — https://owasp.org/www-project-mcp-top-10/"
     - "MITRE ATT&CK Enterprise v16"
     - "Integrated from skill-audit Agent/Skill Security Knowledge Base"
   last_updated: "2026-03"
@@ -134,6 +134,7 @@ owasp_agentic_top10:
           - Alert on policy violations
     cwes: ["CWE-284", "CWE-862", "CWE-863", "CWE-77"]
     capecs: ["CAPEC-122", "CAPEC-233"]
+    atlas_techniques: []
     attack_techniques: ["T1059", "T1105", "T1569"]
     kill_chain_phases: ["exploitation", "actions_on_objectives"]
     related_llm: ["LLM07", "LLM08"]
@@ -190,6 +191,7 @@ owasp_agentic_top10:
           - No shared credentials
     cwes: ["CWE-287", "CWE-522", "CWE-269", "CWE-250"]
     capecs: ["CAPEC-151", "CAPEC-194"]
+    atlas_techniques: []
     attack_techniques: ["T1552", "T1078", "T1134"]
     kill_chain_phases: ["credential_access", "actions_on_objectives"]
     related_llm: []
@@ -302,6 +304,7 @@ owasp_agentic_top10:
           - Automatic termination on violations
     cwes: ["CWE-78", "CWE-94", "CWE-95", "CWE-96"]
     capecs: ["CAPEC-242", "CAPEC-108"]
+    atlas_techniques: []
     attack_techniques: ["T1059.004", "T1059.006", "T1059.007", "T1203"]
     kill_chain_phases: ["exploitation", "actions_on_objectives"]
     related_llm: ["LLM02"]
@@ -415,6 +418,7 @@ owasp_agentic_top10:
           - Collaboration auditing
     cwes: ["CWE-290", "CWE-319", "CWE-200"]
     capecs: ["CAPEC-94", "CAPEC-151"]
+    atlas_techniques: []
     attack_techniques: ["T1557", "T1557.001"]
     kill_chain_phases: ["lateral_movement", "collection"]
     related_llm: []
@@ -471,6 +475,7 @@ owasp_agentic_top10:
           - Degradation monitoring
     cwes: ["CWE-400", "CWE-754", "CWE-755"]
     capecs: ["CAPEC-125", "CAPEC-130"]
+    atlas_techniques: []
     attack_techniques: ["T1499", "T1499.004"]
     kill_chain_phases: ["exploitation", "impact"]
     related_llm: ["LLM04"]
@@ -527,6 +532,7 @@ owasp_agentic_top10:
           - Informed user consent
     cwes: ["CWE-754", "CWE-778"]
     capecs: ["CAPEC-98"]
+    atlas_techniques: []
     attack_techniques: ["T1566", "T1204"]
     kill_chain_phases: ["delivery", "exploitation"]
     related_llm: ["LLM09"]
@@ -583,6 +589,7 @@ owasp_agentic_top10:
           - Automatic isolation mechanisms
     cwes: ["CWE-269", "CWE-250"]
     capecs: ["CAPEC-122"]
+    atlas_techniques: []
     attack_techniques: ["T1059", "T1053"]
     kill_chain_phases: ["actions_on_objectives", "persistence"]
     related_llm: ["LLM08"]
@@ -590,117 +597,156 @@ owasp_agentic_top10:
     severity: "critical"
 
 # =============================================================================
-# OWASP MCP SECURITY THREATS
-# Integrated from skill-audit Agent/Skill Security Knowledge Base
-# Reference: OWASP MCP Security Top 10 (2025)
+# OWASP MCP TOP 10 (2025) — Official Alignment
+# Reference: https://owasp.org/www-project-mcp-top-10/
+# Integrated from skill-audit KB + aligned to official OWASP MCP01:2025-MCP10:2025
 # =============================================================================
 
 owasp_mcp_threats:
-  MCP01:
-    id: "MCP01"
-    name: "Tool Poisoning via Description"
+  "MCP01:2025":
+    id: "MCP01:2025"
+    name: "Token Mismanagement & Secret Exposure"
     description: |
-      MCP server manipulates tool descriptions to influence agent behavior.
-      Tool descriptions are consumed by the LLM as context, allowing indirect
-      prompt injection through tool metadata. The agent may execute unintended
-      actions based on poisoned descriptions.
+      Hard-coded credentials, long-lived tokens, and secrets stored in model
+      memory or protocol logs expose sensitive environments to unauthorized access.
+      Attackers can retrieve tokens through prompt injection, compromised context,
+      or debug traces, leading to full compromise of connected systems.
+    stride_categories: ["information_disclosure", "spoofing"]
+    attack_vectors:
+      - "Hard-coded API keys in MCP server code"
+      - "Long-lived tokens in agent memory/context"
+      - "Secrets exposed in protocol debug logs"
+      - "Credential extraction via prompt injection"
+    mitigations:
+      - id: "MCP01:2025-M01"
+        name: "Secure credential management"
+        description: "Prevent token/secret exposure in MCP environments"
+        control_ref: "AGENT-03"
+        implementation: |
+          - Use environment variables or vault for secrets (never hardcode)
+          - Implement short-lived, scoped tokens with automatic rotation
+          - Scrub secrets from logs, context windows, and debug output
+          - Monitor for credential exposure in agent memory
+    cwes: ["CWE-522", "CWE-798", "CWE-532"]
+    attack_techniques: ["T1552", "T1552.001"]
+    atlas_techniques: []
+    kill_chain_phases: ["credential_access", "collection"]
+    related_asi: ["ASI03"]
+    related_controls: ["AGENT-03", "AGENT-04"]
+    severity: "critical"
+
+  "MCP02:2025":
+    id: "MCP02:2025"
+    name: "Privilege Escalation via Scope Creep"
+    description: |
+      Temporary or loosely defined permissions within MCP servers expand over time,
+      granting agents excessive capabilities. Attackers exploiting weak scope
+      enforcement can perform unintended actions such as repository modification,
+      system control, or data exfiltration.
+    stride_categories: ["elevation_of_privilege", "tampering"]
+    attack_vectors:
+      - "Permission scope drift over MCP server lifetime"
+      - "Overly broad initial capability declarations"
+      - "Missing permission revocation on task completion"
+      - "Exploiting accumulated permissions across sessions"
+    mitigations:
+      - id: "MCP02:2025-M01"
+        name: "Scope enforcement and review"
+        description: "Prevent privilege creep in MCP servers"
+        control_ref: "AGENT-02"
+        implementation: |
+          - Define minimal required permissions per tool at registration
+          - Implement permission expiry and automatic revocation
+          - Regular audit of accumulated MCP server permissions
+          - Enforce principle of least privilege per session
+    cwes: ["CWE-269", "CWE-250", "CWE-266"]
+    attack_techniques: ["T1078", "T1548"]
+    atlas_techniques: []
+    kill_chain_phases: ["privilege_escalation"]
+    related_asi: ["ASI02", "ASI03"]
+    related_controls: ["AGENT-02", "AGENT-03"]
+    severity: "high"
+
+  "MCP03:2025":
+    id: "MCP03:2025"
+    name: "Tool Poisoning"
+    description: |
+      Tool poisoning occurs when an adversary compromises the tools, plugins,
+      or their outputs that an AI model depends on — injecting malicious,
+      misleading, or biased context to manipulate model behavior. This includes
+      poisoning tool descriptions to influence agent decisions and poisoning
+      tool outputs to inject instructions.
     stride_categories: ["tampering", "elevation_of_privilege", "spoofing"]
     attack_vectors:
       - "Inject instructions into tool description fields"
       - "Use tool descriptions to override system prompt"
-      - "Embed hidden commands in tool metadata"
+      - "Return poisoned data in tool outputs"
       - "Manipulate tool parameter descriptions"
     mitigations:
-      - id: "MCP01-M01"
-        name: "Tool description sanitization"
-        description: "Validate and sanitize tool descriptions before LLM consumption"
+      - id: "MCP03:2025-M01"
+        name: "Tool integrity verification"
+        description: "Prevent tool description and output poisoning"
         control_ref: "AGENT-02"
         implementation: |
           - Strip instruction-like content from tool descriptions
           - Validate tool descriptions against schema
-          - Separate tool metadata from LLM-consumable context
+          - Sanitize tool outputs before LLM consumption
           - Monitor for description changes post-registration
-    cwes: ["CWE-1336", "CWE-829"]
+    cwes: ["CWE-1336", "CWE-829", "CWE-94"]
     attack_techniques: ["T1059"]
-    atlas_techniques: ["AML.T0081"]
-    kill_chain_phases: ["delivery"]
+    atlas_techniques: ["AML.T0043"]
+    kill_chain_phases: ["delivery", "exploitation"]
     related_asi: ["ASI01", "ASI02"]
     related_controls: ["AGENT-02", "AGENT-09"]
     severity: "critical"
 
-  MCP02:
-    id: "MCP02"
-    name: "Cross-Origin Tool Access"
+  "MCP04:2025":
+    id: "MCP04:2025"
+    name: "Software Supply Chain Attacks & Dependency Tampering"
     description: |
-      MCP tools from one origin accessing resources or data from another
-      origin without proper authorization. Lack of origin isolation enables
-      lateral movement between MCP server contexts.
-    stride_categories: ["information_disclosure", "elevation_of_privilege"]
+      Compromised dependencies, malicious MCP server packages, or tampered
+      tool registries can alter agent behavior or introduce execution-level
+      backdoors into MCP ecosystems.
+    stride_categories: ["tampering", "elevation_of_privilege"]
     attack_vectors:
-      - "Cross-MCP-server data access"
-      - "Shared context exploitation"
-      - "Tool chaining across trust boundaries"
+      - "Typosquatting MCP server package names"
+      - "Compromised MCP server dependencies"
+      - "Backdoored tool registry entries"
+      - "Version substitution attacks on MCP packages"
     mitigations:
-      - id: "MCP02-M01"
-        name: "MCP origin isolation"
-        description: "Enforce strict origin boundaries between MCP servers"
-        control_ref: "AGENT-02"
+      - id: "MCP04:2025-M01"
+        name: "MCP supply chain security"
+        description: "Secure MCP server and tool sourcing"
+        control_ref: "AGENT-10"
         implementation: |
-          - Isolate MCP server execution contexts
-          - Enforce data access boundaries per MCP server
-          - Prevent cross-server tool chaining without authorization
-    cwes: ["CWE-284", "CWE-346"]
-    attack_techniques: ["T1021"]
-    kill_chain_phases: ["lateral_movement"]
-    related_asi: ["ASI02"]
-    related_controls: ["AGENT-02", "AGENT-05"]
-    severity: "high"
-
-  MCP03:
-    id: "MCP03"
-    name: "Tool Shadowing"
-    description: |
-      Malicious MCP server registers tools with names identical to legitimate
-      tools, intercepting calls intended for trusted tools. The shadow tool
-      can exfiltrate parameters or return poisoned results.
-    stride_categories: ["spoofing", "tampering"]
-    attack_vectors:
-      - "Register duplicate tool names across MCP servers"
-      - "Override legitimate tool with malicious version"
-      - "Exploit tool resolution order"
-    mitigations:
-      - id: "MCP03-M01"
-        name: "Tool namespace enforcement"
-        description: "Prevent tool name collisions across MCP servers"
-        control_ref: "AGENT-02"
-        implementation: |
-          - Enforce unique tool namespaces per MCP server
-          - Detect and alert on duplicate tool registrations
-          - Implement tool resolution priority policies
-          - Log all tool registration events
-    cwes: ["CWE-290", "CWE-694"]
-    attack_techniques: ["T1036"]
-    kill_chain_phases: ["installation", "exploitation"]
+          - Verify MCP server package signatures and checksums
+          - Pin MCP server versions and audit dependencies
+          - Use allowlisted MCP server sources only
+          - Scan MCP server code before deployment
+    cwes: ["CWE-829", "CWE-494", "CWE-506"]
+    attack_techniques: ["T1195", "T1195.002"]
+    atlas_techniques: []
+    kill_chain_phases: ["delivery", "installation"]
     related_asi: ["ASI04"]
-    related_controls: ["AGENT-02", "AGENT-10"]
+    related_controls: ["AGENT-10"]
     severity: "high"
 
-  MCP04:
-    id: "MCP04"
-    name: "Tool Argument Injection"
+  "MCP05:2025":
+    id: "MCP05:2025"
+    name: "Command Injection & Execution"
     description: |
-      Attacker injects malicious content into tool arguments that gets
-      executed by the MCP server. This includes command injection through
-      tool parameters, path traversal in file arguments, and SQL injection
-      in database tool parameters.
+      Command injection occurs when an AI agent constructs and executes system
+      commands, shell scripts, API calls, or code snippets using untrusted input
+      passed through MCP tool parameters. This includes shell injection, path
+      traversal, SQL injection, and SSRF via tool arguments.
     stride_categories: ["tampering", "elevation_of_privilege"]
     attack_vectors:
       - "Shell command injection via tool parameters"
       - "Path traversal in file operation tools"
       - "SQL injection in database tools"
-      - "SSRF via URL parameters"
+      - "SSRF via URL parameters in network tools"
     mitigations:
-      - id: "MCP04-M01"
+      - id: "MCP05:2025-M01"
         name: "Tool argument validation"
         description: "Strict validation of all tool arguments before execution"
         control_ref: "AGENT-02"
@@ -711,56 +757,28 @@ owasp_mcp_threats:
           - Parameter type enforcement
     cwes: ["CWE-77", "CWE-78", "CWE-22", "CWE-89"]
     attack_techniques: ["T1059", "T1190"]
+    atlas_techniques: []
     kill_chain_phases: ["exploitation"]
     related_asi: ["ASI02", "ASI05"]
     related_controls: ["AGENT-02"]
     severity: "critical"
 
-  MCP05:
-    id: "MCP05"
-    name: "MCP Server Impersonation"
+  "MCP06:2025":
+    id: "MCP06:2025"
+    name: "Intent Flow Subversion"
     description: |
-      Attacker deploys a malicious MCP server that impersonates a legitimate
-      one. Without proper server authentication, the agent connects to the
-      malicious server and exposes sensitive data or executes malicious tools.
-    stride_categories: ["spoofing"]
-    attack_vectors:
-      - "Deploy fake MCP server with same name"
-      - "DNS/config hijack to redirect MCP connections"
-      - "Man-in-the-middle on stdio/SSE transport"
-    mitigations:
-      - id: "MCP05-M01"
-        name: "MCP server authentication"
-        description: "Verify MCP server identity before connection"
-        control_ref: "AGENT-10"
-        implementation: |
-          - Server certificate/signature verification
-          - Allowlisted server sources only
-          - Integrity check on server binaries
-          - Transport encryption enforcement
-    cwes: ["CWE-290", "CWE-295"]
-    attack_techniques: ["T1557"]
-    kill_chain_phases: ["delivery"]
-    related_asi: ["ASI04"]
-    related_controls: ["AGENT-10"]
-    severity: "high"
-
-  MCP06:
-    id: "MCP06"
-    name: "Indirect Prompt Injection via Tool Output"
-    description: |
-      MCP tool returns data containing embedded prompt injection payloads.
-      When the agent processes tool output, the injected instructions
-      override agent behavior. This is the tool-output variant of indirect
-      prompt injection.
+      Malicious instructions embedded in tool outputs, context, or cross-tool
+      data flows hijack the agent's intent, steering it away from user goals
+      toward attacker objectives. This is the MCP-specific variant of indirect
+      prompt injection, operating through tool response channels.
     stride_categories: ["tampering", "elevation_of_privilege", "spoofing"]
     attack_vectors:
       - "Embed instructions in tool response data"
-      - "Return poisoned search results"
+      - "Return poisoned search results from tools"
       - "Include injection payloads in error messages"
-      - "Manipulate structured data to contain instructions"
+      - "Manipulate structured data to contain hidden instructions"
     mitigations:
-      - id: "MCP06-M01"
+      - id: "MCP06:2025-M01"
         name: "Tool output sanitization"
         description: "Sanitize tool outputs before LLM consumption"
         control_ref: "AGENT-02"
@@ -771,70 +789,139 @@ owasp_mcp_threats:
           - Monitor for anomalous tool output patterns
     cwes: ["CWE-1336", "CWE-94"]
     attack_techniques: ["T1059"]
-    atlas_techniques: ["AML.T0080"]
+    atlas_techniques: ["AML.T0043"]
     kill_chain_phases: ["delivery", "exploitation"]
     related_asi: ["ASI01", "ASI02"]
     related_controls: ["AGENT-01", "AGENT-02"]
     severity: "critical"
 
-  MCP07:
-    id: "MCP07"
-    name: "Resource Exhaustion via Tools"
+  "MCP07:2025":
+    id: "MCP07:2025"
+    name: "Insufficient Authentication & Authorization"
     description: |
-      MCP tools are abused to exhaust system resources through excessive
-      file operations, network requests, or compute-intensive operations.
-      This can be triggered by malicious inputs that cause unbounded tool
-      invocations.
-    stride_categories: ["denial_of_service"]
+      Inadequate authentication and authorization occur when MCP servers, tools,
+      or agents fail to properly verify identities or enforce access controls.
+      This includes missing server authentication, weak tool-level permissions,
+      and absent delegation chain verification.
+    stride_categories: ["spoofing", "elevation_of_privilege"]
     attack_vectors:
-      - "Trigger unbounded recursive tool calls"
-      - "Request excessive file system operations"
-      - "Generate large network traffic through tools"
-      - "Exhaust memory through tool output accumulation"
+      - "Connect to MCP server without authentication"
+      - "Bypass tool-level access controls"
+      - "Exploit missing delegation chain verification"
+      - "Impersonate legitimate MCP server"
     mitigations:
-      - id: "MCP07-M01"
-        name: "Tool resource limits"
-        description: "Enforce resource limits on tool execution"
-        control_ref: "AGENT-07"
+      - id: "MCP07:2025-M01"
+        name: "MCP authentication and authorization"
+        description: "Enforce identity verification and access control"
+        control_ref: "AGENT-03"
         implementation: |
-          - Per-tool execution timeouts
-          - Rate limiting for tool invocations
-          - Output size limits
-          - Resource quota enforcement per MCP server
-    cwes: ["CWE-400", "CWE-770"]
-    attack_techniques: ["T1499"]
-    kill_chain_phases: ["impact"]
-    related_asi: ["ASI08"]
-    related_controls: ["AGENT-07", "AGENT-02"]
-    severity: "medium"
+          - Require server certificate/signature verification
+          - Implement per-tool authorization checks
+          - Verify complete delegation chain (User→Agent→Tool)
+          - Transport encryption enforcement (TLS for SSE, auth for stdio)
+    cwes: ["CWE-287", "CWE-290", "CWE-295", "CWE-863"]
+    attack_techniques: ["T1557", "T1078"]
+    atlas_techniques: []
+    kill_chain_phases: ["initial_access", "lateral_movement"]
+    related_asi: ["ASI03", "ASI04"]
+    related_controls: ["AGENT-03", "AGENT-10"]
+    severity: "high"
 
-  MCP08:
-    id: "MCP08"
-    name: "Capability Advertisement Falsification"
+  "MCP08:2025":
+    id: "MCP08:2025"
+    name: "Lack of Audit and Telemetry"
     description: |
-      MCP server falsely advertises capabilities, claiming to support
-      operations it cannot perform safely or correctly. This leads to
-      incorrect agent decisions based on false capability information.
+      Limited logging and monitoring in MCP environments impede detection and
+      investigation of unauthorized actions. Without comprehensive audit trails
+      for tool invocations, parameter values, and response data, security
+      incidents cannot be effectively investigated or prevented.
+    stride_categories: ["repudiation"]
+    attack_vectors:
+      - "Perform malicious actions without audit trail"
+      - "Exploit gaps in tool invocation logging"
+      - "Tamper with or suppress MCP audit logs"
+      - "Evade detection through unmonitored tool channels"
+    mitigations:
+      - id: "MCP08:2025-M01"
+        name: "MCP observability"
+        description: "Comprehensive logging and monitoring for MCP operations"
+        control_ref: "AGENT-06"
+        implementation: |
+          - Log all tool invocations with parameters (sanitized)
+          - Record tool response metadata and anomalies
+          - Implement immutable audit trails for MCP operations
+          - Alert on suspicious tool usage patterns
+    cwes: ["CWE-778", "CWE-223"]
+    attack_techniques: ["T1070", "T1562"]
+    atlas_techniques: []
+    kill_chain_phases: ["defense_evasion"]
+    related_asi: ["ASI09"]
+    related_controls: ["AGENT-06", "AGENT-08"]
+    severity: "high"
+
+  "MCP09:2025":
+    id: "MCP09:2025"
+    name: "Shadow MCP Servers"
+    description: |
+      Unapproved MCP server deployments operating outside formal security
+      governance, often with default credentials and permissive configurations.
+      Includes malicious servers that register tools with names identical to
+      legitimate tools to intercept calls (tool shadowing).
     stride_categories: ["spoofing", "tampering"]
     attack_vectors:
-      - "Declare capabilities beyond actual implementation"
-      - "Advertise security features not implemented"
-      - "Claim permissions not actually enforced"
+      - "Deploy unauthorized MCP server in environment"
+      - "Register duplicate tool names across MCP servers"
+      - "Override legitimate tools with shadow versions"
+      - "Exploit tool resolution order for interception"
     mitigations:
-      - id: "MCP08-M01"
-        name: "Capability verification"
-        description: "Verify MCP server capabilities against actual behavior"
-        control_ref: "AGENT-02"
+      - id: "MCP09:2025-M01"
+        name: "MCP server governance"
+        description: "Control MCP server deployment and tool registration"
+        control_ref: "AGENT-10"
         implementation: |
-          - Runtime capability testing before trust
-          - Capability claim auditing
-          - Behavioral verification against declared capabilities
-    cwes: ["CWE-250", "CWE-863"]
+          - Maintain allowlist of approved MCP servers
+          - Enforce unique tool namespaces per server
+          - Detect and alert on unauthorized MCP deployments
+          - Implement tool resolution priority policies
+    cwes: ["CWE-290", "CWE-694"]
     attack_techniques: ["T1036"]
-    kill_chain_phases: ["reconnaissance", "delivery"]
-    related_asi: ["ASI02", "ASI04"]
+    atlas_techniques: []
+    kill_chain_phases: ["installation", "exploitation"]
+    related_asi: ["ASI04"]
     related_controls: ["AGENT-02", "AGENT-10"]
-    severity: "medium"
+    severity: "high"
+
+  "MCP10:2025":
+    id: "MCP10:2025"
+    name: "Context Injection & Over-Sharing"
+    description: |
+      Shared or insufficiently scoped context windows expose sensitive information
+      between tasks, users, or agents. Includes cross-origin tool access where
+      tools from one MCP server access resources from another without proper
+      authorization, enabling lateral data movement.
+    stride_categories: ["information_disclosure", "elevation_of_privilege"]
+    attack_vectors:
+      - "Cross-MCP-server data access via shared context"
+      - "Sensitive data leakage between agent sessions"
+      - "Tool chaining across trust boundaries"
+      - "Context window pollution from previous tasks"
+    mitigations:
+      - id: "MCP10:2025-M01"
+        name: "Context isolation"
+        description: "Enforce context boundaries between MCP operations"
+        control_ref: "AGENT-04"
+        implementation: |
+          - Isolate MCP server execution contexts
+          - Enforce data access boundaries per MCP server
+          - Clear context between tasks/sessions
+          - Prevent cross-server tool chaining without authorization
+    cwes: ["CWE-200", "CWE-284", "CWE-346"]
+    attack_techniques: ["T1021"]
+    atlas_techniques: []
+    kill_chain_phases: ["lateral_movement", "collection"]
+    related_asi: ["ASI06", "ASI07"]
+    related_controls: ["AGENT-04", "AGENT-05"]
+    severity: "high"
 
 # =============================================================================
 # AGENT COMPONENT STRIDE MAPPINGS

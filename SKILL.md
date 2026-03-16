@@ -410,8 +410,8 @@ Supported: en, zh, ja, ko, es, fr, de, pt, ru
 
 This skill uses progressive disclosure:
 
-1. **Always Loaded**: This file (SKILL.md) - ~4.5K tokens
-2. **Session Start**: @WORKFLOW.md - ~3K tokens
+1. **Always Loaded**: This file (SKILL.md) - ~5.5K tokens
+2. **Session Start**: @WORKFLOW.md - ~4.8K tokens
 3. **Per Phase**: @phases/P{N}-*.md - ~4K-10K tokens each (varies by phase)
 
 Total per-phase context: ~12K-18K tokens per phase (vs 30K monolithic)
