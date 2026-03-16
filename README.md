@@ -6,8 +6,12 @@ AI-native automated software risk analysis skill. LLM-driven, Code-First approac
 
 ## What's New in v3.1.0
 
-- Comprehensively optimized the report system — reports are now more detailed and complete, with significantly enhanced human readability
-- Now supports HTML format report output
+- Comprehensive code quality audit and optimization to better align with current skill specifications
+- Significantly enhanced agent and skill security analysis and assessment capabilities
+- Full OWASP MCP Top 10 (2025) coverage with official MCP01:2025-MCP10:2025 alignment
+- SAO behavioral model (Subject-Action-Object) for systematic agent threat enumeration
+- 13 pre-built agent attack chains with MITRE ATT&CK technique sequences
+- Trust inversion model formalizing SKILL.MD = UNTRUSTED paradigm for agent security
 
 See [CHANGELOG.md](CHANGELOG.md) for full version history.
 
