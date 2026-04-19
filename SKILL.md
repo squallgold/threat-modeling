@@ -17,7 +17,7 @@ description: |
 
 <!-- Threat Modeling Skill | Version 3.1.0 (20260313a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
-> **Note**: All relative paths in this skill are relative to `SKILL_PATH` (the directory containing this SKILL.md file).
+> **Note**: All relative paths in this skill are relative to `SKILL_PATH` / `CLAUDE_SKILL_DIR` (the directory containing this SKILL.md file). Use `${SKILL_PATH:-$CLAUDE_SKILL_DIR}` in Bash commands for cross-runtime compatibility.
 
 # Threat Modeling Skill v3.1.0 (20260313a)
 
@@ -367,28 +367,28 @@ All threats from P5 must be accounted for in P6 (no threat loss).
 ### kb Wrapper Usage
 
 ```bash
-# Get skill path
-SKILL_PATH=$(bash skill_path.sh)
+# Resolve skill path (works in Claude Code, Codex CLI, and manual testing)
+SKILL_PATH=${SKILL_PATH:-${CLAUDE_SKILL_DIR:-$(bash skill_path.sh)}}
 
 # STRIDE queries
-$SKILL_PATH/kb --stride spoofing
-$SKILL_PATH/kb --stride-controls S
+${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --stride spoofing
+${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --stride-controls S
 
 # CWE queries
-$SKILL_PATH/kb --cwe CWE-89
-$SKILL_PATH/kb --full-chain CWE-89
+${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --cwe CWE-89
+${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --full-chain CWE-89
 
 # Attack patterns
-$SKILL_PATH/kb --capec CAPEC-89
-$SKILL_PATH/kb --attack-technique T1078
+${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --capec CAPEC-89
+${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --attack-technique T1078
 
 # Verification tests
-$SKILL_PATH/kb --stride-tests S
-$SKILL_PATH/kb --wstg-category ATHN
+${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --stride-tests S
+${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --wstg-category ATHN
 
 # LLM/AI extensions
-$SKILL_PATH/kb --all-llm
-$SKILL_PATH/kb --ai-component
+${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --all-llm
+${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --ai-component
 ```
 
 ---
