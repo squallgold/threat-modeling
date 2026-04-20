@@ -62,7 +62,7 @@ Evaluate project's design maturity across 16 security domains, identify security
 **Step 1: Read Upstream Data** (BLOCKING - MUST execute)
 ```bash
 # Read P1-P3 YAML data (choose one method)
-python scripts/phase_data.py --aggregate --phases 1,2,3 --format summary --root .
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --aggregate --phases 1,2,3 --format summary --root .
 
 # Or read directly
 cat .phase_working/{SESSION_ID}/data/P1_project_context.yaml
@@ -514,16 +514,16 @@ domain_coverage_verification:
 
 ```bash
 # Step 1: Get aggregate summary from P1-P3
-python scripts/phase_data.py --aggregate --phases 1,2,3 --format summary --root .
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --aggregate --phases 1,2,3 --format summary --root .
 
 # Step 2: Get P1 modules for coverage tracking
-python scripts/phase_data.py --query --phase 1 --type modules --root .
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --query --phase 1 --type modules --root .
 
 # Step 3: Get P2 DFD elements for security mapping
-python scripts/phase_data.py --query --phase 2 --type dfd --root .
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --query --phase 2 --type dfd --root .
 
 # Step 4: Get P3 boundaries for gap context
-python scripts/phase_data.py --query --phase 3 --summary --root .
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --query --phase 3 --summary --root .
 ```
 
 **Or read YAML directly**:
@@ -562,10 +562,10 @@ Evaluate project's design maturity across all 16 security domains, identify gaps
 
 **Query Commands**:
 ```bash
-$SKILL_PATH/kb --control authentication       # Domain-specific controls
-$SKILL_PATH/kb --stride-controls S            # STRIDE category controls
-$SKILL_PATH/kb --control api                  # Full control details
-$SKILL_PATH/kb --control {ext_domain}         # Extended domain (may have limited support)
+${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --control authentication       # Domain-specific controls
+${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --stride-controls S            # STRIDE category controls
+${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --control api                  # Full control details
+${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --control {ext_domain}         # Extended domain (may have limited support)
 ```
 
 ### KB Usage Log (MANDATORY per GAP-4 Contract)

@@ -112,13 +112,13 @@ VR-xxx → F-xxx (from P1-P3)
 
 ```bash
 # Load all VR data with cross-references
-python scripts/phase_data.py --query --phase 6 --session-id {SESSION_ID}
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --query --phase 6 --session-id {SESSION_ID}
 
 # Load mitigation mappings
-python scripts/phase_data.py --query --phase 7 --session-id {SESSION_ID}
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --query --phase 7 --session-id {SESSION_ID}
 
 # Load P8 manifest for report structure
-python scripts/phase_data.py --query --phase 8 --session-id {SESSION_ID}
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --query --phase 8 --session-id {SESSION_ID}
 ```
 
 ### 1.2 Build VR Index

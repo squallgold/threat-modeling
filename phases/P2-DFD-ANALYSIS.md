@@ -62,8 +62,8 @@ Build complete Data Flow Diagram (DFD) and Call Flow Diagram (CFD) to establish 
 **Step 1: Read Upstream Data** (BLOCKING - MUST execute)
 ```bash
 # Read P1 YAML data
-python scripts/phase_data.py --query --phase 1 --summary --root .
-python scripts/phase_data.py --query --phase 1 --type entry_points --root .
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --query --phase 1 --summary --root .
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --query --phase 1 --type entry_points --root .
 
 # Or read directly
 cat .phase_working/{SESSION_ID}/data/P1_project_context.yaml
@@ -117,10 +117,10 @@ Launch `‖` sub-agents via `Task` tool (`subagent_type: "general-purpose"`, `mo
 **Key Commands**:
 ```bash
 # P2.0 Task extraction
-python scripts/phase_data.py --p2-extract-tasks --root .
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --p2-extract-tasks --root .
 
 # P2.T.3 Coverage validation
-python scripts/phase_data.py --p2-validate-coverage --root .
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --p2-validate-coverage --root .
 ```
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -200,13 +200,13 @@ Phase 2 CANNOT complete until:
 
 ```bash
 # Step 1: Get P1 summary for context
-python scripts/phase_data.py --query --phase 1 --summary --root .
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --query --phase 1 --summary --root .
 
 # Step 2: Get detailed entry points (REQUIRED for DFD)
-python scripts/phase_data.py --query --phase 1 --type entry_points --root .
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --query --phase 1 --type entry_points --root .
 
 # Step 3: Get module inventory (REQUIRED for mapping)
-python scripts/phase_data.py --query --phase 1 --type modules --root .
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --query --phase 1 --type modules --root .
 ```
 
 **Or read YAML directly**:
@@ -237,7 +237,7 @@ P2 uses a two-track analysis approach:
 ├────────────────────────────────────────────────────────────────────────────────┤
 │                                                                                 │
 │  P2.0 Init (Script)                                                            │
-│    │ phase_data.py --p2-extract-tasks                                          │
+│    │ ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --p2-extract-tasks                                          │
 │    │ Input: P1_project_context.yaml                                            │
 │    │ Output: P2_traversal_tasks.yaml                                           │
 │    ▼                                                                            │
@@ -258,13 +258,13 @@ P2 uses a two-track analysis approach:
 │    │      Output: P2_traverse_{NNN}.yaml per sub-agent                         │
 │    │                                                                            │
 │    ├── P2.T.2: Merge results (Script)                                          │
-│    │      phase_data.py --p2-merge-traversal                                   │
+│    │      ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --p2-merge-traversal                                   │
 │    │      Output: P2_full_traversal.yaml                                       │
 │    │                                                                            │
 │    └── P2.T.3: Validate coverage (Script)                                      │
-│           phase_data.py --p2-validate-coverage                                 │
+│           ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --p2-validate-coverage                                 │
 │           If coverage < 100%:                                                  │
-│             phase_data.py --p2-gap-analysis                                    │
+│             ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --p2-gap-analysis                                    │
 │             → Create supplemental tasks                                        │
 │             → LOOP (MAX_ITERATIONS=3)                                          │
 │           If coverage == 100%: PROCEED                                         │
@@ -312,7 +312,7 @@ P2 uses a two-track analysis approach:
 
 ### P2.0 Init: Task Extraction
 
-**Executor**: Script (`phase_data.py --p2-extract-tasks`)
+**Executor**: Script (`${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --p2-extract-tasks`)
 
 **Input**: `P1_project_context.yaml`
 
@@ -448,7 +448,7 @@ coverage_metrics:
 
 #### P2.T.2 Merge Traversal Results
 
-**Executor**: Script (`phase_data.py --p2-merge-traversal`)
+**Executor**: Script (`${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --p2-merge-traversal`)
 
 **Input**: All `P2_traverse_{NNN}.yaml` files
 
@@ -484,7 +484,7 @@ aggregate_metrics:
 
 #### P2.T.3 Coverage Validation
 
-**Executor**: Script (`phase_data.py --p2-validate-coverage`)
+**Executor**: Script (`${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --p2-validate-coverage`)
 
 **Validation Logic**:
 ```python
@@ -548,7 +548,7 @@ validation_result:
 
 #### Gap Analysis (if coverage < 100%)
 
-**Executor**: Script (`phase_data.py --p2-gap-analysis`)
+**Executor**: Script (`${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --p2-gap-analysis`)
 
 **Output**: Supplemental tasks for missing elements with root cause analysis
 
@@ -622,7 +622,7 @@ iteration_status:
 
 #### Gap Task Dispatch
 
-**Executor**: Script (`phase_data.py --p2-dispatch-gap-tasks`)
+**Executor**: Script (`${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --p2-dispatch-gap-tasks`)
 
 Dispatches gap remediation tasks to sub-agents with appropriate instructions based on root cause.
 

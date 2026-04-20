@@ -65,8 +65,8 @@ Design specific mitigation measures MIT-xxx for each VR-xxx, including executabl
 **Step 1: Read Upstream Data** (BLOCKING - MUST execute)
 ```bash
 # Read P6 validated risks
-python scripts/phase_data.py --query --phase 6 --summary --root .
-python scripts/phase_data.py --query --phase 6 --type risks --root .
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --query --phase 6 --summary --root .
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --query --phase 6 --type risks --root .
 
 # Or read directly
 cat .phase_working/{SESSION_ID}/data/P6_validated_risks.yaml
@@ -125,9 +125,9 @@ Launch 5 `‖` sub-agents via `Task` tool (`subagent_type: "general-purpose"`, `
 
 **Key KB Queries**:
 ```bash
-$SKILL_PATH/kb --cwe CWE-89 --mitigations      # CWE-specific mitigations
-$SKILL_PATH/kb --control authentication         # Security control details
-$SKILL_PATH/kb --asvs-level L2                  # ASVS requirements
+${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --cwe CWE-89 --mitigations      # CWE-specific mitigations
+${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --control authentication         # Security control details
+${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --asvs-level L2                  # ASVS requirements
 ```
 
 **Mitigation Coverage Verification**:
@@ -214,13 +214,13 @@ Phase 7 CANNOT complete until:
 
 ```bash
 # Step 1: Get P6 risk summary for overview
-python scripts/phase_data.py --query --phase 6 --summary --root .
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --query --phase 6 --summary --root .
 
 # Step 2: Get detailed validated risks (PRIMARY input)
-python scripts/phase_data.py --query --phase 6 --type risks --root .
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --query --phase 6 --type risks --root .
 
 # Step 3: Verify P6 coverage for completeness
-python scripts/phase_data.py --verify-p6-coverage --root .
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --verify-p6-coverage --root .
 ```
 
 **Or read YAML directly**:
@@ -252,11 +252,11 @@ Design specific mitigation measures and implementation plans for each validated 
 
 **Query Commands**:
 ```bash
-$SKILL_PATH/kb --cwe CWE-89 --mitigations      # CWE-specific mitigations
-$SKILL_PATH/kb --control authentication         # Security control details
-$SKILL_PATH/kb --asvs-level L2                  # ASVS requirements
-$SKILL_PATH/kb --asvs-chapter V4                # ASVS by chapter
-$SKILL_PATH/kb --wstg-category ATHN              # OWASP WSTG tests
+${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --cwe CWE-89 --mitigations      # CWE-specific mitigations
+${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --control authentication         # Security control details
+${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --asvs-level L2                  # ASVS requirements
+${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --asvs-chapter V4                # ASVS by chapter
+${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --wstg-category ATHN              # OWASP WSTG tests
 ```
 
 ### KB Mitigation Sources (MANDATORY per GAP-4 Contract)

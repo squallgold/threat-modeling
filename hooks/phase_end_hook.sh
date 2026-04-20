@@ -138,12 +138,14 @@ fi
 # 1. Script in same skill directory (../scripts/phase_data.py relative to hooks/)
 # 2. Script in project's .claude/skills/threat-modeling/scripts/
 # 3. Script in ~/.claude/skills/threat-modeling/scripts/
+# 4. Script in ~/.codex/skills/threat-modeling/scripts/ (Codex CLI)
 
 find_phase_data_script() {
     local locations=(
         "${SCRIPT_DIR}/../scripts/phase_data.py"
         "${PROJECT_ROOT}/.claude/skills/threat-modeling/scripts/phase_data.py"
         "${HOME}/.claude/skills/threat-modeling/scripts/phase_data.py"
+        "${HOME}/.codex/skills/threat-modeling/scripts/phase_data.py"
     )
 
     for loc in "${locations[@]}"; do

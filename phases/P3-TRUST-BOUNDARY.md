@@ -61,8 +61,8 @@ Identify all trust boundaries, evaluate security controls for cross-boundary flo
 **Step 1: Read Upstream Data** (BLOCKING - MUST execute)
 ```bash
 # Read P2 YAML data
-python scripts/phase_data.py --query --phase 2 --summary --root .
-python scripts/phase_data.py --query --phase 2 --type dfd --root .
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --query --phase 2 --summary --root .
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --query --phase 2 --type dfd --root .
 
 # Or read directly
 cat .phase_working/{SESSION_ID}/data/P2_dfd_elements.yaml
@@ -181,13 +181,13 @@ Phase 3 CANNOT complete until:
 
 ```bash
 # Step 1: Get P2 summary for DFD overview
-python scripts/phase_data.py --query --phase 2 --summary --root .
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --query --phase 2 --summary --root .
 
 # Step 2: Get detailed DFD elements (REQUIRED for boundary mapping)
-python scripts/phase_data.py --query --phase 2 --type dfd --root .
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --query --phase 2 --type dfd --root .
 
 # Step 3: Get data flows (REQUIRED for cross-boundary analysis)
-python scripts/phase_data.py --query --phase 2 --type flows --root .
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --query --phase 2 --type flows --root .
 ```
 
 **Or read YAML directly**:

@@ -308,9 +308,9 @@ Synthesize all phase outputs into complete threat model documentation. Every fin
 
 **Query Commands**:
 ```bash
-$SKILL_PATH/kb --compliance nist-csf
-$SKILL_PATH/kb --compliance iso27001
-$SKILL_PATH/kb --asvs-level L2 --asvs-chapter V1
+${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --compliance nist-csf
+${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --compliance iso27001
+${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --asvs-level L2 --asvs-chapter V1
 ```
 
 ---

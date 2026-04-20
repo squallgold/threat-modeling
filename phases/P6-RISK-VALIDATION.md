@@ -66,10 +66,10 @@ Validate threat exploitability, design attack paths and POC, NOT mitigations
 **Step 1: Read ALL Upstream Data** (BLOCKING - MUST execute)
 ```bash
 # Aggregate all P1-P5 data
-python scripts/phase_data.py --aggregate --phases 1,2,3,4,5 --format summary --root .
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --aggregate --phases 1,2,3,4,5 --format summary --root .
 
 # Verify P5 threat count (Count Conservation baseline)
-python scripts/phase_data.py --verify-p5-coverage --root .
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --verify-p5-coverage --root .
 
 # Or read all directly
 cat .phase_working/{SESSION_ID}/data/P1_project_context.yaml
@@ -218,16 +218,16 @@ Phase 6 CANNOT complete until:
 
 ```bash
 # Step 1: Get aggregate summary from all phases
-python scripts/phase_data.py --aggregate --phases 1,2,3,4,5 --format summary --root .
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --aggregate --phases 1,2,3,4,5 --format summary --root .
 
 # Step 2: Get P5 threat inventory (PRIMARY input)
-python scripts/phase_data.py --query --phase 5 --type threats --root .
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --query --phase 5 --type threats --root .
 
 # Step 3: Get P4 security gaps for consolidated view
-python scripts/phase_data.py --query --phase 4 --type gaps --root .
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --query --phase 4 --type gaps --root .
 
 # Step 4: Verify P5 count for conservation formula
-python scripts/phase_data.py --verify-p5-coverage --root .
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --verify-p5-coverage --root .
 ```
 
 **Or read YAML directly**:
@@ -350,14 +350,14 @@ Consolidate ALL findings from P1-P5, perform deep validation from attacker's per
 **Query Commands**:
 ```bash
 # Attack path analysis
-$SKILL_PATH/kb --capec CAPEC-89 --attack-chain
-$SKILL_PATH/kb --attack-technique T1078
-$SKILL_PATH/kb --check-kev CVE-2024-XXXX
+${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --capec CAPEC-89 --attack-chain
+${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --attack-technique T1078
+${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --check-kev CVE-2024-XXXX
 
 # Verification tests
-$SKILL_PATH/kb --stride-tests S
-$SKILL_PATH/kb --cwe-tests CWE-89
-$SKILL_PATH/kb --wstg-category ATHN
+${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --stride-tests S
+${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --cwe-tests CWE-89
+${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --wstg-category ATHN
 ```
 
 ### KB Usage Logging (Recommended)

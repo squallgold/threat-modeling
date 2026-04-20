@@ -67,9 +67,9 @@ Apply STRIDE analysis to every DFD element, generate complete threat inventory
 **Step 1: Read Upstream Data** (BLOCKING - MUST execute)
 ```bash
 # Read P2/P3/P4 YAML data
-python scripts/phase_data.py --query --phase 2 --type dfd --root .
-python scripts/phase_data.py --query --phase 3 --summary --root .
-python scripts/phase_data.py --query --phase 4 --type gaps --root .
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --query --phase 2 --type dfd --root .
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --query --phase 3 --summary --root .
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --query --phase 4 --type gaps --root .
 
 # Or read directly
 cat .phase_working/{SESSION_ID}/data/P2_dfd_elements.yaml
@@ -128,9 +128,9 @@ Launch 4 `‖` sub-agents via `Task` tool (`subagent_type: "general-purpose"`, `
 
 **Key KB Queries**:
 ```bash
-$SKILL_PATH/kb --stride spoofing           # STRIDE category details
-$SKILL_PATH/kb --full-chain CWE-89         # Full chain: STRIDE→CWE→CAPEC→ATT&CK
-$SKILL_PATH/kb --cwe CWE-287               # Specific CWE details
+${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --stride spoofing           # STRIDE category details
+${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --full-chain CWE-89         # Full chain: STRIDE→CWE→CAPEC→ATT&CK
+${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --cwe CWE-287               # Specific CWE details
 ```
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -392,13 +392,13 @@ element_coverage_verification:
 
 ```bash
 # Step 1: Get P2 DFD elements (PRIMARY - REQUIRED for STRIDE)
-python scripts/phase_data.py --query --phase 2 --type dfd --root .
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --query --phase 2 --type dfd --root .
 
 # Step 2: Get P3 boundaries for severity amplification
-python scripts/phase_data.py --query --phase 3 --summary --root .
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --query --phase 3 --summary --root .
 
 # Step 3: Get P4 security gaps as threat triggers
-python scripts/phase_data.py --query --phase 4 --type gaps --root .
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --query --phase 4 --type gaps --root .
 ```
 
 **Or read YAML directly**:
@@ -432,12 +432,12 @@ Apply STRIDE method systematically to ALL DFD elements, generating a complete th
 
 **Query Commands**:
 ```bash
-$SKILL_PATH/kb --stride spoofing           # STRIDE category details
-$SKILL_PATH/kb --stride tampering
-$SKILL_PATH/kb --full-chain CWE-89         # Complete chain: STRIDE→CWE→CAPEC→ATT&CK
-$SKILL_PATH/kb --all-llm                   # LLM-specific threats
-$SKILL_PATH/kb --cwe CWE-287               # Specific CWE details
-$SKILL_PATH/kb --full-chain CWE-287        # Full chain: STRIDE→CWE→CAPEC→ATT&CK
+${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --stride spoofing           # STRIDE category details
+${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --stride tampering
+${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --full-chain CWE-89         # Complete chain: STRIDE→CWE→CAPEC→ATT&CK
+${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --all-llm                   # LLM-specific threats
+${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --cwe CWE-287               # Specific CWE details
+${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --full-chain CWE-287        # Full chain: STRIDE→CWE→CAPEC→ATT&CK
 ```
 
 ### KB Enrichment Log (MANDATORY per GAP-4 Contract)

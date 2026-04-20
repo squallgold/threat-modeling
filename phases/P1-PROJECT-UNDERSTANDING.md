@@ -103,12 +103,12 @@ ls ./Risk_Assessment_Report/.phase_working/ 2>/dev/null || echo "Will create"
 **Key Commands**:
 ```bash
 # P1.0 Three-layer discovery (path is positional argument, not --project-root)
-python $SKILL_PATH/scripts/module_discovery.py . --p1-discovery --output-yaml \
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/module_discovery.py . --p1-discovery --output-yaml \
   > .phase_working/{SESSION_ID}/data/P1_static_discovery.yaml
 # Note: "." means current project directory, can also use absolute path like /path/to/project
 
 # P1.5 Validation
-python $SKILL_PATH/scripts/phase_data.py --validate --phase 1 --root .
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --validate --phase 1 --root .
 ```
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -271,7 +271,7 @@ P1.5 (Script+LLM)    Validation & Coverage Confidence
 ```bash
 # NEW: Full three-layer P1 discovery with YAML output
 # Usage: module_discovery.py <path> [options]  (path is positional argument)
-python $SKILL_PATH/scripts/module_discovery.py . --p1-discovery --output-yaml \
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/module_discovery.py . --p1-discovery --output-yaml \
   > .phase_working/{SESSION_ID}/data/P1_static_discovery.yaml
 ```
 
@@ -279,7 +279,7 @@ python $SKILL_PATH/scripts/module_discovery.py . --p1-discovery --output-yaml \
 
 | Error | Cause | Recovery Action |
 |-------|-------|-----------------|
-| Script not found | Missing module_discovery.py | Use `$SKILL_PATH/scripts/module_discovery.py` with correct path |
+| Script not found | Missing module_discovery.py | Use `${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/module_discovery.py` with correct path |
 | Python error | Missing dependencies | Install: `pip install pyyaml` |
 | Empty output | No files found | Verify project path, check permissions |
 | Timeout | Large project | Add `--summary-only` flag, increase timeout |
@@ -310,7 +310,7 @@ The three-layer discovery produces:
 **Correct Pattern**:
 ```bash
 # Step 1: Run full P1 discovery (path is the first positional argument)
-python $SKILL_PATH/scripts/module_discovery.py . --p1-discovery --output-yaml \
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/module_discovery.py . --p1-discovery --output-yaml \
   > .phase_working/{SESSION_ID}/data/P1_static_discovery.yaml
 
 # Step 2: Check coverage confidence
@@ -662,7 +662,7 @@ For projects that don't fit standard patterns (SDK/libraries, data pipelines, ba
 ```bash
 # Skip if P1.0 layer3_dynamic_indicators.total_count == 0
 # Run only for deeper analysis of HIGH risk indicators
-python $SKILL_PATH/scripts/module_discovery.py . --detect-dynamic --pretty
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/module_discovery.py . --detect-dynamic --pretty
 ```
 
 ### Layer 3 Indicator Types
@@ -691,7 +691,7 @@ If `layer3_dynamic_indicators.total_count > 0`:
 **Run to validate alignment between discovery sources**:
 
 ```bash
-python $SKILL_PATH/scripts/phase_data.py --p1-source-alignment --root .
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --p1-source-alignment --root .
 ```
 
 ### Three Sources Compared
@@ -737,7 +737,7 @@ alignment_by_category:
 **Run after completing P1.4**:
 
 ```bash
-python $SKILL_PATH/scripts/phase_data.py --validate --phase 1 --root .
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --validate --phase 1 --root .
 ```
 
 **Validation Rules**:
