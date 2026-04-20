@@ -1,4 +1,4 @@
-<!-- Threat Modeling Skill | Version 3.1.0 (20260313a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.1.1 (20260420a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 # Phase 4: Security Design Review
 
@@ -858,7 +858,7 @@ For each domain:
 
 ```yaml
 # P4_security_gaps.yaml - Phase 4 Data Output
-schema_version: "3.1.0 (20260313a)"
+schema_version: "3.1.1 (20260420a)"
 phase: 4
 generated_at: "ISO8601 timestamp"
 
@@ -1090,7 +1090,7 @@ Before marking Phase 4 complete:
 
 **Data File Requirements**:
 - [ ] `.phase_working/{SESSION_ID}/data/P4_security_gaps.yaml` exists
-- [ ] YAML is valid with `schema_version: "3.1.0 (20260313a)"`
+- [ ] YAML is valid with `schema_version: "3.1.1 (20260420a)"`
 - [ ] `security_gaps.summary` contains all required statistics
 - [ ] `security_gaps.design_matrix` has all 16 domains
 - [ ] Each domain has `assessed`, `rating`, `gaps_count`, `risk_level`

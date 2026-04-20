@@ -1,4 +1,4 @@
-<!-- Threat Modeling Skill | Version 3.1.0 (20260313a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.1.1 (20260420a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 # Phase 8: Report Generation
 
@@ -227,7 +227,7 @@ Phase 8 CANNOT complete until:
 # P8_report_manifest.yaml Schema Definition
 session_id: "{SESSION_ID}"
 timestamp: "ISO8601"
-version: "3.1.0 (20260313a)"
+version: "3.1.1 (20260420a)"
 
 generation_summary:
   total_reports: 8
@@ -370,7 +370,7 @@ Create all 8 mandatory reports in `Risk_Assessment_Report/`
 # {PROJECT} Risk Assessment Report
 
 **Generated**: {timestamp}
-**Skill Version**: 3.1.0
+**Skill Version**: 3.1.1
 **Assessment Scope**: {project_path}
 
 ---

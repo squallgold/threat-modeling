@@ -1,8 +1,8 @@
-<!-- Threat Modeling Skill | Version 3.1.0 (20260313a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.1.1 (20260420a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 # WORKFLOW.md - Orchestration Contracts
 
-**Version**: 3.1.0 (20260313a)
+**Version**: 3.1.1 (20260420a)
 **Purpose**: Phase orchestration, **structured data contracts**, validation gates, **FSM-enforced execution**
 
 > **Cross-References**:
@@ -106,13 +106,13 @@ mkdir -p ".phase_working/${SESSION_ID}/reports"
 
 ```yaml
 # .phase_working/{SESSION_ID}/_session_meta.yaml
-schema_version: "3.1.0 (20260313a)"
+schema_version: "3.1.1 (20260420a)"
 session_id: "{PROJECT}_{YYYYMMDD_HHMMSS}"
 project_name: "PROJECT-NAME"
 project_path: "/absolute/path"
 started_at: "ISO8601"
 language: "en"                    # en|zh|ja|ko
-skill_version: "3.1.0 (20260313a)"
+skill_version: "3.1.1 (20260420a)"
 current_state: "P1"               # FSM current state
 
 phases:
@@ -245,7 +245,7 @@ Each phase (P2-P8) supports parallel sub-agent delegation via `Task` tool (`suba
 ### Common Header (All Phases)
 
 ```yaml
-schema_version: "3.1.0 (20260313a)"
+schema_version: "3.1.1 (20260420a)"
 phase: {N}
 generated_at: "ISO8601"
 input_ref: "P{N-1}_*.yaml"  # Traceability (except P1)

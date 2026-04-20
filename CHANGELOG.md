@@ -1,4 +1,4 @@
-<!-- Threat Modeling Skill | Version 3.1.0 (20260313a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.1.1 (20260420a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 # Changelog
 
@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Comprehensive Security Audit (60 fixes across 6 scripts)
 
 **phase_data.py** (30 fixes):
-- **P0 CRITICAL**: Schema version validator tolerance — `startswith()` instead of `==` to accept both bare `"3.1.0"` and date-suffixed `"3.1.0 (20260313a)"` formats
+- **P0 CRITICAL**: Schema version validator tolerance — `startswith()` instead of `==` to accept both bare `"3.1.0"` and date-suffixed `"3.1.1 (20260420a)"` formats
 - **HIGH (4)**: Regex DoS protection, deepcopy for YAML data isolation, data-first/markdown-first bridge with `dict.get("blocks", dict_itself)`, correct P5 coverage denominator
 - **HIGH-Robustness (4)**: P1 `None` guard, safe `.get()` for optional fields, FSM bounds check on phase numbers, zero-division guard in P2 percentages
 - **HIGH-Performance (7)**: Regex precompilation (22 patterns), knowledge path caching, glob caching for P8 reports, YAML safe_load verification, DFD element extraction optimization
