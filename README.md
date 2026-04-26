@@ -1,4 +1,4 @@
-<!-- Threat Modeling Skill | Version 3.1.1 (20260313a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.1.1 (20260420a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 # Threat Modeling Skill v3.1.1
 
@@ -6,12 +6,14 @@ AI-native automated software risk analysis skill. LLM-driven, Code-First approac
 
 ## What's New in v3.1.1
 
-- Comprehensive code quality audit and optimization to better align with current skill specifications
-- Significantly enhanced agent and skill security analysis and assessment capabilities
+- Add Claude Code / Codex and agentskills.io multi-agent platform compatibility
+- Dual-env path resolution (`${SKILL_PATH:-$CLAUDE_SKILL_DIR}`) across SKILL.md and all 9 phase files
+- New `agents/openai.yaml` for Codex CLI UI integration
+- Upgraded `skill_path.sh` with F-09 salted-directory defense and POSIX compliance
+- agentskills.io invariant compliance: 8/9 C-invariants pass (C5 code fences accepted risk)
+- Comprehensive code quality audit aligned with skill design principles
 - Full OWASP MCP Top 10 (2025) coverage with official MCP01:2025-MCP10:2025 alignment
-- SAO behavioral model (Subject-Action-Object) for systematic agent threat enumeration
-- 13 pre-built agent attack chains with MITRE ATT&CK technique sequences
-- Trust inversion model formalizing SKILL.MD = UNTRUSTED paradigm for agent security
+- SAO behavioral model and 13 pre-built agent attack chains with MITRE ATT&CK sequences
 
 See [CHANGELOG.md](CHANGELOG.md) for full version history.
 
