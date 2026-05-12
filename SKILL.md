@@ -15,18 +15,18 @@ description: |
   writing tests, CI/CD setup, or debugging errors.
 ---
 
-<!-- Threat Modeling Skill | Version 3.1.1 (20260420a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.2.0 (20260512a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 > **Note**: All relative paths in this skill are relative to `SKILL_PATH` / `CLAUDE_SKILL_DIR` (the directory containing this SKILL.md file). Use `${SKILL_PATH:-$CLAUDE_SKILL_DIR}` in Bash commands for cross-runtime compatibility.
 
-# Threat Modeling Skill v3.1.1 (20260420a)
+# Threat Modeling Skill v3.2.0 (20260512a)
 
 AI-native automated software risk analysis skill. LLM-driven, Code-First approach for comprehensive security risk assessment, threat modeling, security testing, penetration testing, and compliance checking.
 
 ## Version Banner
 
 ```
-━━━ 🛡️ Threat Modeling Skill v3.1.1 (20260420a) ━━━
+━━━ 🛡️ Threat Modeling Skill v3.2.0 (20260512a) ━━━
 ```
 
 ## Command Line Flags
@@ -115,8 +115,8 @@ FOR each phase N in [1..8]:
     3. Execute analysis per phase instructions
     4. Write: .phase_working/{SESSION_ID}/data/P{N}_*.yaml (PRIMARY output)
     5. Write: .phase_working/{SESSION_ID}/reports/P{N}-*.md (SECONDARY output)
-    6. Hook validates YAML file
-    7. IF exit != 0: Fix YAML and rewrite
+    6. Validate: python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --phase-end --phase N --root .
+    7. IF exit != 0: Fix YAML and rewrite, re-run --phase-end
     8. IF exit == 0: Update session meta, continue to N+1
 ```
 
@@ -236,13 +236,13 @@ FOR each phase N in [1..8]:
 
 ```yaml
 # .phase_working/{SESSION_ID}/_session_meta.yaml
-schema_version: "3.1.1 (20260420a)"
+schema_version: "3.2.0 (20260512a)"
 session_id: "OPEN-WEBUI_20260130_143022"  # {PROJECT}_{YYYYMMDD_HHMMSS}
 project_name: "OPEN-WEBUI"
 project_path: "/path/to/project"
 started_at: "ISO8601 timestamp"
 language: "en"
-skill_version: "3.1.1 (20260420a)"
+skill_version: "3.2.0 (20260512a)"
 
 phases:
   P1:
@@ -427,7 +427,7 @@ Per Phase:
   1. Read @phases/P{N}-*.md
   2. Execute phase instructions
   3. Write to .phase_working/{SESSION_ID}/reports/P{N}-*.md
-  4. Hook validates and extracts data
+  4. Run: python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --phase-end --phase N --root .
 
 Post-P8 (Optional):
   1. If --detailed flag OR user confirms: Load @phases/P8R-DETAILED-REPORT.md
@@ -500,7 +500,7 @@ Post-P8 (Optional):
 ∀ Phase N ∈ [1..8]:
   - Input: P{N-1}_*.yaml (except P1)
   - Output: P{N}_*.yaml (PRIMARY) + P{N}-*.md (SECONDARY)
-  - Gate: Hook validation must return exit 0
+  - Gate: phase_data.py --phase-end must return exit 0
   - Transition: Only proceed to N+1 after gate passes
 ```
 

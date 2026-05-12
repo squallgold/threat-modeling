@@ -1,4 +1,4 @@
-<!-- Threat Modeling Skill | Version 3.1.1 (20260420a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.2.0 (20260512a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 # Phase 4: Security Design Review
 
@@ -147,7 +147,7 @@ Launch 7 `‖` sub-agents via `Task` tool (`subagent_type: "general-purpose"`, `
 | Every Gap has unique ID (GAP-xxx)? | [✅/❌] |
 | coverage_verification shows 100% coverage? | [✅/❌] |
 | input_ref field points to P3_boundary_context.yaml? | [✅/❌] |
-| Hook validation passed (exit 0)? | [✅/❌] |
+| `--phase-end` validation passed (exit 0)? | [✅/❌] |
 
 ⛔ COMPLETION GATE
 - All checks passed? [YES/NO]
@@ -858,7 +858,7 @@ For each domain:
 
 ```yaml
 # P4_security_gaps.yaml - Phase 4 Data Output
-schema_version: "3.1.1 (20260420a)"
+schema_version: "3.2.0 (20260512a)"
 phase: 4
 generated_at: "ISO8601 timestamp"
 
@@ -1084,13 +1084,29 @@ security_gaps:
 
 ---
 
+## Tool-Assisted Security Analysis (Optional)
+
+For automated vulnerability scanning, supplement manual domain review with static analysis tools. Load `@references/tool-integration-guide.md` for full catalog.
+
+**CodeQL security scan**:
+- `luoshu_auto_codeql(languages=["python"], repo="<target>")` — one-shot security analysis imported into Luoshu
+- Or: `codeql_database_analyze(database="<db>", suite="python-security-extended")` → SARIF findings
+
+**Code quality hotspots** (focus review effort):
+- `find_most_complex_functions(top_n=20)` — highest cyclomatic complexity
+- `find_dead_code(repo_path="<target>")` — unreachable code (potential maintenance risk)
+
+**Integration**: SARIF findings map to security gaps (GAP-NNN). Each SARIF rule ↔ CWE ↔ existing threat-modeling KB chain. Tool findings supplement (not replace) manual 16-domain review.
+
+---
+
 ## Completion Checklist
 
 Before marking Phase 4 complete:
 
 **Data File Requirements**:
 - [ ] `.phase_working/{SESSION_ID}/data/P4_security_gaps.yaml` exists
-- [ ] YAML is valid with `schema_version: "3.1.1 (20260420a)"`
+- [ ] YAML is valid with `schema_version: "3.2.0 (20260512a)"`
 - [ ] `security_gaps.summary` contains all required statistics
 - [ ] `security_gaps.design_matrix` has all 16 domains
 - [ ] Each domain has `assessed`, `rating`, `gaps_count`, `risk_level`
@@ -1112,7 +1128,7 @@ Before marking Phase 4 complete:
 - [ ] Domain details section
 
 **Validation**:
-- [ ] Hook validation passed (exit 0)
+- [ ] `--phase-end` validation passed (exit 0)
 - [ ] Count conservation: summary.total_gaps == len(gaps[])
 
 ---

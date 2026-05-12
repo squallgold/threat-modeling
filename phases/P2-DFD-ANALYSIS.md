@@ -1,4 +1,4 @@
-<!-- Threat Modeling Skill | Version 3.1.1 (20260420a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.2.0 (20260512a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 # Phase 2: Call Flow & DFD Analysis
 
@@ -117,10 +117,10 @@ Launch `‖` sub-agents via `Task` tool (`subagent_type: "general-purpose"`, `mo
 **Key Commands**:
 ```bash
 # P2.0 Task extraction
-python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --p2-extract-tasks --root .
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --p2-extract-tasks --root .
 
 # P2.T.3 Coverage validation
-python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --p2-validate-coverage --root .
+python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --p2-validate-coverage --root .
 ```
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -143,7 +143,7 @@ python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/${SKILL_PATH:-$CLAUDE_SKILL_DIR}
 | data_flows.coverage_percentage == 100? | [✅/❌] |
 | call_chains.coverage_percentage >= 95? | [✅/❌] |
 | data_stores.coverage_percentage == 100? | [✅/❌] |
-| Hook validation passed (exit 0)? | [✅/❌] |
+| `--phase-end` validation passed (exit 0)? | [✅/❌] |
 
 ⛔ COMPLETION GATE
 - All checks passed? [YES/NO]
@@ -319,7 +319,7 @@ P2 uses a two-track analysis approach:
 **Output**: `P2_traversal_tasks.yaml`
 
 ```yaml:P2_traversal_tasks
-schema_version: "3.1.1 (20260420a)"
+schema_version: "3.2.0 (20260512a)"
 session_id: "OPEN-WEBUI-20260130_143022"
 generated_at: "2026-01-30T14:30:22Z"
 
@@ -411,7 +411,7 @@ Output required:
 > **ID Numbering Convention**: Sub-agents use offset sequences (100+, 200+, etc.) to avoid ID conflicts during parallel analysis. The merge step (P2.T.2) normalizes all IDs to standard `{Entity}-{Seq:03d}` format.
 
 ```yaml:P2_traverse_001
-schema_version: "3.1.1 (20260420a)"
+schema_version: "3.2.0 (20260512a)"
 task_id: TT-001
 target_id: M-001
 analyzed_at: "2026-01-30T14:35:00Z"
@@ -455,7 +455,7 @@ coverage_metrics:
 **Output**: `P2_full_traversal.yaml`
 
 ```yaml:P2_full_traversal
-schema_version: "3.1.1 (20260420a)"
+schema_version: "3.2.0 (20260512a)"
 session_id: "OPEN-WEBUI-20260130_143022"
 merged_at: "2026-01-30T15:00:00Z"
 
@@ -505,7 +505,7 @@ else:
 **Output**: `P2_coverage_report.yaml`
 
 ```yaml:P2_coverage_report
-schema_version: "3.1.1 (20260420a)"
+schema_version: "3.2.0 (20260512a)"
 session_id: "OPEN-WEBUI-20260130_143022"
 validated_at: "2026-01-30T15:10:00Z"
 
@@ -565,7 +565,7 @@ validation_result:
 | `unknown` | Unknown root cause | High | Manual investigation required |
 
 ```yaml:P2_gap_tasks
-schema_version: "3.1.1 (20260420a)"
+schema_version: "3.2.0 (20260512a)"
 analyzed_at: "2026-01-30T15:15:00Z"
 
 gaps_identified:
@@ -1250,10 +1250,34 @@ summary:
 - `unencrypted_flow`: Data transmitted without encryption
 - `checkpoint_gap`: Missing security checkpoint in call flow
 
+## Tool-Assisted DFD Construction (Optional)
+
+For large or complex systems, supplement manual DFD construction with code analysis tools. Load `@references/complex-system-analysis.md` for detailed use cases.
+
+**DFD candidate generation**:
+- `luoshu_query_dfd(repo="<target>")` — auto-detect components, data stores, external entities
+- `luoshu_query_dfd(component="<name>")` — filter DFD to a specific component boundary
+
+**Data flow tracing**:
+- `luoshu_query_flow(symbol="<func>", graph_kind="dfg")` — intraprocedural data flow graph
+- `luoshu_query_chain(symbol="<func>", edge_kind="CALLS", direction="outbound", max_depth=5)` — trace data sinks
+- For cross-function taint: Joern REPL `snk.reachableByFlows(src).l` via Bash
+
+**Call flow mapping**:
+- `luoshu_query_calls(symbol="<func>")` — direct callers/callees
+- `luoshu_query_chain(symbol="<func>", edge_kind="CALLS", max_depth=3)` — transitive call chain
+
+**Diagram export**:
+- `luoshu_export(format="mermaid", symbol="<func>", graph_kind="cfg")` — Mermaid CFG diagram
+
+**Integration**: DFD candidates from `luoshu_query_dfd` map to P2 elements (processes, data stores, external entities). Each taint path = one data flow (DF-NNN). Review tool output before trusting — results are inferred, not verified.
+
+---
+
 ## Appendix: Mermaid Source
 [Mermaid code]
 ```
 
 ---
 
-**End of Phase 2 Instructions** (~1260 lines, ~10K tokens)
+**End of Phase 2 Instructions** (~1290 lines, ~10K tokens)

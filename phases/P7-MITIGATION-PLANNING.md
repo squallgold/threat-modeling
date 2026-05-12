@@ -1,4 +1,4 @@
-<!-- Threat Modeling Skill | Version 3.1.1 (20260420a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.2.0 (20260512a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 # Phase 7: Mitigation Planning
 
@@ -155,7 +155,7 @@ ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --asvs-level L2                  # ASVS requ
 | implementation_steps contain specific code? | [✅/❌] |
 | roadmap (immediate/short/medium/long) defined? | [✅/❌] |
 | ASVS/WSTG references provided? | [✅/❌] |
-| Hook validation passed (exit 0)? | [✅/❌] |
+| `--phase-end` validation passed (exit 0)? | [✅/❌] |
 
 ⛔ COMPLETION GATE
 - All checks passed? [YES/NO]

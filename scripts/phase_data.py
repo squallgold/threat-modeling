@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Threat Modeling Skill | Version 3.1.1 (20260420a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause
+# Threat Modeling Skill | Version 3.2.0 (20260512a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause
 
 """
 Phase Data Manager for STRIDE Threat Modeling Workflow.
@@ -64,8 +64,8 @@ import yaml
 # Configuration
 # ============================================================================
 
-SCHEMA_VERSION = "3.1.1"
-SESSION_SCHEMA_VERSION = "3.1.1"  # Version for session management
+SCHEMA_VERSION = "3.2.0"
+SESSION_SCHEMA_VERSION = "3.2.0"  # Version for session management
 
 # Standard YAML block names per phase (from WORKFLOW.md v2.2.2)
 # NOTE: l1_coverage is EMBEDDED inside data_flows block, not extracted separately

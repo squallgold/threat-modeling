@@ -1,4 +1,4 @@
-<!-- Threat Modeling Skill | Version 3.1.1 (20260420a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.2.0 (20260512a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 # Phase 8: Report Generation
 
@@ -159,7 +159,7 @@ Launch 4 `‖` sub-agent groups via `Task` tool (`subagent_type: "general-purpos
 | Main report §6 contains complete attack chain diagrams? | [✅/❌] |
 | Main report §8 contains complete P7 mitigation code? | [✅/❌] |
 | Phase reports copied to report directory? | [✅/❌] |
-| Hook validation passed (exit 0)? | [✅/❌] |
+| `--phase-end` validation passed (exit 0)? | [✅/❌] |
 
 ⛔ COMPLETION GATE
 - All checks passed? [YES/NO]
@@ -227,7 +227,7 @@ Phase 8 CANNOT complete until:
 # P8_report_manifest.yaml Schema Definition
 session_id: "{SESSION_ID}"
 timestamp: "ISO8601"
-version: "3.1.1 (20260420a)"
+version: "3.2.0 (20260512a)"
 
 generation_summary:
   total_reports: 8
@@ -370,7 +370,7 @@ Create all 8 mandatory reports in `Risk_Assessment_Report/`
 # {PROJECT} Risk Assessment Report
 
 **Generated**: {timestamp}
-**Skill Version**: 3.1.1
+**Skill Version**: 3.2.0
 **Assessment Scope**: {project_path}
 
 ---
@@ -952,6 +952,14 @@ Report generation complete. Generate detailed per-risk analysis reports? [Y/N]
 If user confirms (or `--detailed` flag was set):
 - Read `@phases/P8R-DETAILED-REPORT.md` for instructions
 - Generate per-VR detailed reports in `Risk_Assessment_Report/detailed/`
+
+---
+
+## Tool-Assisted Report Enhancement (Optional)
+
+**Architecture diagrams**: Use `luoshu_export(format="mermaid")` to generate Mermaid diagrams for inclusion in ARCHITECTURE-ANALYSIS report and DFD-DIAGRAM report.
+
+**Binary call graphs**: For reports on binary targets, use `gen_callgraph(binary_name="<bin>", function_name="<entry>")` to generate MermaidJS attack path diagrams for ATTACK-PATH-VALIDATION report.
 
 ---
 

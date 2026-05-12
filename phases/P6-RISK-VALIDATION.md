@@ -1,4 +1,4 @@
-<!-- Threat Modeling Skill | Version 3.1.1 (20260420a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.2.0 (20260512a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 # Phase 6: Risk Validation
 
@@ -154,7 +154,7 @@ P5.threat_inventory.total = verified + theoretical + pending + excluded
 | All excluded_findings have documented reasons? | [✅/❌] |
 | Critical/High VR-xxx have POC-xxx details? | [✅/❌] |
 | attack_chains exists with ASCII diagrams? | [✅/❌] |
-| Hook validation passed (exit 0)? | [✅/❌] |
+| `--phase-end` validation passed (exit 0)? | [✅/❌] |
 
 ⛔ COMPLETION GATE
 - All checks passed? [YES/NO]
@@ -254,7 +254,7 @@ Do NOT validate risks from memory. MUST read P5 threat data to verify counts!
 ```yaml
 # Required section in P6_validated_risks.yaml
 input_aggregation:
-  schema_version: "3.1.1 (20260420a)"
+  schema_version: "3.2.0 (20260512a)"
   aggregated_at: "2026-01-31T12:00:00Z"
 
   # Source file checksums for integrity verification
@@ -1081,6 +1081,36 @@ poc_to_testcase_mapping:
 | ASCII diagrams in attack chains | WARNING |
 | Attack trees for complex risk clusters | INFO |
 | SAST evidence for injection threats | INFO |
+
+---
+
+## Tool-Assisted Risk Validation (Optional)
+
+For deep attack path verification and POC design, use code analysis and reverse engineering tools. Load `@references/tool-integration-guide.md` for full catalog, `@references/binary-analysis.md` for binary targets.
+
+**Attack path call chain verification**:
+- `luoshu_query_chain(symbol="<entry_point>", edge_kind="CALLS", direction="outbound", max_depth=5)` — verify the attack path from entry to vulnerable sink
+- `luoshu_query_chain(symbol="<vulnerable_func>", edge_kind="CALLS", direction="inbound", max_depth=5)` — map full attack surface (who calls the vulnerable code?)
+
+**Binary POC analysis** (when target includes compiled code):
+- `decompile_function(binary_name="<bin>", name_or_address="<func>", include_callees=true, include_xrefs=true)` — decompile for POC design
+- `gen_callgraph(binary_name="<bin>", function_name="<func>")` — attack path visualization as Mermaid
+- `search_code(binary_name="<bin>", query="buffer copy without bounds", search_mode="semantic")` — find vulnerable patterns
+- `list_xrefs(binary_name="<bin>", name_or_address=["malloc", "free", "strcpy", "system"])` — dangerous function usage
+
+**Memory vulnerability validation** (dynamic):
+```bash
+valgrind --xml=yes --xml-file=memcheck.xml --leak-check=full ./binary <poc_input>
+```
+
+**Cross-tool attack chain validation pattern**:
+1. P5 threat → identify entry point + vulnerable sink
+2. `luoshu_query_chain` → verify call path exists (static)
+3. Ghidra `decompile_function` → understand vulnerable function logic
+4. Joern `reachableByFlows` → confirm interprocedural data flow (taint)
+5. Valgrind/GDB → runtime confirmation (POC validation)
+
+**Integration**: Tool evidence strengthens VR validation. Mark VR with `validation_method: tool_assisted` and include specific tool + finding in the evidence chain.
 
 ---
 

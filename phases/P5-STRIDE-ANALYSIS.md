@@ -1,4 +1,4 @@
-<!-- Threat Modeling Skill | Version 3.1.1 (20260420a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.2.0 (20260512a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 # Phase 5: STRIDE Threat Analysis
 
@@ -156,7 +156,7 @@ ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/kb --cwe CWE-287               # Specific CWE d
 | kb_enrichment_log exists? | [✅/❌] |
 | All P0/P1 threats have CWE mapping? | [✅/❌] |
 | summary.total matches threats[] length? | [✅/❌] |
-| Hook validation passed (exit 0)? | [✅/❌] |
+| `--phase-end` validation passed (exit 0)? | [✅/❌] |
 
 ⛔ COMPLETION GATE
 - All checks passed? [YES/NO]
@@ -933,6 +933,24 @@ summary:
 | Threat count per element >= 2 | WARNING |
 | CWE mapping provided for each threat | WARNING |
 | Summary totals match threat list | BLOCKING |
+
+---
+
+## Tool-Assisted Threat Evidence (Optional)
+
+For C/C++ targets or complex data flows, supplement manual STRIDE analysis with automated tools. Load `@references/binary-analysis.md` for binary targets.
+
+**Automated CWE detection** (C/C++ via Joern):
+```bash
+joern-parse --language c <target>
+python -m luoshu.joern_queries.runner --cpg .luoshu/joern-work/cpg.bin --all
+```
+15 CWE checks: buffer overflow, use-after-free, command/SQL injection, format string, integer overflow, etc. Each CWE finding maps to STRIDE: buffer overflow → T/EoP, injection → T/ID, UAF → T/DoS.
+
+**Source-to-sink verification**:
+- `luoshu_query_chain(symbol="<entry>", edge_kind="CALLS", direction="outbound", max_depth=5)` — verify data flows from P2 reach the sinks claimed in threats
+
+**Integration**: Tool findings provide evidence for threat likelihood ratings. Mark threats with `kb_lookup: automated` and include tool + CWE ID in threat metadata.
 
 ---
 

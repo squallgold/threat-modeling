@@ -205,7 +205,7 @@ Risk_Assessment_Report/
 - Existing P1-P8 workflow unchanged
 - P8R is optional (only triggered by --detailed flag or user confirmation)
 - HTML output is additive (generated alongside existing .md reports)
-- No changes to PostToolUse hook behavior
+- No changes to phase-end validation behavior
 - No changes to phase_data.py validation logic
 
 ---

@@ -1,19 +1,20 @@
-<!-- Threat Modeling Skill | Version 3.1.1 (20260420a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.2.0 (20260512a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
-# Threat Modeling Skill v3.1.1
+# Threat Modeling Skill v3.2.0
 
 AI-native automated software risk analysis skill. LLM-driven, Code-First approach for comprehensive security risk assessment, threat modeling, security analysis, security audit, and penetration testing.
 
-## What's New in v3.1.1
+## What's New in v3.2.0
 
-- Add Claude Code / Codex and agentskills.io multi-agent platform compatibility
-- Dual-env path resolution (`${SKILL_PATH:-$CLAUDE_SKILL_DIR}`) across SKILL.md and all 9 phase files
-- New `agents/openai.yaml` for Codex CLI UI integration
-- Upgraded `skill_path.sh` with F-09 salted-directory defense and POSIX compliance
-- agentskills.io invariant compliance: 8/9 C-invariants pass (C5 code fences accepted risk)
-- Comprehensive code quality audit aligned with skill design principles
-- Full OWASP MCP Top 10 (2025) coverage with official MCP01:2025-MCP10:2025 alignment
-- SAO behavioral model and 13 pre-built agent attack chains with MITRE ATT&CK sequences
+- **Tool-assisted analysis**: Integrated Luoshu (14 MCP), Ghidra (18 MCP), CodeQL (65 MCP), Joern (15 CWE queries) for deep code and binary analysis
+- **Complex system support**: DFD auto-generation, CFG/DFG analysis, N-hop call chain tracing, semantic code search
+- **Binary reverse engineering**: Ghidra decompilation, radare2 recon, call graphs and cross-references
+- **Automated vulnerability detection**: Joern CWE queries for C/C++, CodeQL security suites
+- **Attack chain verification**: Luoshu call chains + Ghidra decompilation + Joern taint analysis
+- **Explicit phase validation**: Replaced hook-based validation with portable `--phase-end` calls
+- **Tool capabilities matrix**: New `knowledge/tool-capabilities.yaml` for runtime tool discovery
+- 3 new reference documents in `references/` for on-demand tool guidance
+- agentskills.io multi-agent platform compatibility (Claude Code, Codex CLI, IDE extensions)
 
 See [CHANGELOG.md](CHANGELOG.md) for full version history.
 
@@ -34,10 +35,6 @@ See [CHANGELOG.md](CHANGELOG.md) for full version history.
 # Clone to global skills directory
 git clone https://github.com/fr33d3m0n/threat-modeling.git \
     ~/.claude/skills/threat-modeling
-
-# Enable hooks (optional, for automatic validation)
-cp ~/.claude/skills/threat-modeling/hooks/settings-example.json \
-   ~/.claude/settings.json
 ```
 
 ### Option 2: Project-Local Installation

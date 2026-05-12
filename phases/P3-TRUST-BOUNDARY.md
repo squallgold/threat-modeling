@@ -1,4 +1,4 @@
-<!-- Threat Modeling Skill | Version 3.1.1 (20260420a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.2.0 (20260512a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 # Phase 3: Trust Boundary Evaluation
 
@@ -132,7 +132,7 @@ Launch `‖` sub-agents via `Task` tool (`subagent_type: "general-purpose"`, `mo
 | All cross-boundary flows have security control records? | [✅/❌] |
 | Boundary diagram (ASCII) included? | [✅/❌] |
 | boundary_findings exists (even if empty)? | [✅/❌] |
-| Hook validation passed (exit 0)? | [✅/❌] |
+| `--phase-end` validation passed (exit 0)? | [✅/❌] |
 
 ⛔ COMPLETION GATE
 - All checks passed? [YES/NO]

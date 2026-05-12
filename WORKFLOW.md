@@ -1,8 +1,8 @@
-<!-- Threat Modeling Skill | Version 3.1.1 (20260420a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.2.0 (20260512a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 # WORKFLOW.md - Orchestration Contracts
 
-**Version**: 3.1.1 (20260420a)
+**Version**: 3.2.0 (20260512a)
 **Purpose**: Phase orchestration, **structured data contracts**, validation gates, **FSM-enforced execution**
 
 > **Cross-References**:
@@ -106,13 +106,13 @@ mkdir -p ".phase_working/${SESSION_ID}/reports"
 
 ```yaml
 # .phase_working/{SESSION_ID}/_session_meta.yaml
-schema_version: "3.1.1 (20260420a)"
+schema_version: "3.2.0 (20260512a)"
 session_id: "{PROJECT}_{YYYYMMDD_HHMMSS}"
 project_name: "PROJECT-NAME"
 project_path: "/absolute/path"
 started_at: "ISO8601"
 language: "en"                    # en|zh|ja|ko
-skill_version: "3.1.1 (20260420a)"
+skill_version: "3.2.0 (20260512a)"
 current_state: "P1"               # FSM current state
 
 phases:
@@ -181,7 +181,7 @@ FOR each phase N in [1..8]:
   3. Execute 4-Gate: ENTRY → THINKING → PLANNING → EXECUTING → REFLECTING → EXIT
   4. Write: data/P{N}_*.yaml (PRIMARY)
   5. Write: reports/P{N}-*.md (SECONDARY)
-  6. PostToolUse hook validates YAML
+  6. Validate: python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --phase-end --phase N --root .
   7. IF exit_code == 0: δ(P{N}, p{n}_complete) → P{N+1}
   8. IF exit_code != 0: δ(P{N}, validation_fail) → ERROR, then fix and retry
 
@@ -245,7 +245,7 @@ Each phase (P2-P8) supports parallel sub-agent delegation via `Task` tool (`suba
 ### Common Header (All Phases)
 
 ```yaml
-schema_version: "3.1.1 (20260420a)"
+schema_version: "3.2.0 (20260512a)"
 phase: {N}
 generated_at: "ISO8601"
 input_ref: "P{N-1}_*.yaml"  # Traceability (except P1)

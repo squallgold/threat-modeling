@@ -1,4 +1,4 @@
-<!-- Threat Modeling Skill | Version 3.1.1 (20260420a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
+<!-- Threat Modeling Skill | Version 3.2.0 (20260512a) | https://github.com/fr33d3m0n/threat-modeling | License: BSD-3-Clause -->
 
 # Phase 1: Project Understanding
 
@@ -129,7 +129,7 @@ python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --validate --phase
 | Every module has security_level assigned? | [✅/❌] |
 | Every entry point has unique ID (EP-xxx format)? | [✅/❌] |
 | coverage_confidence.overall_confidence ≥ 0.70? | [✅/❌] |
-| Hook validation passed (exit 0)? | [✅/❌] |
+| `--phase-end` validation passed (exit 0)? | [✅/❌] |
 
 ⛔ COMPLETION GATE
 - All checks passed? [YES/NO]
@@ -439,7 +439,7 @@ When enhanced tools successfully execute:
 **Output**: `yaml:doc_analysis`
 
 ```yaml:doc_analysis
-schema_version: "3.1.1 (20260420a)"
+schema_version: "3.2.0 (20260512a)"
 phase: 1
 sub_phase: "P1.1"
 analyzed_at: "ISO8601"
@@ -717,7 +717,7 @@ python ${SKILL_PATH:-$CLAUDE_SKILL_DIR}/scripts/phase_data.py --p1-source-alignm
 ### Output: P1_source_alignment.yaml
 
 ```yaml
-schema_version: "3.1.1 (20260420a)"
+schema_version: "3.2.0 (20260512a)"
 overall_alignment_score: 0.82
 alignment_by_category:
   entry_points:
@@ -906,6 +906,29 @@ has_uncertainty: true
 recommendation: "MEDIUM_CONFIDENCE_REVIEW_RECOMMENDED"
 ```
 ```
+
+---
+
+## Tool-Assisted Discovery (Optional)
+
+When the target project is large (>100 files) or has complex architecture, supplement `module_discovery.py` with code analysis tools. Load `@references/tool-integration-guide.md` for full tool catalog.
+
+**Pre-requisite**: Index the target repo first:
+```bash
+luoshu_status(repo="<target>")                    # Check if indexed
+luoshu_index(repo="<target>", languages=["python"], parallel=4)  # Index if needed
+```
+
+**Architecture discovery**:
+- `luoshu_query_dfd(repo="<target>")` — system-level DFD candidates (processes, stores, external entities)
+- `luoshu_query_chain(symbol="<main>", edge_kind="IMPORTS", max_depth=2)` — module dependency tree
+- `luoshu_diagnose(symbol="<critical_func>")` — full diagnostic on key entry points
+
+**Binary targets** (when source is unavailable): Load `@references/binary-analysis.md`:
+- `luoshu_auto_binary(binary="<path>")` — fast binary recon into knowledge graph
+- `import_binary(binary_path="<path>")` + `list_exports()` — Ghidra MCP for detailed analysis
+
+**Integration**: Tool-discovered modules supplement `module_discovery.py` output. Cross-reference both sources for completeness before finalizing M-NNN inventory.
 
 ---
 

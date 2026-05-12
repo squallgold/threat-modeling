@@ -41,7 +41,7 @@
 - Session lifecycle management
 - Phase execution protocol (FSM definition)
 - Phase-to-phase data contracts (I/O Schema)
-- Validation gate rules and Hook integration
+- Validation gate rules and phase-end protocol
 - STRIDE matrix mapping
 - Error recovery and rollback strategies
 - Final report output specifications
